@@ -2,6 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { Database } from "../../../database.types";
 
+/**
+ * 서버 사이드에서 사용될 Supabase 클라이언트 인스턴스를 만듭니다.
+ *
+ * @returns {Promise<ReturnType<typeof createServerClient>>} Supabase 클라이언트 인스턴스
+ */
+
 export async function createClient() {
   const cookieStore = await cookies();
 
@@ -19,7 +25,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch (err) {
-            console.warn("Failed to set cookies in Server Component:", err);
+            console.warn("Failed to set cookies in server context:", err);
           }
         },
       },

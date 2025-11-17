@@ -3,7 +3,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { Database } from "../../../database.types";
 
-export async function updateSession(request: NextRequest) {
+/**
+ * 인증 토큰 재발급 및 쿠키 동기화를 거쳐 Supabase 세션을 업데이트합니다.
+ *
+ * @param {NextRequest} request - incoming Next.js 요청 객체
+ * @returns {Promise<NextResponse>} 세션 리프레시 후 업데이트된 쿠키가 담긴 객체
+ */
+
+export async function updateSession(
+  request: NextRequest
+): Promise<NextResponse> {
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -17,7 +26,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({

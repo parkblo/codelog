@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="kr" className="dark">
       <body className={`${pretendard.variable} antialiased`}>
-        <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_250px]">
+        <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-6xl mx-auto">
           <aside className="hidden md:block">
             <Navigation />
           </aside>

@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="kr" className="dark">
+    <html lang="ko" className="dark">
       <body className={`${pretendard.variable} antialiased`}>
         <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-6xl mx-auto">
           <aside className="hidden md:block">

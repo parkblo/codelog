@@ -1,6 +1,8 @@
 import Post from "@/components/home/Post";
+import WelcomeCard from "@/components/home/WelcomeCard";
+import { getUserRepository } from "../../repositories";
 
-export default function HomePage() {
+export default async function HomePage() {
   /* NOTE- 실서버 사용 전에 사용될 목데이터 */
   const mockPosts = [
     {
@@ -123,8 +125,12 @@ fn calculate_length(s: &String) -> usize {
     },
   ];
 
+  const repository = getUserRepository();
+  const currentUser = await repository.getCurrentUser();
+
   return (
     <div className="p-4 space-y-4">
+      {!currentUser && <WelcomeCard />}
       {mockPosts.map((post) => (
         <Post key={post.id} post={post} />
       ))}

@@ -1,6 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import AuthDialog from "./AuthDialog";
 
 export default function WelcomeCard() {
   return (
@@ -20,8 +21,16 @@ export default function WelcomeCard() {
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <Button variant="default">회원가입</Button>
-            <Button variant="outline">로그인</Button>
+            <AuthDialog signUp={true}>
+              <Button className="w-full" variant="default">
+                회원가입
+              </Button>
+            </AuthDialog>
+            <AuthDialog signUp={false}>
+              <Button className="w-full" variant="outline">
+                로그인
+              </Button>
+            </AuthDialog>
           </div>
         </div>
       </CardContent>

@@ -1,5 +1,7 @@
 "use client";
 
+import { createClient } from "@/utils/supabase/client";
+
 import { Github, Mail } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -25,6 +27,11 @@ export default function AuthDialog({
   signUp = false,
 }: AuthDialogProps) {
   const [isSignUp, setSignUp] = useState(signUp);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [loading, setLoading] = useState(false);
 
   /*
     NOTE-
@@ -33,7 +40,83 @@ export default function AuthDialog({
   */
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setTimeout(() => setSignUp(signUp), 300);
+      setTimeout(() => {
+        setSignUp(signUp);
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setNickname("");
+      }, 300);
+    }
+  };
+
+  const handleGitHubLogin = async () => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleEmailLogin = async () => {
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      // 로그인 성공 시 페이지 리로드 또는 상태 업데이트
+      window.location.reload();
+    }
+  };
+
+  const handleEmailSignUp = async () => {
+    if (!email || !password || !confirmPassword || !nickname) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          user_name: email,
+          full_name: nickname,
+          avatar_url: "",
+        },
+      },
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("이메일에 가입 확인 메시지를 보냈습니다.");
+      setSignUp(false);
     }
   };
 
@@ -52,7 +135,7 @@ export default function AuthDialog({
         <DialogHeader>
           <DialogTitle>{isSignUp ? "회원가입" : "로그인"}</DialogTitle>
         </DialogHeader>
-        <Button>
+        <Button onClick={handleGitHubLogin} disabled={loading}>
           <Github /> {isSignUp ? "GitHub로 가입" : "GitHub로 로그인"}
         </Button>
         <div className="relative mt-2 mb-2">
@@ -63,14 +146,29 @@ export default function AuthDialog({
             <span className="text-sm text-muted-foreground">또는</span>
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
           <Label htmlFor="email">이메일</Label>
-          <Input id="email" type="email" placeholder="name@example.com" />
+          <Input 
+            id="email" 
+            type="email" 
+            placeholder="name@example.com" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
+
         <div className="flex flex-col gap-2">
           <Label htmlFor="password">비밀번호</Label>
-          <Input id="password" type="password" placeholder="••••••••" />
+          <Input 
+            id="password" 
+            type="password" 
+            placeholder="••••••••" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
+
         {isSignUp && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="confirmPassword">비밀번호 확인</Label>
@@ -78,11 +176,29 @@ export default function AuthDialog({
               id="confirmPassword"
               type="password"
               placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
         )}
 
-        <Button variant="outline">
+                {isSignUp && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="nickname">닉네임</Label>
+            <Input 
+              id="nickname" 
+              placeholder="홍길동" 
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+            />
+          </div>
+        )}
+
+        <Button 
+          variant="outline" 
+          onClick={isSignUp ? handleEmailSignUp : handleEmailLogin}
+          disabled={loading}
+        >
           <Mail /> {isSignUp ? "이메일로 가입" : "이메일로 로그인"}
         </Button>
         <div className="flex justify-center items-center">

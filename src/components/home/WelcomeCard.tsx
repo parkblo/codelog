@@ -1,9 +1,18 @@
+"use client";
+
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import AuthDialog from "./AuthDialog";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function WelcomeCard() {
+  const { user, loading } = useAuth();
+
+  if (loading || user) {
+    return null;
+  }
+
   return (
     <Card className="bg-linear-to-br from-blue-600/10 via-purple-600/10 to-pink-600/10 border border-blue-400/20">
       <CardContent>

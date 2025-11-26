@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
+import { ClientAuthService } from "@/services/auth/client-auth.service";
 
 import { Github, Mail } from "lucide-react";
 import { Button } from "../ui/button";
@@ -50,13 +50,11 @@ export default function AuthDialog({
     }
   };
 
+  const authService = new ClientAuthService();
+
   const handleGitHubLogin = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-      },
+    const { error } = await authService.signInWithOAuth("github", {
+      redirectTo: `${location.origin}/auth/callback`,
     });
 
     if (error) {
@@ -71,8 +69,7 @@ export default function AuthDialog({
     }
 
     setLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await authService.signInWithPassword({
       email,
       password,
     });
@@ -98,8 +95,7 @@ export default function AuthDialog({
     }
 
     setLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { error } = await authService.signUp({
       email,
       password,
       options: {

@@ -1,6 +1,6 @@
 import Post from "@/components/home/Post";
 import WelcomeCard from "@/components/home/WelcomeCard";
-import { getUserRepository } from "../../repositories";
+import { ServerAuthService } from "@/services/auth/server-auth.service";
 
 export default async function HomePage() {
   /* NOTE- 실서버 사용 전에 사용될 목데이터 */
@@ -125,8 +125,8 @@ fn calculate_length(s: &String) -> usize {
     },
   ];
 
-  const repository = getUserRepository();
-  const currentUser = await repository.getCurrentUser();
+  const authService = new ServerAuthService();
+  const currentUser = await authService.getCurrentUser();
 
   return (
     <div className="p-4 space-y-4">

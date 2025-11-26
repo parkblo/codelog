@@ -85,7 +85,12 @@ export default function AuthDialog({
 
   const handleEmailSignUp = async () => {
     if (!email || !password || !confirmPassword || !nickname) {
-      alert("모든 필드를 입력해주세요.");
+      alert("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("비밀번호는 6자 이상이어야 합니다.");
       return;
     }
 

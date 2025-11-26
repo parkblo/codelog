@@ -156,10 +156,11 @@ export default function AuthDialog({
             placeholder="name@example.com" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
         </div>
-
-        <div className="flex flex-col gap-2">
+        
+        {isSignUp ? (<div className="flex flex-col gap-2">
           <Label htmlFor="password">비밀번호</Label>
           <Input 
             id="password" 
@@ -167,8 +168,20 @@ export default function AuthDialog({
             placeholder="••••••••" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
           />
-        </div>
+        </div>) : (<div className="flex flex-col gap-2">
+          <Label htmlFor="password">비밀번호</Label>
+          <Input 
+            id="password" 
+            type="password" 
+            placeholder="••••••••" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+        </div>)}
+        
 
         {isSignUp && (
           <div className="flex flex-col gap-2">
@@ -179,6 +192,7 @@ export default function AuthDialog({
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
         )}
@@ -191,6 +205,7 @@ export default function AuthDialog({
               placeholder="닉네임" 
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
+              autoComplete="nickname"
             />
           </div>
         )}

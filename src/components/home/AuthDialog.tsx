@@ -14,7 +14,7 @@ import {
 import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface AuthDialogProps {
@@ -50,7 +50,7 @@ export default function AuthDialog({
     }
   };
 
-  const authService = new ClientAuthService();
+  const authService = useMemo(()=> new ClientAuthService(),[]);
 
   const handleGitHubLogin = async () => {
     const { error } = await authService.signInWithOAuth("github", {
@@ -188,7 +188,7 @@ export default function AuthDialog({
             <Label htmlFor="nickname">닉네임</Label>
             <Input 
               id="nickname" 
-              placeholder="홍길동" 
+              placeholder="닉네임" 
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />

@@ -2,8 +2,13 @@
 
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Card, CardContent } from "../ui/card";
+import { Card, CardContent, CardFooter } from "../ui/card";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Button } from "../ui/button";
+import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
+import { Separator } from "@radix-ui/react-separator";
+import { Badge } from "../ui/badge";
+import { TagList } from "../ui/tag-list";
 
 interface Author {
   nickname: string;
@@ -19,9 +24,9 @@ interface PostData {
   code: string;
   language: string;
   tags: string[];
-  likes: number;
-  comments: number;
-  bookmarks: number;
+  like_count: number;
+  comment_count: number;
+  bookmark_count: number;
 }
 
 interface PostProps {
@@ -85,6 +90,40 @@ export default function Post({ post }: PostProps) {
               {post.code}
             </SyntaxHighlighter>
           )}
+
+          {/* 태그 영역 */}
+          {post.tags && <TagList tags={post.tags} className="pb-2" />}
+
+          {/* 소셜 인터랙션 영역*/}
+          <div className="flex gap-4 border-t pt-2 justify-between">
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+            >
+              <Heart className="w-4 h-4" />
+              <span>{post.like_count}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>{post.comment_count}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+            >
+              <Bookmark className="w-4 h-4" />
+              <span>{post.bookmark_count}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+            >
+              <Share className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

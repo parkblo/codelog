@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
 import { TagList } from "../ui/tag-list";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface Author {
   nickname: string;
@@ -43,7 +44,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
   };
 
   return (
-    <Card onClick={handlePostClick} className="hover:cursor-pointer">
+    <Card>
       <CardContent>
         <div className="flex flex-col gap-2">
           {/* 작성자 정보 영역 */}
@@ -70,34 +71,42 @@ export default function Post({ post, fullPage = false }: PostProps) {
             </div>
           </div>
 
-          {/* 본문 영역 */}
-          {post.content && <p className="text-foreground">{post.content}</p>}
+          <div
+            onClick={handlePostClick}
+            className={cn(
+              "flex flex-col gap-2",
+              !fullPage && "hover:cursor-pointer"
+            )}
+          >
+            {/* 본문 영역 */}
+            {post.content && <p className="text-foreground">{post.content}</p>}
 
-          {/* 코드 영역 */}
-          {post.code && (
-            <SyntaxHighlighter
-              language={post.language}
-              style={vscDarkPlus}
-              className="rounded-md"
-              showLineNumbers={true}
-              lineNumberStyle={{ color: "oklch(43.9% 0 0)" }}
-              wrapLines={true}
-              lineProps={{
-                style: {
-                  display: "block",
+            {/* 코드 영역 */}
+            {post.code && (
+              <SyntaxHighlighter
+                language={post.language}
+                style={vscDarkPlus}
+                className="rounded-md"
+                showLineNumbers={true}
+                lineNumberStyle={{ color: "oklch(43.9% 0 0)" }}
+                wrapLines={true}
+                lineProps={{
+                  style: {
+                    display: "block",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  },
+                }}
+                customStyle={{
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
-                },
-              }}
-              customStyle={{
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-                overflowX: "auto",
-              }}
-            >
-              {post.code}
-            </SyntaxHighlighter>
-          )}
+                  overflowX: "auto",
+                }}
+              >
+                {post.code}
+              </SyntaxHighlighter>
+            )}
+          </div>
 
           {/* 태그 영역 */}
           {post.tags && <TagList tags={post.tags} className="pb-2" />}

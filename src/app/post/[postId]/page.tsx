@@ -52,7 +52,7 @@ flattened = [num for row in matrix for num in row]
       <div className="sticky flex gap-2 items-center w-full bg-background">
         <BackButton />
       </div>
-      <Post post={mockPost} />
+      <Post post={mockPost} fullPage />
       <CommentForm />
       <Comment comment={mockComment} />
     </div>

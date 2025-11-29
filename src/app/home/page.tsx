@@ -128,7 +128,7 @@ fn calculate_length(s: &String) -> usize {
     <div className="p-4 space-y-4">
       <WelcomeCard />
       {mockPosts.map((post) => (
-        <Post key={post.id} post={post} />
+        <Post key={post.id} post={post} fullPage={false} />
       ))}
     </div>
   );

@@ -2,6 +2,7 @@ import { Search, TrendingUp, UserPlus } from "lucide-react";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { TagList } from "../ui/tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 
@@ -49,16 +50,7 @@ export default function Sidebar() {
           트렌딩 태그
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {mockTrendingTags.map((tag) => (
-              <Badge
-                key={tag}
-                className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 cursor-pointer transition-colors"
-              >
-                #{tag}
-              </Badge>
-            ))}
-          </div>
+          <TagList tags={mockTrendingTags} />
         </CardContent>
       </Card>
 

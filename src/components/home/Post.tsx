@@ -6,9 +6,8 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { Button } from "../ui/button";
 import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
-import { Separator } from "@radix-ui/react-separator";
-import { Badge } from "../ui/badge";
 import { TagList } from "../ui/tag-list";
+import { useRouter } from "next/navigation";
 
 interface Author {
   nickname: string;
@@ -31,11 +30,20 @@ interface PostData {
 
 interface PostProps {
   post: PostData;
+  fullPage?: boolean;
 }
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post, fullPage = false }: PostProps) {
+  const router = useRouter();
+
+  const handlePostClick = () => {
+    if (!fullPage) {
+      router.push(`/post/${post.id}`);
+    }
+  };
+
   return (
-    <Card>
+    <Card onClick={handlePostClick} className="hover:cursor-pointer">
       <CardContent>
         <div className="flex flex-col gap-2">
           {/* 작성자 정보 영역 */}

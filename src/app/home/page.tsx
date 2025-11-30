@@ -1,4 +1,5 @@
 import Post from "@/components/home/Post";
+import PostCard from "@/components/home/PostCard";
 import WelcomeCard from "@/components/home/WelcomeCard";
 
 export default async function HomePage() {
@@ -127,6 +128,7 @@ fn calculate_length(s: &String) -> usize {
   return (
     <div className="p-4 space-y-4">
       <WelcomeCard />
+      <PostCard />
       {mockPosts.map((post) => (
         <Post key={post.id} post={post} fullPage={false} />
       ))}

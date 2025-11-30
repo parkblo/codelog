@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "@/types/types";
+import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 import { createClient } from "@/utils/supabase/client";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -35,7 +36,7 @@ export default function AuthProvider({
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        setUser(session.user);
+        setUser(mapSupabaseUserToDomainUser(session.user));
       } else {
         setUser(null);
       }

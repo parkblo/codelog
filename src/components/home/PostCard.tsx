@@ -34,12 +34,12 @@ export default function PostCard() {
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
-  }
+  };
 
   return (
     <>
       <PostDialog isOpen={isDialogOpen} handleClose={handleCloseDialog} />
-      <Card className="bg-background">
+      <Card>
         <CardContent>
           <div className="flex gap-2 items-center">
             <Avatar className="w-10 h-10 border border-border">

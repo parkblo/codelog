@@ -1,14 +1,13 @@
 "use client";
 
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Card, CardContent, CardFooter } from "../ui/card";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
 import { TagList } from "../ui/tag-list";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { CodeEditor } from "../ui/code-editor";
 
 interface Author {
   nickname: string;
@@ -72,39 +71,25 @@ export default function Post({ post, fullPage = false }: PostProps) {
           </div>
 
           <div
-            onClick={handlePostClick}
             className={cn(
               "flex flex-col gap-2",
               !fullPage && "hover:cursor-pointer"
             )}
           >
             {/* 본문 영역 */}
-            {post.content && <p className="text-foreground">{post.content}</p>}
+            {post.content && (
+              <p className="text-foreground" onClick={handlePostClick}>
+                {post.content}
+              </p>
+            )}
 
             {/* 코드 영역 */}
             {post.code && (
-              <SyntaxHighlighter
+              <CodeEditor
+                code={post.code}
                 language={post.language}
-                style={vscDarkPlus}
-                className="rounded-md"
-                showLineNumbers={true}
-                lineNumberStyle={{ color: "oklch(43.9% 0 0)" }}
-                wrapLines={true}
-                lineProps={{
-                  style: {
-                    display: "block",
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  },
-                }}
-                customStyle={{
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                  overflowX: "auto",
-                }}
-              >
-                {post.code}
-              </SyntaxHighlighter>
+                readOnly={true}
+              />
             )}
           </div>
 

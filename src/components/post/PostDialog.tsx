@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Textarea } from "../ui/textarea";
 import { useAuth } from "@/providers/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -65,7 +65,7 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
-        <DialogHeader>새 게시글 작성</DialogHeader>
+        <DialogTitle>새 게시글 작성</DialogTitle>
         <div className="flex gap-2">
           {user && (
             <Avatar className="w-10 h-10 border border-border">

@@ -1,6 +1,7 @@
 import { User } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 import { IAuthService } from "./auth.interface";
+import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 
 export class ClientAuthService implements IAuthService {
   private supabase = createClient();
@@ -12,7 +13,8 @@ export class ClientAuthService implements IAuthService {
       return null;
     }
 
-    return data.user;
+    const domainUser = mapSupabaseUserToDomainUser(data.user);
+    return domainUser;
   }
 
   async signInWithOAuth(provider: "github", options?: { redirectTo: string }) {
@@ -26,7 +28,11 @@ export class ClientAuthService implements IAuthService {
     return await this.supabase.auth.signInWithPassword(credentials);
   }
 
-  async signUp(credentials: { email: string; password: string; options?: any }) {
+  async signUp(credentials: {
+    email: string;
+    password: string;
+    options?: any;
+  }) {
     return await this.supabase.auth.signUp(credentials);
   }
 }

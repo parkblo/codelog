@@ -48,13 +48,19 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
   };
 
   const addTagLogic = () => {
-    if (!tagInput.trim()) return;
+    if (tags.includes(tagInput.trim()) || !tagInput.trim()) {
+      setTagInput("");
+      return;
+    }
 
     setTags((prev) => [...prev, tagInput.trim()]);
     setTagInput("");
   };
 
-  const deleteTag = () => {};
+  const deleteTag = (tag: string) => {
+    console.log(tag);
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -100,7 +106,7 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
               </div>
             </div>
             <div>
-              <TagList tags={tags} />
+              <TagList tags={tags} onDelete={deleteTag} />
             </div>
           </div>
         </div>

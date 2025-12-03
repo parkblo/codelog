@@ -1,5 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
-import { Database } from "../../../database.types";
+import { Database } from "@/types/database.types";
 
 /**
  * 클라이언트 사이드에서 사용될 Supabase 클라이언트 인스턴스를 만듭니다.

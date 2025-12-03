@@ -161,7 +161,7 @@ export type Database = {
           code: string | null
           comment_count: number
           content: string
-          created_at: string | null
+          created_at: string
           deleted_at: string | null
           id: number
           language: string | null
@@ -175,7 +175,7 @@ export type Database = {
           code?: string | null
           comment_count?: number
           content: string
-          created_at?: string | null
+          created_at?: string
           deleted_at?: string | null
           id?: number
           language?: string | null
@@ -189,7 +189,7 @@ export type Database = {
           code?: string | null
           comment_count?: number
           content?: string
-          created_at?: string | null
+          created_at?: string
           deleted_at?: string | null
           id?: number
           language?: string | null

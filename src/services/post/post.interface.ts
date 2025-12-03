@@ -9,11 +9,11 @@ export interface IPostService {
   createPost(
     data: CreatePostDTO
   ): Promise<{ data: Post | null; error: Error | null }>;
-  getPosts(): Promise<Post[] | null>;
-  getPostById(id: number): Promise<Post | null>;
+  getPosts(): Promise<{ data: Post[] | null; error: Error | null }>;
+  getPostById(id: number): Promise<{ data: Post | null; error: Error | null }>;
   deletePost(id: number): Promise<{ error: Error | null }>;
   updatePost(
     id: number,
     post: Partial<CreatePostDTO>
-  ): Promise<{ error: Error | null }>;
+  ): Promise<{ data: Post | null; error: Error | null }>;
 }

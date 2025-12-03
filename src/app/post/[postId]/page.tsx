@@ -2,59 +2,29 @@ import Post from "@/components/home/Post";
 import { BackButton } from "@/components/ui/back-button";
 import CommentForm from "./_components/CommentForm";
 import Comment from "./_components/Comment";
+import { getPostByIdAction } from "@/actions/post.action";
 
-export default function PostPage() {
-  const mockPost = {
-    id: "1",
-    author: {
-      nickname: "김개발",
-      username: "@kimdev",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=kim",
-    },
-    timestamp: "2시간 전",
-    content:
-      "파이썬의 리스트 컴프리헨션을 사용하면 코드를 간결하고 읽기 쉽게 만들 수 있습니다. 특히 필터링과 변환을 동시에 할 때 정말 유용해요! 🐍",
-    code: `# 기존 방식
-result = []
-for i in range(10):
-    if i % 2 == 0:
-        result.append(i ** 2)
+interface PostPageProps {
+  params: Promise<{ postId: string }>;
+}
 
-# 리스트 컴프리헨션
-result = [i ** 2 for i in range(10) if i % 2 == 0]
+export default async function PostPage({ params }: PostPageProps) {
+  const { postId } = await params;
 
-# 중첩 리스트 평탄화
-matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-flattened = [num for row in matrix for num in row]
-# [1, 2, 3, 4, 5, 6, 7, 8, 9]`,
-    language: "python",
-    tags: ["Python", "ListComprehension", "CleanCode"],
-    like_count: 234,
-    comment_count: 18,
-    bookmark_count: 67,
-  };
+  const { data: post, error } = await getPostByIdAction(Number(postId));
 
-  const mockComment = {
-    author: {
-      nickname: "김개발",
-      username: "@kimdev",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=kim",
-    },
-    content:
-      "파이썬의 리스트 컴프리헨션을 사용하면 코드를 간결하고 읽기 쉽게 만들 수 있습니다. 특히 필터링과 변환을 동시에 할 때 정말 유용해요! 🐍",
-    created_at: "2시간 전",
-    updated_at: "2시간 전",
-    like_count: 234,
-  };
+  if (error || !post) {
+    return <div>[Error]{error}</div>;
+  }
 
   return (
     <div className="p-4 space-y-4">
       <div className="sticky flex gap-2 items-center w-full bg-background">
         <BackButton />
       </div>
-      <Post post={mockPost} fullPage />
+      <Post post={post} fullPage />
       <CommentForm />
-      <Comment comment={mockComment} />
+      {/*<Comment comment={mockComment} /> */}
     </div>
   );
 }

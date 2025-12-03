@@ -9,27 +9,10 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CodeEditor } from "../ui/code-editor";
 
-interface Author {
-  nickname: string;
-  username: string;
-  avatar: string;
-}
-
-interface PostData {
-  id: string;
-  author: Author;
-  timestamp: string;
-  content: string;
-  code: string;
-  language: string;
-  tags: string[];
-  like_count: number;
-  comment_count: number;
-  bookmark_count: number;
-}
+import { Post as PostType } from "@/types/types";
 
 interface PostProps {
-  post: PostData;
+  post: PostType;
   fullPage?: boolean;
 }
 
@@ -50,7 +33,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
           <div className="flex flex-1 min-w-0 gap-2">
             <Avatar className="w-10 h-10 border border-border">
               <AvatarImage
-                src={post.author.avatar}
+                src={post.author.avatar || ""}
                 alt={post.author.nickname}
               />
               <AvatarFallback>{post.author.nickname.charAt(0)}</AvatarFallback>
@@ -65,7 +48,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                {post.timestamp}
+                {post.created_at}
               </span>
             </div>
           </div>
@@ -86,8 +69,8 @@ export default function Post({ post, fullPage = false }: PostProps) {
             {/* 코드 영역 */}
             {post.code && (
               <CodeEditor
-                code={post.code}
-                language={post.language}
+                code={post.code || ""}
+                language={post.language || "text"}
                 readOnly={true}
               />
             )}

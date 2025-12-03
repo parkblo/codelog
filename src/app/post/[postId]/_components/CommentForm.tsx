@@ -29,7 +29,7 @@ export default function CommentForm() {
               <Avatar className="w-10 h-10 border border-border">
                 {user && (
                   <>
-                    <AvatarImage src={user.avatar} alt={user.nickname} />
+                    <AvatarImage src={user.avatar || ""} alt={user.nickname} />
                     <AvatarFallback>
                       {user.nickname ? user.nickname.charAt(0) : ""}
                     </AvatarFallback>

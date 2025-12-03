@@ -43,7 +43,7 @@ export default function PostCard() {
         <CardContent>
           <div className="flex gap-2 items-center">
             <Avatar className="w-10 h-10 border border-border">
-              <AvatarImage src={user.avatar} alt={user.nickname} />
+              <AvatarImage src={user.avatar || ""} alt={user.nickname} />
               <AvatarFallback>
                 {user.nickname ? user.nickname.charAt(0) : ""}
               </AvatarFallback>

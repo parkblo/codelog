@@ -44,12 +44,46 @@ export type Database = {
           },
         ]
       }
+      comment_likes: {
+        Row: {
+          comment_id: number
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: number
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: number
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           content: string
           created_at: string | null
           deleted_at: string | null
           id: number
+          like_count: number
           post_id: number
           updated_at: string | null
           user_id: string
@@ -59,6 +93,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           id?: number
+          like_count?: number
           post_id: number
           updated_at?: string | null
           user_id: string
@@ -68,6 +103,7 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           id?: number
+          like_count?: number
           post_id?: number
           updated_at?: string | null
           user_id?: string
@@ -89,7 +125,7 @@ export type Database = {
           },
         ]
       }
-      likes: {
+      post_likes: {
         Row: {
           post_id: number
           user_id: string
@@ -122,11 +158,13 @@ export type Database = {
       posts: {
         Row: {
           bookmark_count: number
+          code: string | null
           comment_count: number
           content: string
           created_at: string | null
           deleted_at: string | null
           id: number
+          language: string | null
           like_count: number
           updated_at: string | null
           user_id: string
@@ -134,11 +172,13 @@ export type Database = {
         }
         Insert: {
           bookmark_count?: number
+          code?: string | null
           comment_count?: number
           content: string
           created_at?: string | null
           deleted_at?: string | null
           id?: number
+          language?: string | null
           like_count?: number
           updated_at?: string | null
           user_id: string
@@ -146,11 +186,13 @@ export type Database = {
         }
         Update: {
           bookmark_count?: number
+          code?: string | null
           comment_count?: number
           content?: string
           created_at?: string | null
           deleted_at?: string | null
           id?: number
+          language?: string | null
           like_count?: number
           updated_at?: string | null
           user_id?: string

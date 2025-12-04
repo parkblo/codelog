@@ -30,6 +30,7 @@ export default function AuthDialog({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [nickname, setNickname] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -46,11 +47,12 @@ export default function AuthDialog({
         setPassword("");
         setConfirmPassword("");
         setNickname("");
+        setUsername("");
       }, 300);
     }
   };
 
-  const authService = useMemo(()=> new ClientAuthService(),[]);
+  const authService = useMemo(() => new ClientAuthService(), []);
 
   const handleGitHubLogin = async () => {
     const { error } = await authService.signInWithOAuth("github", {
@@ -103,12 +105,10 @@ export default function AuthDialog({
     const { error } = await authService.signUp({
       email,
       password,
-      options: {
-        data: {
-          user_name: email,
-          full_name: nickname,
-          avatar_url: "",
-        },
+      data: {
+        user_name: username,
+        nick_name: nickname,
+        avatar_url: "",
       },
     });
     setLoading(false);
@@ -150,38 +150,41 @@ export default function AuthDialog({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="email">이메일</Label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="name@example.com" 
+          <Input
+            id="email"
+            type="email"
+            placeholder="name@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
           />
         </div>
-        
-        {isSignUp ? (<div className="flex flex-col gap-2">
-          <Label htmlFor="password">비밀번호</Label>
-          <Input 
-            id="password" 
-            type="password" 
-            placeholder="••••••••" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>) : (<div className="flex flex-col gap-2">
-          <Label htmlFor="password">비밀번호</Label>
-          <Input 
-            id="password" 
-            type="password" 
-            placeholder="••••••••" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-          />
-        </div>)}
-        
+
+        {isSignUp ? (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="password">비밀번호</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="password">비밀번호</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+        )}
 
         {isSignUp && (
           <div className="flex flex-col gap-2">
@@ -197,12 +200,25 @@ export default function AuthDialog({
           </div>
         )}
 
-                {isSignUp && (
+        {isSignUp && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="username">아이디</Label>
+            <Input
+              id="username"
+              placeholder="아이디"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+            />
+          </div>
+        )}
+
+        {isSignUp && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="nickname">닉네임</Label>
-            <Input 
-              id="nickname" 
-              placeholder="닉네임" 
+            <Input
+              id="nickname"
+              placeholder="닉네임"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               autoComplete="nickname"
@@ -210,8 +226,8 @@ export default function AuthDialog({
           </div>
         )}
 
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={isSignUp ? handleEmailSignUp : handleEmailLogin}
           disabled={loading}
         >

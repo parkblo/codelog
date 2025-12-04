@@ -114,7 +114,14 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
               <Code2 className="w-4 h-4" />{" "}
               {snippetMode ? "코드 스니펫 닫기" : "코드 스니펫 추가하기"}
             </Button>
-            {snippetMode && <CodeEditor />}
+            {snippetMode && (
+              <CodeEditor
+                code={codeInput}
+                language={languageInput}
+                setCode={setCodeInput}
+                setLanguage={setLanguageInput}
+              />
+            )}
 
             <div className="mt-2">
               <Label htmlFor="tag" className="mb-2">

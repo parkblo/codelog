@@ -37,32 +37,33 @@ interface CodeEditorProps {
   code?: string;
   language?: string;
   readOnly?: boolean;
+  setCode?(code: string): void;
+  setLanguage?(language: string): void;
 }
 
 function CodeEditor({
   code = "",
   language = "markdown",
   readOnly = false,
+  setCode,
+  setLanguage,
 }: CodeEditorProps) {
-  const [codeState, setCodeState] = useState(code);
-  const [codeLanguage, setCodeLanguage] = useState(language);
-
   const handleHighlight = (code: string) => {
-    const grammar = languages[codeLanguage] || languages.markdown;
-    return highlight(codeState, grammar, codeLanguage);
+    const grammar = languages[language] || languages.markdown;
+    return highlight(code, grammar, language);
   };
 
   return (
     <div className="relative rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/50">
         {readOnly ? (
-          <span className="text-xs text-muted-foreground">{codeLanguage}</span>
+          <span className="text-xs text-muted-foreground">{language}</span>
         ) : (
-          <Select value={codeLanguage} onValueChange={setCodeLanguage}>
+          <Select value={language} onValueChange={setLanguage}>
             <SelectTrigger className="bg-transparent border-none text-xs text-muted-foreground !h-auto !px-2 !py-1 !gap-1">
               <SelectValue placeholder="Language" />
             </SelectTrigger>
-            <SelectContent defaultValue={codeLanguage}>
+            <SelectContent defaultValue={language}>
               <SelectItem value="javascript">JavaScript</SelectItem>
               <SelectItem value="jsx">JSX</SelectItem>
               <SelectItem value="typescript">TypeScript</SelectItem>
@@ -85,8 +86,8 @@ function CodeEditor({
         )}
       </div>
       <Editor
-        value={codeState}
-        onValueChange={(code) => setCodeState(code)}
+        value={code}
+        onValueChange={(c) => setCode?.(c)}
         highlight={handleHighlight}
         padding={15}
         style={{

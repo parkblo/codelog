@@ -12,5 +12,6 @@ export const mapSupabaseUserToDomainUser = (user: SupabaseUser): UserAuth => {
       (user.email?.split("@")[0] ?? "undefined"),
     avatar: user_metadata.avatar_url || user_metadata.picture,
     username: user_metadata.user_name || user.email,
+    bio: user_metadata.bio || null,
   };
 };

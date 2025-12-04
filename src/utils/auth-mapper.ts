@@ -1,12 +1,12 @@
 import { User as SupabaseUser } from "@supabase/supabase-js";
-import { User as DomainUser } from "@/types/types";
+import { UserAuth } from "@/types/types";
 
-export const mapSupabaseUserToDomainUser = (user: SupabaseUser): DomainUser => {
+export const mapSupabaseUserToDomainUser = (user: SupabaseUser): UserAuth => {
   const { user_metadata } = user;
   return {
     id: user.id,
-    email: user.email ?? "undefined",
     nickname:
+      user_metadata.nick_name ||
       user_metadata.full_name ||
       user_metadata.name ||
       (user.email?.split("@")[0] ?? "undefined"),

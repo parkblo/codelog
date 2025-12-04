@@ -1,12 +1,12 @@
-import { User } from "@/types/types";
+import { UserAuth } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
-import { IAuthService } from "./auth.interface";
+import { IAuthService, signUpProps } from "./auth.interface";
 import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 
 export class ClientAuthService implements IAuthService {
   private supabase = createClient();
 
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser(): Promise<UserAuth | null> {
     const { data, error } = await this.supabase.auth.getUser();
 
     if (error || !data.user) {
@@ -28,11 +28,15 @@ export class ClientAuthService implements IAuthService {
     return await this.supabase.auth.signInWithPassword(credentials);
   }
 
-  async signUp(credentials: {
-    email: string;
-    password: string;
-    options?: any;
-  }) {
-    return await this.supabase.auth.signUp(credentials);
+  async signUp(credentials: signUpProps) {
+    const { email, password, data } = credentials;
+
+    return await this.supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data,
+      },
+    });
   }
 }

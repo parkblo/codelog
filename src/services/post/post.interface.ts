@@ -1,4 +1,4 @@
-import { Post, User } from "@/types/types";
+import { Post } from "@/types/types";
 
 export type CreatePostDTO = Pick<
   Post,

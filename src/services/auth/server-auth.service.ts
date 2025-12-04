@@ -1,10 +1,10 @@
-import { User } from "@/types/types";
+import { UserAuth } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 import { IAuthService } from "./auth.interface";
 import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 
 export class ServerAuthService implements IAuthService {
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser(): Promise<UserAuth | null> {
     const supabase = await createClient();
 
     const { data, error } = await supabase.auth.getUser();

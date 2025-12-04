@@ -1,12 +1,12 @@
 "use client";
 
-import { User } from "@/types/types";
+import { UserAuth } from "@/types/types";
 import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 import { createClient } from "@/utils/supabase/client";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
-  user: User | null;
+  user: UserAuth | null;
   loading: boolean;
 }
 
@@ -24,9 +24,9 @@ export default function AuthProvider({
   initialUser,
 }: {
   children: React.ReactNode;
-  initialUser: User | null;
+  initialUser: UserAuth | null;
 }) {
-  const [user, setUser] = useState<User | null>(initialUser);
+  const [user, setUser] = useState<UserAuth | null>(initialUser);
   const [loading, setLoading] = useState(!initialUser);
 
   useEffect(() => {

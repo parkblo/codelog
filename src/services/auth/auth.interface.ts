@@ -1,4 +1,4 @@
-import { User } from "@/types/types";
+import { UserAuth } from "@/types/types";
 
 export interface AuthCredentials {
   email: string;
@@ -11,9 +11,23 @@ export interface OAuthOptions {
   [key: string]: unknown;
 }
 
+export interface signUpProps extends AuthCredentials {
+  data: {
+    user_name: string;
+    nick_name: string;
+    avatar_url: string;
+    [key: string]: unknown;
+  };
+}
+
 export interface IAuthService {
-  getCurrentUser(): Promise<User | null>;
-  signInWithOAuth?(provider: string, options?: OAuthOptions): Promise<{ error: Error | null }>;
-  signInWithPassword?(credentials: AuthCredentials): Promise<{ error: Error | null }>;
-  signUp?(credentials: AuthCredentials): Promise<{ error: Error | null }>;
+  getCurrentUser(): Promise<UserAuth | null>;
+  signInWithOAuth?(
+    provider: string,
+    options?: OAuthOptions
+  ): Promise<{ error: Error | null }>;
+  signInWithPassword?(
+    credentials: AuthCredentials
+  ): Promise<{ error: Error | null }>;
+  signUp?(credentials: signUpProps): Promise<{ error: Error | null }>;
 }

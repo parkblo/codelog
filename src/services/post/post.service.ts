@@ -71,7 +71,7 @@ export class PostService implements IPostService {
 
     const { data, error } = await supabase.from("posts").select(`
         *,
-        author:users(*),
+        author:users!posts_user_id_fkey(*),
         tags:posttags(tags(*))`);
 
     if (error) {
@@ -93,7 +93,7 @@ export class PostService implements IPostService {
 
     const { data, error } = await supabase
       .from("posts")
-      .select(`*, author:users(*), tags:posttags(tags(*))`)
+      .select(`*, author:users!posts_user_id_fkey(*), tags:posttags(tags(*))`)
       .eq("id", id)
       .single();
 

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { CodeEditor } from "../ui/code-editor";
 
 import { Post as PostType } from "@/types/types";
+import PostMenu from "@/app/post/[postId]/_components/PostMenu";
 
 interface PostProps {
   post: PostType;
@@ -51,6 +52,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
                 {post.created_at}
               </span>
             </div>
+            <PostMenu authorId={post.author.id} postId={post.id} />
           </div>
 
           <div

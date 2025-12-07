@@ -11,21 +11,27 @@ import { CodeEditor } from "../ui/code-editor";
 import { TagList } from "../ui/tag-list";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { createPostAction } from "@/actions/post.action";
+import { createPostAction, updatePostAction } from "@/actions/post.action";
+import { Post } from "@/types/types";
 
 interface PostDialogProps {
   isOpen: boolean;
   handleClose: () => void;
+  post?: Post;
 }
 
-export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
+export default function PostDialog({
+  isOpen,
+  handleClose,
+  post,
+}: PostDialogProps) {
   const { user, loading } = useAuth();
-  const [content, setContent] = useState("");
-  const [snippetMode, setSnippetMode] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [content, setContent] = useState(post?.content || "");
+  const [snippetMode, setSnippetMode] = useState(!!post?.code);
+  const [tags, setTags] = useState<string[]>(post?.tags || []);
   const [tagInput, setTagInput] = useState("");
-  const [codeInput, setCodeInput] = useState("");
-  const [languageInput, setLanguageInput] = useState("");
+  const [codeInput, setCodeInput] = useState(post?.code || "");
+  const [languageInput, setLanguageInput] = useState(post?.language || "");
   const [errorText, setErrorText] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,13 +79,26 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
     setIsSubmitting(true);
     setErrorText(null);
 
-    const { data, error } = await createPostAction({
-      author: user,
-      content,
-      code: snippetMode ? codeInput : null,
-      language: snippetMode ? languageInput : null,
-      tags,
-    });
+    let result;
+
+    if (post) {
+      result = await updatePostAction(post.id, {
+        content,
+        code: snippetMode ? codeInput : null,
+        language: snippetMode ? languageInput : null,
+        tags,
+      });
+    } else {
+      result = await createPostAction({
+        author: user,
+        content,
+        code: snippetMode ? codeInput : null,
+        language: snippetMode ? languageInput : null,
+        tags,
+      });
+    }
+
+    const { error } = result;
 
     if (error) {
       setErrorText(error);
@@ -94,7 +113,7 @@ export default function PostDialog({ isOpen, handleClose }: PostDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
-        <DialogTitle>새 게시글 작성</DialogTitle>
+        <DialogTitle>{post ? "게시글 수정" : "새 게시글 작성"}</DialogTitle>
         <div className="flex gap-2">
           {user && (
             <Avatar className="w-10 h-10 border border-border">

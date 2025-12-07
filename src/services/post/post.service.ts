@@ -69,10 +69,15 @@ export class PostService implements IPostService {
   async getPosts(): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
-    const { data, error } = await supabase.from("posts").select(`
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
         *,
         author:users!posts_user_id_fkey(*),
-        tags:posttags(tags(*))`);
+        tags:posttags(tags(*))`
+      )
+      .order("created_at", { ascending: false });
 
     if (error) {
       return { data: null, error };

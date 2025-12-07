@@ -31,28 +31,33 @@ export default function Post({ post, fullPage = false }: PostProps) {
       <CardContent>
         <div className="flex flex-col gap-2">
           {/* 작성자 정보 영역 */}
-          <div className="flex flex-1 min-w-0 gap-2">
-            <Avatar className="w-10 h-10 border border-border">
-              <AvatarImage
-                src={post.author.avatar || ""}
-                alt={post.author.nickname}
-              />
-              <AvatarFallback>{post.author.nickname.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col justify-start">
-              <div className="flex gap-1 items-center">
-                <span className="font-medium text-foreground">
-                  {post.author.nickname}
-                </span>
+          <div className="flex flex-1 min-w-0 gap-2 justify-between">
+            <div className="flex gap-2 items-center">
+              <Avatar className="w-10 h-10 border border-border">
+                <AvatarImage
+                  src={post.author.avatar || ""}
+                  alt={post.author.nickname}
+                />
+                <AvatarFallback>
+                  {post.author.nickname.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col justify-start">
+                <div className="flex gap-1 items-center">
+                  <span className="font-medium text-foreground">
+                    {post.author.nickname}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    @{post.author.username}
+                  </span>
+                </div>
                 <span className="text-sm text-muted-foreground">
-                  {post.author.username}
+                  {post.created_at}
                 </span>
               </div>
-              <span className="text-sm text-muted-foreground">
-                {post.created_at}
-              </span>
             </div>
-            <PostMenu authorId={post.author.id} postId={post.id} />
+
+            <PostMenu post={post} />
           </div>
 
           <div

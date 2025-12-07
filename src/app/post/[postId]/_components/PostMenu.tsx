@@ -10,37 +10,53 @@ import {
 import { useAuth } from "@/providers/auth-provider";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
+import PostDialog from "@/components/post/PostDialog";
+import { useState } from "react";
+import { Post } from "@/types/types";
 
 interface PostMenuProps {
-  authorId: string;
-  postId: number;
+  post: Post;
 }
 
-export default function PostMenu({ authorId, postId }: PostMenuProps) {
+export default function PostMenu({ post }: PostMenuProps) {
   const { user } = useAuth();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   if (!user) {
     return null;
   }
 
-  const isOwner = user.id === authorId;
+  const isOwner = user.id === post.author.id;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <EllipsisVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem disabled={!isOwner}>수정</DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => deletePostAction(postId)}
+          disabled={!isOwner}
+          onSelect={(e) => {
+            e.preventDefault();
+            setIsDialogOpen(true);
+          }}
+        >
+          수정
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => deletePostAction(post.id)}
           disabled={!isOwner}
         >
           삭제
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <PostDialog
+        isOpen={isDialogOpen}
+        handleClose={() => setIsDialogOpen(false)}
+        post={post}
+      />
     </DropdownMenu>
   );
 }

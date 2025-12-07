@@ -11,6 +11,7 @@ import { CodeEditor } from "../ui/code-editor";
 
 import { Post as PostType } from "@/types/types";
 import PostMenu from "@/app/post/[postId]/_components/PostMenu";
+import { formatRelativeTime } from "@/utils/date";
 
 interface PostProps {
   post: PostType;
@@ -52,7 +53,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {post.created_at}
+                  {formatRelativeTime(post.created_at)}
                 </span>
               </div>
             </div>

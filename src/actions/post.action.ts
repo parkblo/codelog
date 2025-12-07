@@ -61,6 +61,7 @@ async function deletePostAction(id: number) {
 
   if (error) {
     // TODO- 추가적인 에러 핸들링 필요
+    console.error(error?.message || "포스트 삭제에 실패했습니다.");
     return { error: error?.message || "포스트 삭제에 실패했습니다." };
   }
 

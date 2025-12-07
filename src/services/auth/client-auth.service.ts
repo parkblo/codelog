@@ -39,4 +39,8 @@ export class ClientAuthService implements IAuthService {
       },
     });
   }
+
+  async signOut(): Promise<{ error: Error | null }> {
+    return await this.supabase.auth.signOut();
+  }
 }

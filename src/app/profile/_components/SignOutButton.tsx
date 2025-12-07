@@ -1,0 +1,31 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/providers/auth-provider";
+import { ClientAuthService } from "@/services/auth/client-auth.service";
+import { useRouter } from "next/navigation";
+
+export default function SignOutButton() {
+  const authService = new ClientAuthService();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const signOut = async () => {
+    const { error } = await authService.signOut();
+    if (error) {
+      console.error(error);
+    } else {
+      router.push("/");
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <Button variant="destructive" onClick={signOut}>
+      로그아웃
+    </Button>
+  );
+}

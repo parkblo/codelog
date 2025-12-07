@@ -30,4 +30,5 @@ export interface IAuthService {
     credentials: AuthCredentials
   ): Promise<{ error: Error | null }>;
   signUp?(credentials: signUpProps): Promise<{ error: Error | null }>;
+  signOut?(): Promise<{ error: Error | null }>;
 }

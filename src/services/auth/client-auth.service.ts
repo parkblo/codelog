@@ -35,7 +35,11 @@ export class ClientAuthService implements IAuthService {
       email,
       password,
       options: {
-        data,
+        data: {
+          user_name: data.user_name,
+          full_name: data.nick_name,
+          avatar_url: data.avatar_url,
+        },
       },
     });
   }

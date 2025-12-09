@@ -18,9 +18,14 @@ export function TagList({ tags, className, onDelete }: TagListProps) {
         >
           #{tag}
           {onDelete && (
-            <span onClick={() => onDelete(tag)}>
+            <button
+              onClick={() => onDelete(tag)}
+              type="button"
+              className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
               <X className="w-3 h-3" />
-            </span>
+              <span className="sr-only">Delete {tag}</span>
+            </button>
           )}
         </Badge>
       ))}

@@ -1,12 +1,14 @@
 import { createClient } from "@/utils/supabase/server";
 import { CreatePostDTO, IPostService } from "./post.interface";
 import { Post } from "@/types/types";
+import { TagService } from "../tag/tag.service";
 
 export class PostService implements IPostService {
   async createPost(
     data: CreatePostDTO
   ): Promise<{ data: Post | null; error: Error | null }> {
     const supabase = await createClient();
+    const tagService = new TagService();
 
     const { data: insertedPost, error } = await supabase
       .from("posts")
@@ -24,34 +26,10 @@ export class PostService implements IPostService {
     }
 
     for (const tagName of data.tags) {
-      let tagId: number;
+      const { data: createdPostTag, error: createPostTagError } =
+        await tagService.createTagForPost(tagName, insertedPost.id);
 
-      const { data: existingTag } = await supabase
-        .from("tags")
-        .select("id")
-        .eq("name", tagName)
-        .maybeSingle();
-
-      if (existingTag) {
-        tagId = existingTag.id;
-      } else {
-        const { data: newTag, error: createTagError } = await supabase
-          .from("tags")
-          .insert({ name: tagName })
-          .select("id")
-          .single();
-        if (createTagError || !newTag) {
-          console.error("Failed to create tag: ", tagName);
-          continue;
-        }
-        tagId = newTag.id;
-      }
-
-      const { error: createPostTagError } = await supabase
-        .from("posttags")
-        .insert({ post_id: insertedPost.id, tag_id: tagId });
-
-      if (createPostTagError) {
+      if (createPostTagError || !createdPostTag) {
         console.error("Failed to create tag: ", tagName);
         continue;
       }
@@ -128,8 +106,32 @@ export class PostService implements IPostService {
     data: Partial<CreatePostDTO>
   ): Promise<{ data: Post | null; error: Error | null }> {
     const supabase = await createClient();
+    const tagService = new TagService();
 
     const { tags, author, ...postFields } = data;
+
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      return { data: null, error: new Error("User not authenticated") };
+    }
+
+    // 작성자 확인
+    const { data: originalPost, error: fetchError } = await supabase
+      .from("posts")
+      .select("user_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !originalPost) {
+      return { data: null, error: new Error("Post not found") };
+    }
+
+    if (originalPost.user_id !== userData.user.id) {
+      return {
+        data: null,
+        error: new Error("Unauthorized: You do not own this post"),
+      };
+    }
 
     // 글 내용 업데이트
     const { data: updatedPost, error } = await supabase
@@ -143,42 +145,14 @@ export class PostService implements IPostService {
       return { data: null, error };
     }
 
-    // 태그 업데이트
     if (tags) {
       await supabase.from("posttags").delete().eq("post_id", id);
 
       for (const tagName of tags) {
-        let tagId: number;
-
-        const { data: existingTag } = await supabase
-          .from("tags")
-          .select()
-          .eq("name", tagName)
-          .maybeSingle();
-
-        if (existingTag) {
-          tagId = existingTag.id;
-        } else {
-          const { data: createdTag, error: createTagError } = await supabase
-            .from("tags")
-            .insert({ name: tagName })
-            .select()
-            .single();
-
-          if (!createdTag || createTagError) {
-            return { data: null, error: createTagError };
-          }
-
-          tagId = createdTag.id;
-        }
-
         const { data: createdPostTag, error: createPostTagError } =
-          await supabase.from("posttags").insert({
-            post_id: updatedPost.id,
-            tag_id: tagId,
-          });
+          await tagService.createTagForPost(tagName, id);
 
-        if (createPostTagError) {
+        if (createPostTagError || !createdPostTag) {
           return { data: null, error: createPostTagError };
         }
       }

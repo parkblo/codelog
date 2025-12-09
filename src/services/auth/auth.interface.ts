@@ -11,7 +11,7 @@ export interface OAuthOptions {
   [key: string]: unknown;
 }
 
-export interface signUpProps extends AuthCredentials {
+export interface SignUpProps extends AuthCredentials {
   data: {
     user_name: string;
     nick_name: string;
@@ -29,6 +29,6 @@ export interface IAuthService {
   signInWithPassword?(
     credentials: AuthCredentials
   ): Promise<{ error: Error | null }>;
-  signUp?(credentials: signUpProps): Promise<{ error: Error | null }>;
+  signUp?(credentials: SignUpProps): Promise<{ error: Error | null }>;
   signOut?(): Promise<{ error: Error | null }>;
 }

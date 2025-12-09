@@ -1,6 +1,6 @@
 import { UserAuth } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
-import { IAuthService, signUpProps } from "./auth.interface";
+import { IAuthService, SignUpProps } from "./auth.interface";
 import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 
 export class ClientAuthService implements IAuthService {
@@ -28,7 +28,7 @@ export class ClientAuthService implements IAuthService {
     return await this.supabase.auth.signInWithPassword(credentials);
   }
 
-  async signUp(credentials: signUpProps) {
+  async signUp(credentials: SignUpProps) {
     const { email, password, data } = credentials;
 
     return await this.supabase.auth.signUp({

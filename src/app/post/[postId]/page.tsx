@@ -23,7 +23,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <BackButton />
       </div>
       <Post post={post} fullPage />
-      <CommentForm />
+      <CommentForm postId={Number(postId)} />
       {/*<Comment comment={mockComment} /> */}
     </div>
   );

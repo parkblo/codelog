@@ -1,22 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Comment as CommentType } from "@/types/types";
+import { formatRelativeTime } from "@/utils/date";
 import { Heart } from "lucide-react";
 
-interface Comment {
-  author: {
-    nickname: string;
-    username: string;
-    avatar: string;
-  };
-  content: string;
-  created_at: string;
-  updated_at?: string;
-  like_count: number;
-}
-
 interface commentProps {
-  comment: Comment;
+  comment: CommentType;
 }
 
 export default function Comment({ comment }: commentProps) {
@@ -28,7 +18,7 @@ export default function Comment({ comment }: commentProps) {
             {comment.author && (
               <>
                 <AvatarImage
-                  src={comment.author.avatar}
+                  src={comment.author.avatar || ""}
                   alt={comment.author.nickname}
                 />
                 <AvatarFallback>
@@ -43,11 +33,11 @@ export default function Comment({ comment }: commentProps) {
             <div className="flex gap-2 items-center">
               <span className="text-foreground">{comment.author.nickname}</span>
               <span className="text-muted-foreground text-sm">
-                {comment.author.username}
+                @{comment.author.username}
               </span>
               <span className="text-muted-foreground text-sm">·</span>
               <span className="text-muted-foreground text-sm">
-                {comment.created_at}
+                {formatRelativeTime(comment.created_at || "")}
               </span>
             </div>
             <p className="text-foreground">{comment.content}</p>

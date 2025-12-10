@@ -2,6 +2,7 @@
 
 import { CommentService } from "@/services/comment/comment.service";
 import { CreateCommentDTO } from "@/services/comment/comment.interface";
+import { revalidatePath } from "next/cache";
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
@@ -14,6 +15,8 @@ async function createCommentAction(data: CreateCommentDTO) {
       error: createCommentError?.message || "댓글 작성에 실패했습니다.",
     };
   }
+
+  revalidatePath(`/post/${data.postId}`);
 
   return { data: createdComment, error: null };
 }

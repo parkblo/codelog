@@ -1,5 +1,7 @@
 "use server";
 
+import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { LikeService } from "@/services/like/like.service";
 import { CreatePostDTO } from "@/services/post/post.interface";
 import { PostService } from "@/services/post/post.service";
 import { revalidatePath } from "next/cache";
@@ -33,25 +35,75 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 }
 
 async function getPostsAction() {
-  const { data, error } = await postService.getPosts();
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
 
-  if (error) {
-    // TODO- 추가적인 에러 핸들링 필요
-    return { error: error?.message || "포스트 불러오기에 실패했습니다." };
+  const { data: posts, error: getPostsError } = await postService.getPosts();
+
+  if (getPostsError) {
+    return { data: null, error: getPostsError };
   }
+
+  // 비로그인 시 좋아요 여부 false로 설정하고 반환
+  if (!user) {
+    return {
+      data: posts?.map((post) => ({ ...post, isLiked: false })),
+      error: null,
+    };
+  }
+
+  const likeService = new LikeService();
+
+  const { data: postLikes, error: postLikesError } =
+    await likeService.getPostLikes(user.id);
+
+  if (postLikesError) {
+    return { data: null, error: postLikesError };
+  }
+
+  const data = posts?.map((post) => {
+    return {
+      ...post,
+      isLiked: postLikes?.includes(post.id),
+    };
+  });
 
   return { data, error: null };
 }
 
 async function getPostByIdAction(id: number) {
-  const { data, error } = await postService.getPostById(id);
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
 
-  if (error || !data) {
-    // TODO- 추가적인 에러 핸들링 필요
+  const { data: post, error: getPostError } = await postService.getPostById(id);
+
+  if (getPostError || !post) {
     return {
-      error: error?.message || `id:${id} 포스트 불러오기에 실패했습니다.`,
+      error:
+        getPostError?.message || `id:${id} 포스트 불러오기에 실패했습니다.`,
     };
   }
+
+  if (!user) {
+    return {
+      data: { ...post, isLiked: false },
+      error: null,
+    };
+  }
+
+  const likeService = new LikeService();
+
+  const { data: postLikes, error: postLikesError } =
+    await likeService.getPostLikes(user?.id);
+
+  if (postLikesError) {
+    return { data: null, error: postLikesError };
+  }
+
+  const data = {
+    ...post,
+    isLiked: postLikes?.includes(post.id),
+  };
 
   return { data, error: null };
 }

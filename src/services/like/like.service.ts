@@ -72,4 +72,38 @@ export class LikeService implements ILikeService {
 
     return { error: null };
   }
+
+  async getPostLikes(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("post_likes")
+      .select("post_id")
+      .eq("user_id", userId);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data: data.map((like) => like.post_id), error: null };
+  }
+
+  async getCommentLikes(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("comment_likes")
+      .select("comment_id")
+      .eq("user_id", userId);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data: data.map((like) => like.comment_id), error: null };
+  }
 }

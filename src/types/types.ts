@@ -19,8 +19,10 @@ export type Author = Pick<
 export interface Post extends Omit<Tables<"posts">, "user_id"> {
   author: Author;
   tags: string[];
+  is_liked?: boolean;
 }
 
 export interface Comment extends Omit<Tables<"comments">, "user_id"> {
   author: Author;
+  is_liked?: boolean;
 }

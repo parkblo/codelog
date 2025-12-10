@@ -99,6 +99,7 @@ export default function Post({ post, fullPage = false }: PostProps) {
             <Button
               variant="ghost"
               className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+              onClick={handlePostClick}
             >
               <MessageCircle className="w-4 h-4" />
               <span>{post.comment_count}</span>

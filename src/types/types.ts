@@ -20,3 +20,7 @@ export interface Post extends Omit<Tables<"posts">, "user_id"> {
   author: Author;
   tags: string[];
 }
+
+export interface Comment extends Omit<Tables<"comments">, "user_id"> {
+  author: Author;
+}

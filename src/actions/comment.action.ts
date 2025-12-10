@@ -3,6 +3,8 @@
 import { CommentService } from "@/services/comment/comment.service";
 import { CreateCommentDTO } from "@/services/comment/comment.interface";
 import { revalidatePath } from "next/cache";
+import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { LikeService } from "@/services/like/like.service";
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
@@ -23,14 +25,44 @@ async function createCommentAction(data: CreateCommentDTO) {
 
 async function getCommentsByPostIdAction(postId: number) {
   const commentService = new CommentService();
+  const authService = new ServerAuthService();
+  const likeService = new LikeService();
+  const user = await authService.getCurrentUser();
 
-  const { data, error } = await commentService.getCommentsByPostId(postId);
+  const { data: comments, error: getCommentsError } =
+    await commentService.getCommentsByPostId(postId);
 
-  if (error) {
+  if (getCommentsError) {
     return {
-      error: error?.message || "댓글 불러오기에 실패했습니다.",
+      error: getCommentsError?.message || "댓글 불러오기에 실패했습니다.",
     };
   }
+
+  if (!user) {
+    return {
+      data: comments?.map((comment) => ({
+        ...comment,
+        isLiked: false,
+      })),
+      error: null,
+    };
+  }
+
+  const { data: commentLikes, error: getCommentLikesError } =
+    await likeService.getCommentLikes(user.id);
+
+  if (getCommentLikesError) {
+    return {
+      error:
+        getCommentLikesError?.message ||
+        "댓글 좋아요 정보 불러오기에 실패했습니다.",
+    };
+  }
+
+  const data = comments?.map((comment) => ({
+    ...comment,
+    isLiked: commentLikes?.includes(comment.id),
+  }));
 
   return { data, error: null };
 }

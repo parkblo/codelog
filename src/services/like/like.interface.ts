@@ -15,4 +15,10 @@ export interface ILikeService {
     commentId: number,
     userId: string
   ): Promise<{ error: Error | null }>;
+  getPostLikes(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }>;
+  getCommentLikes(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }>;
 }

@@ -18,4 +18,18 @@ async function createCommentAction(data: CreateCommentDTO) {
   return { data: createdComment, error: null };
 }
 
-export { createCommentAction };
+async function getCommentsByPostIdAction(postId: number) {
+  const commentService = new CommentService();
+
+  const { data, error } = await commentService.getCommentsByPostId(postId);
+
+  if (error) {
+    return {
+      error: error?.message || "댓글 불러오기에 실패했습니다.",
+    };
+  }
+
+  return { data, error: null };
+}
+
+export { createCommentAction, getCommentsByPostIdAction };

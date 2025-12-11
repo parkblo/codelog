@@ -17,7 +17,10 @@ import {
   deletePostLikeAction,
 } from "@/actions/like.action";
 import { useState } from "react";
-import { resumeToPipeableStream } from "react-dom/server";
+import {
+  createBookmarkAction,
+  deleteBookmarkAction,
+} from "@/actions/bookmark.action";
 
 interface PostProps {
   post: PostType;
@@ -27,6 +30,7 @@ interface PostProps {
 export default function Post({ post, fullPage = false }: PostProps) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(post.is_liked);
+  const [isBookmarked, setIsBookmarked] = useState(post.is_bookmarked);
 
   const handlePostClick = () => {
     if (!fullPage) {
@@ -50,6 +54,25 @@ export default function Post({ post, fullPage = false }: PostProps) {
     } catch (error) {
       console.error(error);
       setIsLiked(previousState);
+    }
+  };
+
+  const handleBookmarkClick = async () => {
+    const previousState = isBookmarked;
+    setIsBookmarked(!isBookmarked);
+
+    try {
+      const result = isBookmarked
+        ? await deleteBookmarkAction(post.id)
+        : await createBookmarkAction(post.id);
+
+      // TODO - 에러 핸들링 로직 추후 변경필요
+      if (result.error !== null) {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsBookmarked(previousState);
     }
   };
 
@@ -139,8 +162,12 @@ export default function Post({ post, fullPage = false }: PostProps) {
             <Button
               variant="ghost"
               className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+              onClick={handleBookmarkClick}
             >
-              <Bookmark className="w-4 h-4" />
+              <Bookmark
+                className={cn("w-4 h-4", isBookmarked && "text-blue-500")}
+                fill={isBookmarked ? "#3b82f6" : "none"}
+              />
               <span>{post.bookmark_count}</span>
             </Button>
             <Button

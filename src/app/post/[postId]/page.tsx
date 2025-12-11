@@ -18,7 +18,7 @@ export default async function PostPage({ params }: PostPageProps) {
     await getCommentsByPostIdAction(Number(postId));
 
   if (error || !post) {
-    return <div>[Error]{error}</div>;
+    return <div>[Error]{error instanceof Error ? error.message : error}</div>;
   }
 
   return (

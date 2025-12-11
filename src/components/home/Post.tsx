@@ -12,6 +12,12 @@ import { CodeEditor } from "../ui/code-editor";
 import { Post as PostType } from "@/types/types";
 import PostMenu from "@/app/post/[postId]/_components/PostMenu";
 import { formatRelativeTime } from "@/utils/date";
+import {
+  createPostLikeAction,
+  deletePostLikeAction,
+} from "@/actions/like.action";
+import { useState } from "react";
+import { resumeToPipeableStream } from "react-dom/server";
 
 interface PostProps {
   post: PostType;
@@ -20,10 +26,30 @@ interface PostProps {
 
 export default function Post({ post, fullPage = false }: PostProps) {
   const router = useRouter();
+  const [isLiked, setIsLiked] = useState(post.is_liked);
 
   const handlePostClick = () => {
     if (!fullPage) {
       router.push(`/post/${post.id}`);
+    }
+  };
+
+  const handleLikeClick = async () => {
+    const previousState = isLiked;
+    setIsLiked(!isLiked);
+
+    try {
+      const result = isLiked
+        ? await deletePostLikeAction(post.id)
+        : await createPostLikeAction(post.id);
+
+      // TODO - 에러 핸들링 로직 추후 변경필요
+      if (result.error !== null) {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLiked(previousState);
     }
   };
 
@@ -91,9 +117,15 @@ export default function Post({ post, fullPage = false }: PostProps) {
           <div className="flex gap-4 border-t pt-2 justify-between">
             <Button
               variant="ghost"
-              className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+              className={
+                "text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+              }
+              onClick={handleLikeClick}
             >
-              <Heart className="w-4 h-4" />
+              <Heart
+                className={cn("w-4 h-4", isLiked && "text-red-500")}
+                fill={isLiked ? "red" : "none"}
+              />
               <span>{post.like_count}</span>
             </Button>
             <Button

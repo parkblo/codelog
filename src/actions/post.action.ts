@@ -1,6 +1,7 @@
 "use server";
 
 import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { BookmarkService } from "@/services/bookmark/bookmark.service";
 import { LikeService } from "@/services/like/like.service";
 import { CreatePostDTO } from "@/services/post/post.interface";
 import { PostService } from "@/services/post/post.service";
@@ -61,10 +62,20 @@ async function getPostsAction() {
     return { data: null, error: postLikesError };
   }
 
+  const bookmarkService = new BookmarkService();
+
+  const { data: postBookmarks, error: postBookmarksError } =
+    await bookmarkService.getBookmarks(user.id);
+
+  if (postBookmarksError) {
+    return { data: null, error: postBookmarksError };
+  }
+
   const data = posts?.map((post) => {
     return {
       ...post,
       is_liked: postLikes?.includes(post.id),
+      is_bookmarked: postBookmarks?.includes(post.id),
     };
   });
 
@@ -100,9 +111,19 @@ async function getPostByIdAction(id: number) {
     return { data: null, error: postLikesError };
   }
 
+  const bookmarkService = new BookmarkService();
+
+  const { data: postBookmarks, error: postBookmarksError } =
+    await bookmarkService.getBookmarks(user?.id);
+
+  if (postBookmarksError) {
+    return { data: null, error: postBookmarksError };
+  }
+
   const data = {
     ...post,
     is_liked: postLikes?.includes(post.id),
+    is_bookmarked: postBookmarks?.includes(post.id),
   };
 
   return { data, error: null };

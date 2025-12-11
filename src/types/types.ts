@@ -20,6 +20,7 @@ export interface Post extends Omit<Tables<"posts">, "user_id"> {
   author: Author;
   tags: string[];
   is_liked?: boolean;
+  is_bookmarked?: boolean;
 }
 
 export interface Comment extends Omit<Tables<"comments">, "user_id"> {

@@ -1,3 +1,5 @@
+"use server";
+
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { LikeService } from "@/services/like/like.service";
 import { revalidatePath } from "next/cache";

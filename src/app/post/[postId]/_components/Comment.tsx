@@ -1,15 +1,44 @@
+"use client";
+
+import {
+  createCommentLikeAction,
+  deleteCommentLikeAction,
+} from "@/actions/like.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Comment as CommentType } from "@/types/types";
 import { formatRelativeTime } from "@/utils/date";
 import { Heart } from "lucide-react";
+import { useState } from "react";
 
 interface commentProps {
   comment: CommentType;
 }
 
 export default function Comment({ comment }: commentProps) {
+  const [isLiked, setIsLiked] = useState(comment.is_liked);
+
+  const handleLikeClick = async () => {
+    const previousState = isLiked;
+    setIsLiked(!isLiked);
+
+    try {
+      const result = isLiked
+        ? await deleteCommentLikeAction(comment.post_id, comment.id)
+        : await createCommentLikeAction(comment.post_id, comment.id);
+
+      // TODO - 에러 핸들링 로직 추후 변경필요
+      if (result.error !== null) {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLiked(previousState);
+    }
+  };
+
   return (
     <Card>
       <CardContent>
@@ -45,8 +74,12 @@ export default function Comment({ comment }: commentProps) {
               <Button
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
+                onClick={handleLikeClick}
               >
-                <Heart className="w-4 h-4" />
+                <Heart
+                  className={cn("w-4 h-4", isLiked && "text-red-500")}
+                  fill={isLiked ? "red" : "none"}
+                />
                 <span>{comment.like_count}</span>
               </Button>
               <Button

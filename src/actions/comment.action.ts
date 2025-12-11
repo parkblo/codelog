@@ -42,7 +42,7 @@ async function getCommentsByPostIdAction(postId: number) {
     return {
       data: comments?.map((comment) => ({
         ...comment,
-        isLiked: false,
+        is_liked: false,
       })),
       error: null,
     };
@@ -61,7 +61,7 @@ async function getCommentsByPostIdAction(postId: number) {
 
   const data = comments?.map((comment) => ({
     ...comment,
-    isLiked: commentLikes?.includes(comment.id),
+    is_liked: commentLikes?.includes(comment.id),
   }));
 
   return { data, error: null };

@@ -22,8 +22,8 @@ export function CodeSnippet({
   const handleMouseDown = (lineNumber: number) => {
     if (readOnly) return;
 
-    // TOGGLE: 이미 선택된 라인을 다시 클릭했고, 선택된 라인이 하나뿐이라면 선택 해제
-    if (selectedLines.length === 1 && selectedLines[0] === lineNumber) {
+    // 이미 선택된 라인이 있는 경우 선택 해제로 작동 (TOGGLE)
+    if (selectedLines.length >= 1) {
       setSelectedLines([]);
       setDragStartLine(null);
       return;

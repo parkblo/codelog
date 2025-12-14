@@ -7,7 +7,7 @@ import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
 import { TagList } from "../ui/tag-list";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { CodeEditor } from "../ui/code-editor";
+import { CodeSnippet } from "../post/CodeSnippet";
 
 import { Post as PostType } from "@/types/types";
 import PostMenu from "@/app/post/[postId]/_components/PostMenu";
@@ -125,10 +125,10 @@ export default function Post({ post, fullPage = false }: PostProps) {
 
             {/* 코드 영역 */}
             {post.code && (
-              <CodeEditor
+              <CodeSnippet
                 code={post.code || ""}
                 language={post.language || "text"}
-                readOnly={true}
+                readOnly={!fullPage || !post.is_review_enabled}
               />
             )}
           </div>

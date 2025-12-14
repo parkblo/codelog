@@ -64,6 +64,8 @@ function CodeEditor({
               <SelectValue placeholder="Language" />
             </SelectTrigger>
             <SelectContent defaultValue={language}>
+              <SelectItem value="markdown">Markdown</SelectItem>
+              <SelectItem value="text">Text</SelectItem>
               <SelectItem value="javascript">JavaScript</SelectItem>
               <SelectItem value="jsx">JSX</SelectItem>
               <SelectItem value="typescript">TypeScript</SelectItem>
@@ -78,9 +80,8 @@ function CodeEditor({
               <SelectItem value="sql">SQL</SelectItem>
               <SelectItem value="bash">Bash</SelectItem>
               <SelectItem value="json">JSON</SelectItem>
-              <SelectItem value="css">CSS</SelectItem>
               <SelectItem value="markup">HTML</SelectItem>
-              <SelectItem value="markdown">Markdown</SelectItem>
+              <SelectItem value="css">CSS</SelectItem>
             </SelectContent>
           </Select>
         )}

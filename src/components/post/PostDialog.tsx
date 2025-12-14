@@ -6,13 +6,15 @@ import { Textarea } from "../ui/textarea";
 import { useAuth } from "@/providers/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Code2, Loader, Plus, Send } from "lucide-react";
+import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 import { CodeEditor } from "../ui/code-editor";
 import { TagList } from "../ui/tag-list";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { createPostAction, updatePostAction } from "@/actions/post.action";
 import { Post } from "@/types/types";
+import { Checkbox } from "../ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PostDialogProps {
   isOpen: boolean;
@@ -31,9 +33,10 @@ export default function PostDialog({
   const [tags, setTags] = useState<string[]>(post?.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [codeInput, setCodeInput] = useState(post?.code || "");
-  const [languageInput, setLanguageInput] = useState(post?.language || "");
+  const [languageInput, setLanguageInput] = useState(post?.language || "text");
   const [errorText, setErrorText] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReviewEnabled, setIsReviewEnabled] = useState(false);
 
   const toggleSnippetMode = () => {
     setSnippetMode(snippetMode ? false : true);
@@ -134,12 +137,34 @@ export default function PostDialog({
               {snippetMode ? "코드 스니펫 닫기" : "코드 스니펫 추가하기"}
             </Button>
             {snippetMode && (
-              <CodeEditor
-                code={codeInput}
-                language={languageInput}
-                setCode={setCodeInput}
-                setLanguage={setLanguageInput}
-              />
+              <>
+                <CodeEditor
+                  code={codeInput}
+                  language={languageInput}
+                  setCode={setCodeInput}
+                  setLanguage={setLanguageInput}
+                />
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="is_review_enabled"
+                    checked={isReviewEnabled}
+                    onCheckedChange={(checked) =>
+                      setIsReviewEnabled(checked === true)
+                    }
+                  />
+                  <Label htmlFor="is_review_enabled">코드 리뷰 허용</Label>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        허용 시 코드 라인 별로 리뷰 코멘트를 받을 수 있습니다.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </>
             )}
 
             <div className="mt-2">

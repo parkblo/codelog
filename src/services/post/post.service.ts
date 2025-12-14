@@ -17,6 +17,7 @@ export class PostService implements IPostService {
         code: data.code,
         language: data.language,
         user_id: data.author.id,
+        is_review_enabled: data.is_review_enabled,
       })
       .select()
       .single();

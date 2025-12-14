@@ -125,11 +125,13 @@ export default function Post({ post, fullPage = false }: PostProps) {
 
             {/* 코드 영역 */}
             {post.code && (
-              <CodeSnippet
-                code={post.code || ""}
-                language={post.language || "text"}
-                readOnly={!fullPage || !post.is_review_enabled}
-              />
+              <div onClick={handlePostClick}>
+                <CodeSnippet
+                  code={post.code || ""}
+                  language={post.language || "text"}
+                  readOnly={!fullPage || !post.is_review_enabled}
+                />
+              </div>
             )}
           </div>
 

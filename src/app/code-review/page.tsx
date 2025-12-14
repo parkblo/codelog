@@ -1,6 +1,8 @@
 "use client";
 
-import { CodeReviewer } from "@/components/code-review/CodeReviewer";
+"use client";
+
+import { CodeSnippet } from "@/components/post/CodeSnippet";
 
 const MOCK_CODE = `function hello() {
   console.log("Hello World!");
@@ -14,7 +16,7 @@ export default function CodeReviewPage() {
   return (
     <div className="container py-8 max-w-4xl">
       <h1 className="text-2xl font-bold mb-6">Code Review Demo</h1>
-      <CodeReviewer code={MOCK_CODE} language="javascript" />
+      <CodeSnippet code={MOCK_CODE} language="javascript" />
     </div>
   );
 }

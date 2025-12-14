@@ -4,23 +4,30 @@ import { Highlight, themes } from "prism-react-renderer";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface CodeReviewerProps {
+interface CodeSnippetProps {
   code: string;
   language: string;
+  readOnly?: boolean;
 }
 
-export function CodeReviewer({ code, language }: CodeReviewerProps) {
+export function CodeSnippet({
+  code,
+  language,
+  readOnly = false,
+}: CodeSnippetProps) {
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartLine, setDragStartLine] = useState<number | null>(null);
 
   const handleMouseDown = (lineNumber: number) => {
+    if (readOnly) return;
     setIsDragging(true);
     setDragStartLine(lineNumber);
     setSelectedLines([lineNumber]);
   };
 
   const handleMouseEnter = (lineNumber: number) => {
+    if (readOnly) return;
     if (isDragging && dragStartLine !== null) {
       const start = Math.min(dragStartLine, lineNumber);
       const end = Math.max(dragStartLine, lineNumber);
@@ -33,6 +40,7 @@ export function CodeReviewer({ code, language }: CodeReviewerProps) {
   };
 
   const handleMouseUp = () => {
+    if (readOnly) return;
     setIsDragging(false);
     setDragStartLine(null);
   };
@@ -58,7 +66,8 @@ export function CodeReviewer({ code, language }: CodeReviewerProps) {
                   onMouseDown={() => handleMouseDown(lineNumber)}
                   onMouseEnter={() => handleMouseEnter(lineNumber)}
                   className={cn(
-                    "flex w-full cursor-pointer hover:bg-white/5 transition-colors select-none",
+                    "flex w-full transition-colors select-none",
+                    !readOnly && "cursor-pointer hover:bg-white/5",
                     isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
                   )}
                 >

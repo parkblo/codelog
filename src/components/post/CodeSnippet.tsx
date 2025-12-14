@@ -8,16 +8,22 @@ interface CodeSnippetProps {
   code: string;
   language: string;
   readOnly?: boolean;
+  renderSelectionComponent?: (
+    startLine: number,
+    endLine: number
+  ) => React.ReactNode;
 }
 
 export function CodeSnippet({
   code,
   language,
-  readOnly = false,
+  readOnly = true,
+  renderSelectionComponent,
 }: CodeSnippetProps) {
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartLine, setDragStartLine] = useState<number | null>(null);
+  const [showCommentForm, setShowCommentForm] = useState(false);
 
   const handleMouseDown = (lineNumber: number) => {
     if (readOnly) return;
@@ -32,6 +38,8 @@ export function CodeSnippet({
     setIsDragging(true);
     setDragStartLine(lineNumber);
     setSelectedLines([lineNumber]);
+
+    setShowCommentForm(false);
   };
 
   const handleMouseEnter = (lineNumber: number) => {
@@ -51,6 +59,8 @@ export function CodeSnippet({
     if (readOnly) return;
     setIsDragging(false);
     setDragStartLine(null);
+
+    setShowCommentForm(true);
   };
 
   return (
@@ -67,26 +77,50 @@ export function CodeSnippet({
               const lineNumber = i + 1;
               const isSelected = selectedLines.includes(lineNumber);
 
+              // 현재 라인이 선택된 라인 중 가장 마지막 라인인지 확인
+              const isLastSelected =
+                isSelected &&
+                selectedLines.length > 0 &&
+                Math.max(...selectedLines) === lineNumber;
+
               return (
-                <div
-                  key={i}
-                  {...getLineProps({ line })}
-                  onMouseDown={() => handleMouseDown(lineNumber)}
-                  onMouseEnter={() => handleMouseEnter(lineNumber)}
-                  className={cn(
-                    "flex w-full transition-colors select-none",
-                    !readOnly && "cursor-pointer hover:bg-white/5",
-                    isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
-                  )}
-                >
-                  <span className="shrink-0 text-right pr-4 pl-4 select-none text-muted-foreground/50 w-[50px] border-r border-border/10">
-                    {lineNumber}
-                  </span>
-                  <span className="pl-4 grow break-all whitespace-pre-wrap">
-                    {line.map((token, key) => (
-                      <span key={key} {...getTokenProps({ token })} />
-                    ))}
-                  </span>
+                <div key={i} className="flex flex-col">
+                  <div
+                    {...getLineProps({ line })}
+                    onMouseDown={() => handleMouseDown(lineNumber)}
+                    onMouseEnter={() => handleMouseEnter(lineNumber)}
+                    className={cn(
+                      "flex w-full transition-colors select-none",
+                      !readOnly && "cursor-pointer hover:bg-white/5",
+                      isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
+                    )}
+                  >
+                    <span className="shrink-0 text-right pr-4 pl-4 select-none text-muted-foreground/50 w-[50px] border-r border-border/10">
+                      {lineNumber}
+                    </span>
+                    <span className="pl-4 grow break-all whitespace-pre-wrap">
+                      {line.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token })} />
+                      ))}
+                    </span>
+                  </div>
+                  {/* 선택된 영역의 마지막 줄 아래에 컴포넌트 렌더링 */}
+                  {isLastSelected &&
+                    renderSelectionComponent &&
+                    showCommentForm && (
+                      <div
+                        className="w-full bg-transparent p-4 animate-in fade-in zoom-in-95 duration-200 whitespace-normal text-foreground selection:bg-primary/20"
+                        style={{
+                          fontFamily: "var(--font-pretendard), sans-serif",
+                          fontStyle: "normal",
+                        }}
+                      >
+                        {renderSelectionComponent(
+                          Math.min(...selectedLines),
+                          Math.max(...selectedLines)
+                        )}
+                      </div>
+                    )}
                 </div>
               );
             })}

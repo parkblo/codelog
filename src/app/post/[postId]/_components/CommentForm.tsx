@@ -10,7 +10,15 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { createCommentAction } from "@/actions/comment.action";
 
-export default function CommentForm({ postId }: { postId: number }) {
+export default function CommentForm({
+  postId,
+  startLine,
+  endLine,
+}: {
+  postId: number;
+  startLine?: number | null;
+  endLine?: number | null;
+}) {
   const { user, loading } = useAuth();
   const [comment, setComment] = useState("");
 
@@ -21,6 +29,8 @@ export default function CommentForm({ postId }: { postId: number }) {
         content: comment,
         postId,
         userId: user.id,
+        startLine,
+        endLine,
       });
       if (error) {
         toast.error(error);

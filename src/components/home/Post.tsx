@@ -17,6 +17,7 @@ import {
   deletePostLikeAction,
 } from "@/actions/like.action";
 import { useState } from "react";
+import CommentForm from "@/app/post/[postId]/_components/CommentForm";
 import {
   createBookmarkAction,
   deleteBookmarkAction,
@@ -130,6 +131,13 @@ export default function Post({ post, fullPage = false }: PostProps) {
                   code={post.code || ""}
                   language={post.language || "text"}
                   readOnly={!fullPage || !post.is_review_enabled}
+                  renderSelectionComponent={(startLine, endLine) => (
+                    <CommentForm
+                      postId={post.id}
+                      startLine={startLine}
+                      endLine={endLine}
+                    />
+                  )}
                 />
               </div>
             )}

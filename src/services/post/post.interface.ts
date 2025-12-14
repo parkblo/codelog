@@ -2,7 +2,7 @@ import { Post } from "@/types/types";
 
 export type CreatePostDTO = Pick<
   Post,
-  "author" | "content" | "code" | "language" | "tags"
+  "author" | "content" | "code" | "language" | "tags" | "is_review_enabled"
 >;
 
 export interface IPostService {

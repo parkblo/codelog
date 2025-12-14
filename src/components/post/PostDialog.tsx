@@ -90,6 +90,7 @@ export default function PostDialog({
         code: snippetMode ? codeInput : null,
         language: snippetMode ? languageInput : null,
         tags,
+        is_review_enabled: isReviewEnabled,
       });
     } else {
       result = await createPostAction({
@@ -98,6 +99,7 @@ export default function PostDialog({
         code: snippetMode ? codeInput : null,
         language: snippetMode ? languageInput : null,
         tags,
+        is_review_enabled: isReviewEnabled,
       });
     }
 

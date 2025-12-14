@@ -4,6 +4,8 @@ export interface CreateCommentDTO {
   content: string;
   postId: number;
   userId: string;
+  startLine?: number | null;
+  endLine?: number | null;
 }
 
 export interface UpdateCommentDTO {

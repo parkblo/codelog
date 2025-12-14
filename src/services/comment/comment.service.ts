@@ -18,6 +18,8 @@ export class CommentService implements ICommentService {
         content: data.content,
         post_id: data.postId,
         user_id: data.userId,
+        start_line: data.startLine,
+        end_line: data.endLine,
       })
       .select(
         `
@@ -26,6 +28,20 @@ export class CommentService implements ICommentService {
       .single();
 
     return { data: createdComment, error: createCommentError };
+  }
+
+  async getReviewCommentsCount(
+    postId: number
+  ): Promise<{ count: number | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { count, error } = await supabase
+      .from("comments")
+      .select("*", { count: "exact", head: true })
+      .eq("post_id", postId)
+      .not("start_line", "is", null);
+
+    return { count, error };
   }
 
   async getCommentsByPostId(

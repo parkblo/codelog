@@ -98,7 +98,7 @@ export function CodeSnippet({
                     onMouseDown={() => handleMouseDown(lineNumber)}
                     onMouseEnter={() => handleMouseEnter(lineNumber)}
                     className={cn(
-                      "flex w-full transition-colors select-none items-center",
+                      "flex w-full transition-colors select-none items-start",
                       !readOnly && "cursor-pointer hover:bg-white/5",
                       isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
                     )}
@@ -114,9 +114,7 @@ export function CodeSnippet({
                     </span>
 
                     {/* 라인 뱃지 (우측 고정 영역) */}
-                    <div className="shrink-0 w-[40px] flex justify-center hover:bg-white/5 rounded-md">
-                      {renderLineBadge ? renderLineBadge(lineNumber) : null}
-                    </div>
+                    {renderLineBadge ? renderLineBadge(lineNumber) : null}
                   </div>
                   {/* 선택된 영역의 마지막 줄 아래에 컴포넌트 렌더링 */}
                   {isLastSelected &&

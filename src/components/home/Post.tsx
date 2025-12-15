@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
+import { Bookmark, CodeXml, Heart, MessageCircle, Share } from "lucide-react";
 import { TagList } from "../ui/tag-list";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,8 @@ import {
   deleteBookmarkAction,
 } from "@/actions/bookmark.action";
 import ReviewComment from "@/app/post/[postId]/_components/ReviewComment";
+import { Badge } from "../ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PostProps {
   post: PostType;
@@ -142,7 +144,22 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
               </div>
             </div>
 
-            <PostMenu post={post} />
+            <div className="flex gap-2 items-center">
+              {post.is_review_enabled && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="default">
+                      <CodeXml className="w-4 h-4" />
+                      Code Review
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>코드 리뷰를 남길 수 있는 게시글입니다.</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <PostMenu post={post} />
+            </div>
           </div>
 
           <div

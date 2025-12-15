@@ -16,7 +16,7 @@ import {
   createPostLikeAction,
   deletePostLikeAction,
 } from "@/actions/like.action";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CommentForm from "@/app/post/[postId]/_components/CommentForm";
 import {
   createBookmarkAction,
@@ -44,6 +44,28 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
         : [...prev, lineNumber]
     );
   };
+
+  const highlightedLines = useMemo(() => {
+    if (!comments || visibleCommentLines.length === 0) return [];
+
+    const lines = new Set<number>();
+
+    comments.forEach((comment) => {
+      // 1. 해당 댓글이 속한 라인이 펼쳐진 상태인지 확인
+      if (
+        comment.end_line &&
+        comment.start_line &&
+        visibleCommentLines.includes(comment.end_line)
+      ) {
+        // 2. 펼쳐져 있다면, 해당 댓글이 가리키는 범위를 모두 하이라이트
+        for (let i = comment.start_line; i <= comment.end_line; i++) {
+          lines.add(i);
+        }
+      }
+    });
+
+    return Array.from(lines);
+  }, [comments, visibleCommentLines]);
 
   const handlePostClick = () => {
     if (!fullPage) {
@@ -153,6 +175,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
                       endLine={endLine}
                     />
                   )}
+                  highlightedLines={highlightedLines}
                   renderLineBadge={(lineNumber) => {
                     if (!comments) return null;
                     const count = comments.filter(

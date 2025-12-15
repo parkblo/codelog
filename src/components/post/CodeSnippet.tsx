@@ -14,6 +14,7 @@ interface CodeSnippetProps {
   ) => React.ReactNode;
   renderLineFooter?: (lineNumber: number) => React.ReactNode;
   renderLineBadge?: (lineNumber: number) => React.ReactNode;
+  highlightedLines?: number[];
 }
 
 export function CodeSnippet({
@@ -23,6 +24,7 @@ export function CodeSnippet({
   renderSelectionComponent,
   renderLineFooter,
   renderLineBadge,
+  highlightedLines = [],
 }: CodeSnippetProps) {
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -100,7 +102,10 @@ export function CodeSnippet({
                     className={cn(
                       "flex w-full transition-colors select-none items-start",
                       !readOnly && "cursor-pointer hover:bg-white/5",
-                      isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
+                      isSelected && "bg-blue-500/20 hover:bg-blue-500/30",
+                      !isSelected &&
+                        highlightedLines.includes(lineNumber) &&
+                        "bg-yellow-500/10"
                     )}
                   >
                     <span className="shrink-0 text-right pr-3 pl-2 select-none text-muted-foreground/50 w-[40px] border-r border-border/10">

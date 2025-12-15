@@ -84,12 +84,6 @@ export default function Comment({ comment }: commentProps) {
                 />
                 <span>{comment.like_count}</span>
               </Button>
-              <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
-              >
-                <span>답글</span>
-              </Button>
             </div>
           </div>
         </div>

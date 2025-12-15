@@ -45,18 +45,27 @@ export class PostService implements IPostService {
     return { data: newPost, error: null };
   }
 
-  async getPosts(): Promise<{ data: Post[] | null; error: Error | null }> {
+  async getPosts({
+    isReviewEnabled = false,
+  }: {
+    isReviewEnabled?: boolean;
+  } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
-    const { data, error } = await supabase
-      .from("posts")
-      .select(
-        `
-        *,
-        author:users!posts_user_id_fkey(*),
-        tags:posttags(tags(*))`
-      )
-      .order("created_at", { ascending: false });
+    let query = supabase.from("posts").select(
+      `
+      *,
+      author:users!posts_user_id_fkey(*),
+      tags:posttags(tags(*))`
+    );
+
+    if (isReviewEnabled) {
+      query = query.eq("is_review_enabled", true);
+    }
+
+    query = query.order("created_at", { ascending: false });
+
+    const { data, error } = await query;
 
     if (error) {
       return { data: null, error };

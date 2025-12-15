@@ -54,11 +54,17 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   return { data: updatedPost, error: null };
 }
 
-async function getPostsAction() {
+async function getPostsAction({
+  isReviewEnabled = false,
+}: {
+  isReviewEnabled?: boolean;
+} = {}) {
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
-  const { data: posts, error: getPostsError } = await postService.getPosts();
+  const { data: posts, error: getPostsError } = await postService.getPosts({
+    isReviewEnabled,
+  });
 
   if (getPostsError) {
     return { data: null, error: getPostsError };

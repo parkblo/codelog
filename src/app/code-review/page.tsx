@@ -1,30 +1,22 @@
-"use client";
+import WelcomeCard from "@/components/home/WelcomeCard";
+import PostCard from "@/components/home/PostCard";
+import Post from "@/components/home/Post";
+import { getPostsAction } from "@/actions/post.action";
 
-"use client";
+export default async function CodeReviewPage() {
+  const { data, error } = await getPostsAction({ isReviewEnabled: true });
 
-import { CodeSnippet } from "@/components/post/CodeSnippet";
-import CommentForm from "../post/[postId]/_components/CommentForm";
+  if (!data || error) {
+    return <span>{error instanceof Error ? error.message : error}</span>;
+  }
 
-const MOCK_CODE = `function hello() {
-  console.log("Hello World!");
-  
-  // This is a multi-line
-  // comment to test context
-  return true;
-}`;
-
-export default function CodeReviewPage() {
   return (
-    <div className="container py-8 max-w-4xl">
-      <h1 className="text-2xl font-bold mb-6">Code Review Demo</h1>
-      <CodeSnippet
-        code={MOCK_CODE}
-        language="javascript"
-        readOnly={false}
-        renderSelectionComponent={(startLine, endLine) => (
-          <CommentForm postId={133} startLine={startLine} endLine={endLine} />
-        )}
-      />
+    <div className="p-4 space-y-4">
+      <WelcomeCard />
+      <PostCard />
+      {data.map((post) => (
+        <Post key={post.id} post={post} fullPage={false} />
+      ))}
     </div>
   );
 }

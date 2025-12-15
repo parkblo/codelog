@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CodeSnippet } from "../post/CodeSnippet";
 
-import { Post as PostType } from "@/types/types";
+import { Post as PostType, Comment as CommentType } from "@/types/types";
 import PostMenu from "@/app/post/[postId]/_components/PostMenu";
 import { formatRelativeTime } from "@/utils/date";
 import {
@@ -26,12 +26,23 @@ import {
 interface PostProps {
   post: PostType;
   fullPage?: boolean;
+  comments?: CommentType[];
 }
 
-export default function Post({ post, fullPage = false }: PostProps) {
+export default function Post({ post, fullPage = false, comments }: PostProps) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [isBookmarked, setIsBookmarked] = useState(post.is_bookmarked);
+
+  const [visibleCommentLines, setVisibleCommentLines] = useState<number[]>([]);
+
+  const toggleCommentLine = (lineNumber: number) => {
+    setVisibleCommentLines((prev) =>
+      prev.includes(lineNumber)
+        ? prev.filter((l) => l !== lineNumber)
+        : [...prev, lineNumber]
+    );
+  };
 
   const handlePostClick = () => {
     if (!fullPage) {
@@ -138,6 +149,66 @@ export default function Post({ post, fullPage = false }: PostProps) {
                       endLine={endLine}
                     />
                   )}
+                  renderLineBadge={(lineNumber) => {
+                    if (!comments) return null;
+                    const count = comments.filter(
+                      (c) => c.end_line === lineNumber && c.start_line !== null
+                    ).length;
+
+                    if (count === 0) return null;
+
+                    return (
+                      <button
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCommentLine(lineNumber);
+                        }}
+                        className="mx-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-0.5"
+                      >
+                        <span>💬</span>
+                        <span>{count}</span>
+                      </button>
+                    );
+                  }}
+                  renderLineFooter={(lineNumber) => {
+                    if (!comments) return null;
+
+                    // 펼쳐진 라인이 아니면 렌더링하지 않음
+                    if (!visibleCommentLines.includes(lineNumber)) return null;
+
+                    const lineComments = comments.filter(
+                      (c) => c.end_line === lineNumber && c.start_line !== null
+                    );
+
+                    if (lineComments.length === 0) return null;
+
+                    return (
+                      <div
+                        className="flex flex-col gap-2 mt-2"
+                        style={{
+                          fontFamily: "var(--font-pretendard), sans-serif",
+                        }}
+                      >
+                        {lineComments.map((comment) => (
+                          <div
+                            key={comment.id}
+                            className="bg-muted/50 rounded-md text-sm p-4 animate-in fade-in zoom-in-95 duration-200"
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-bold">
+                                {comment.author.nickname}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {formatRelativeTime(comment.created_at)}
+                              </span>
+                            </div>
+                            <p>{comment.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }}
                 />
               </div>
             )}

@@ -12,6 +12,8 @@ interface CodeSnippetProps {
     startLine: number,
     endLine: number
   ) => React.ReactNode;
+  renderLineFooter?: (lineNumber: number) => React.ReactNode;
+  renderLineBadge?: (lineNumber: number) => React.ReactNode;
 }
 
 export function CodeSnippet({
@@ -19,6 +21,8 @@ export function CodeSnippet({
   language,
   readOnly = true,
   renderSelectionComponent,
+  renderLineFooter,
+  renderLineBadge,
 }: CodeSnippetProps) {
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -98,6 +102,8 @@ export function CodeSnippet({
                     <span className="shrink-0 text-right pr-4 pl-4 select-none text-muted-foreground/50 w-[50px] border-r border-border/10">
                       {lineNumber}
                     </span>
+                    {/* 라인 뱃지 (ex: 댓글 아이콘) */}
+                    {renderLineBadge && renderLineBadge(lineNumber)}
                     <span className="pl-4 grow break-all whitespace-pre-wrap">
                       {line.map((token, key) => (
                         <span key={key} {...getTokenProps({ token })} />
@@ -109,10 +115,9 @@ export function CodeSnippet({
                     renderSelectionComponent &&
                     showCommentForm && (
                       <div
-                        className="w-full bg-transparent p-4 animate-in fade-in zoom-in-95 duration-200 whitespace-normal text-foreground selection:bg-primary/20"
+                        className="w-full p-4 animate-in fade-in zoom-in-95 duration-200 text-foreground"
                         style={{
                           fontFamily: "var(--font-pretendard), sans-serif",
-                          fontStyle: "normal",
                         }}
                       >
                         {renderSelectionComponent(
@@ -121,6 +126,12 @@ export function CodeSnippet({
                         )}
                       </div>
                     )}
+                  {/* 라인 별 Footer 렌더링 (ex: 댓글) */}
+                  {renderLineFooter && (
+                    <div className="w-full text-foreground">
+                      {renderLineFooter(lineNumber)}
+                    </div>
+                  )}
                 </div>
               );
             })}

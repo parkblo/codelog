@@ -1,13 +1,56 @@
+"use client";
+
 import { Comment } from "@/types/types";
 import { formatRelativeTime } from "@/utils/date";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
+import {
+  createCommentLikeAction,
+  deleteCommentLikeAction,
+} from "@/actions/like.action";
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ReviewCommentProps {
   lineComments: Comment[];
 }
 
 export default function ReviewComment({ lineComments }: ReviewCommentProps) {
+  const [isLiked, setIsLiked] = useState<(boolean | undefined)[]>(
+    lineComments.map((comment) => comment.is_liked)
+  );
+
+  const handleLikeClick = async (idx: number) => {
+    const previousState = isLiked;
+    setIsLiked((prev) => {
+      const newState = [...prev];
+      newState[idx] = !newState[idx];
+      return newState;
+    });
+
+    try {
+      const result = isLiked[idx]
+        ? await deleteCommentLikeAction(
+            lineComments[idx].post_id,
+            lineComments[idx].id
+          )
+        : await createCommentLikeAction(
+            lineComments[idx].post_id,
+            lineComments[idx].id
+          );
+
+      // TODO - 에러 핸들링 로직 추후 변경필요
+      if (result.error !== null) {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLiked(previousState);
+    }
+  };
+
   return (
     <div
       className="flex flex-col gap-2 mt-2"
@@ -15,7 +58,7 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
         fontFamily: "var(--font-pretendard), sans-serif",
       }}
     >
-      {lineComments.map((comment) => (
+      {lineComments.map((comment, idx) => (
         <div
           key={comment.id}
           className="bg-muted/50 rounded-md p-4 animate-in fade-in zoom-in-95 duration-200"
@@ -37,6 +80,16 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {formatRelativeTime(comment.created_at)}
+                </span>
+                <span
+                  className="text-xs text-muted-foreground flex gap-1 items-center p-1 cursor-pointer"
+                  onClick={() => handleLikeClick(idx)}
+                >
+                  <Heart
+                    className={cn("w-3 h-3", isLiked[idx] && "text-red-500")}
+                    fill={isLiked[idx] ? "red" : "none"}
+                  />
+                  <span>{comment.like_count}</span>
                 </span>
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">

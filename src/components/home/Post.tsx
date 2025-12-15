@@ -131,7 +131,10 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
           >
             {/* 본문 영역 */}
             {post.content && (
-              <p className="text-foreground" onClick={handlePostClick}>
+              <p
+                className="text-foreground whitespace-pre-wrap break-words leading-relaxed"
+                onClick={handlePostClick}
+              >
                 {post.content}
               </p>
             )}

@@ -30,6 +30,7 @@ export function CodeSnippet({
   const [dragStartLine, setDragStartLine] = useState<number | null>(null);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [hoveredLine, setHoveredLine] = useState<number | null>(null);
 
   const handleCopy = async () => {
     try {
@@ -44,22 +45,50 @@ export function CodeSnippet({
   const handleMouseDown = (lineNumber: number) => {
     if (readOnly) return;
 
-    // 이미 선택된 라인이 있는 경우 선택 해제로 작동 (TOGGLE)
-    if (selectedLines.length >= 1) {
-      setSelectedLines([]);
-      setDragStartLine(null);
+    // 1. 이미 선택된 라인을 다시 클릭
+    if (selectedLines.includes(lineNumber)) {
+      // 1-1. 한 줄만 선택된 상태에서 다시 클릭 -> 확정 (Confirm)
+      if (selectedLines.length === 1 && selectedLines[0] === lineNumber) {
+        setShowCommentForm(true);
+        return;
+      }
+      // 1-2. 구간 선택된 상태에서 선택된 라인 클릭 -> 해당 라인 하나만 선택으로 변경
+      // (선택 범위 수정하고 싶을 때 유용)
+      setSelectedLines([lineNumber]);
+      setDragStartLine(lineNumber);
+      setIsDragging(true);
+      setShowCommentForm(false);
       return;
     }
 
+    // 2. 이미 하나만 선택된 상태라면 -> 구간 선택 완성 (Confirm Range)
+    // 단, 드래그 중이 아니어야 함
+    if (selectedLines.length === 1 && !isDragging) {
+      const start = Math.min(selectedLines[0], lineNumber);
+      const end = Math.max(selectedLines[0], lineNumber);
+      const newSelection = Array.from(
+        { length: end - start + 1 },
+        (_, i) => start + i
+      );
+      setSelectedLines(newSelection);
+      setDragStartLine(null);
+      setShowCommentForm(true); // 입력창 표시
+      return;
+    }
+
+    // 3. 그 외 -> 새로운 선택 시작
     setIsDragging(true);
     setDragStartLine(lineNumber);
     setSelectedLines([lineNumber]);
 
+    // 첫 클릭 시에는 입력창 숨김 (두 번째 클릭으로 확정 유도)
     setShowCommentForm(false);
   };
 
   const handleMouseEnter = (lineNumber: number) => {
     if (readOnly) return;
+    setHoveredLine(lineNumber);
+
     if (isDragging && dragStartLine !== null) {
       const start = Math.min(dragStartLine, lineNumber);
       const end = Math.max(dragStartLine, lineNumber);
@@ -76,11 +105,22 @@ export function CodeSnippet({
     setIsDragging(false);
     setDragStartLine(null);
 
-    setShowCommentForm(true);
+    // 드래그가 끝났을 때:
+    // 1. 여러 줄이 선택된 상태라면 (드래그 완료) -> 입력창 표시
+    if (selectedLines.length > 1) {
+      setShowCommentForm(true);
+    }
+    // 2. 한 줄만 선택된 상태라면 (단순 클릭) -> 입력창 숨김 (두 번째 클릭 대기)
+    else {
+      setShowCommentForm(false);
+    }
   };
 
   return (
-    <div className="rounded-md border bg-[#1e1e1e] overflow-hidden">
+    <div
+      className="rounded-md border bg-[#1e1e1e] overflow-hidden"
+      onMouseLeave={() => setHoveredLine(null)}
+    >
       {/* Code Header */}
       <div className="flex justify-between items-center px-4 py-2 bg-white/5 border-b border-white/10">
         <span className="text-xs font-medium text-muted-foreground uppercase">
@@ -95,7 +135,7 @@ export function CodeSnippet({
           aria-label="Copy code"
         >
           {isCopied ? (
-            <Check className="w-4 h-4" />
+            <Check className="w-4 h-4 text-green-500" />
           ) : (
             <Copy className="w-4 h-4" />
           )}
@@ -116,11 +156,29 @@ export function CodeSnippet({
           >
             {tokens.map((line, i) => {
               const lineNumber = i + 1;
-              const isSelected = selectedLines.includes(lineNumber);
+
+              // 프리뷰 표시: 하나만 선택된 상태에서 다른 곳을 호버하면 구간 미리보기
+              let effectiveSelectedLines = selectedLines;
+
+              if (
+                selectedLines.length === 1 &&
+                hoveredLine !== null &&
+                hoveredLine !== selectedLines[0] &&
+                !readOnly
+              ) {
+                const start = Math.min(selectedLines[0], hoveredLine);
+                const end = Math.max(selectedLines[0], hoveredLine);
+                effectiveSelectedLines = Array.from(
+                  { length: end - start + 1 },
+                  (_, i) => start + i
+                );
+              }
+
+              const isSelected = effectiveSelectedLines.includes(lineNumber);
 
               // 현재 라인이 선택된 라인 중 가장 마지막 라인인지 확인
               const isLastSelected =
-                isSelected &&
+                selectedLines.includes(lineNumber) &&
                 selectedLines.length > 0 &&
                 Math.max(...selectedLines) === lineNumber;
 

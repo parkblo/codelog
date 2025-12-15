@@ -72,8 +72,12 @@ export function CodeSnippet({
       <Highlight theme={themes.vsDark} code={code} language={language}>
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <pre
-            className={cn(className, "py-4 overflow-x-hidden text-sm")}
-            style={{ ...style, fontFamily: '"Fira Code", monospace' }}
+            className={cn(className, "py-2 overflow-x-hidden text-sm")}
+            style={{
+              ...style,
+              fontFamily: '"Fira Code", monospace',
+              padding: "0.5rem",
+            }}
             onMouseLeave={handleMouseUp}
             onMouseUp={handleMouseUp}
           >
@@ -94,21 +98,25 @@ export function CodeSnippet({
                     onMouseDown={() => handleMouseDown(lineNumber)}
                     onMouseEnter={() => handleMouseEnter(lineNumber)}
                     className={cn(
-                      "flex w-full transition-colors select-none",
+                      "flex w-full transition-colors select-none items-center",
                       !readOnly && "cursor-pointer hover:bg-white/5",
                       isSelected && "bg-blue-500/20 hover:bg-blue-500/30"
                     )}
                   >
-                    <span className="shrink-0 text-right pr-4 pl-4 select-none text-muted-foreground/50 w-[50px] border-r border-border/10">
+                    <span className="shrink-0 text-right pr-3 pl-2 select-none text-muted-foreground/50 w-[40px] border-r border-border/10">
                       {lineNumber}
                     </span>
-                    {/* 라인 뱃지 (ex: 댓글 아이콘) */}
-                    {renderLineBadge && renderLineBadge(lineNumber)}
-                    <span className="pl-4 grow break-all whitespace-pre-wrap">
+
+                    <span className="pl-3 grow break-all whitespace-pre-wrap">
                       {line.map((token, key) => (
                         <span key={key} {...getTokenProps({ token })} />
                       ))}
                     </span>
+
+                    {/* 라인 뱃지 (우측 고정 영역) */}
+                    <div className="shrink-0 w-[40px] flex justify-center hover:bg-white/5 rounded-md">
+                      {renderLineBadge ? renderLineBadge(lineNumber) : null}
+                    </div>
                   </div>
                   {/* 선택된 영역의 마지막 줄 아래에 컴포넌트 렌더링 */}
                   {isLastSelected &&

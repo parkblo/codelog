@@ -22,6 +22,7 @@ import {
   createBookmarkAction,
   deleteBookmarkAction,
 } from "@/actions/bookmark.action";
+import ReviewComment from "@/app/post/[postId]/_components/ReviewComment";
 
 interface PostProps {
   post: PostType;
@@ -164,10 +165,12 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
                           e.stopPropagation();
                           toggleCommentLine(lineNumber);
                         }}
-                        className="mx-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-0.5"
+                        className="mx-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                       >
-                        <span>💬</span>
-                        <span>{count}</span>
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>{count}</span>
+                        </div>
                       </button>
                     );
                   }}
@@ -183,31 +186,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
 
                     if (lineComments.length === 0) return null;
 
-                    return (
-                      <div
-                        className="flex flex-col gap-2 mt-2"
-                        style={{
-                          fontFamily: "var(--font-pretendard), sans-serif",
-                        }}
-                      >
-                        {lineComments.map((comment) => (
-                          <div
-                            key={comment.id}
-                            className="bg-muted/50 rounded-md text-sm p-4 animate-in fade-in zoom-in-95 duration-200"
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-bold">
-                                {comment.author.nickname}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatRelativeTime(comment.created_at)}
-                              </span>
-                            </div>
-                            <p>{comment.content}</p>
-                          </div>
-                        ))}
-                      </div>
-                    );
+                    return <ReviewComment lineComments={lineComments} />;
                   }}
                 />
               </div>

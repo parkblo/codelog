@@ -28,9 +28,13 @@ export default async function PostPage({ params }: PostPageProps) {
       </div>
       <Post post={post} fullPage comments={comments || undefined} />
       <CommentForm postId={Number(postId)} />
-      {comments?.map((comment) => (
-        <Comment key={comment.id} comment={comment} />
-      ))}
+      {comments
+        ?.filter(
+          (comment) => comment.start_line === null || comment.end_line === null
+        )
+        .map((comment) => (
+          <Comment key={comment.id} comment={comment} />
+        ))}
     </div>
   );
 }

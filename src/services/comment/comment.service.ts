@@ -55,7 +55,7 @@ export class CommentService implements ICommentService {
         `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
       )
       .eq("post_id", postId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
 
     if (error) {
       return { data: null, error };

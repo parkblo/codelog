@@ -80,31 +80,37 @@ export type Database = {
       comments: {
         Row: {
           content: string
-          created_at: string | null
+          created_at: string
           deleted_at: string | null
+          end_line: number | null
           id: number
           like_count: number
           post_id: number
+          start_line: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           content: string
-          created_at?: string | null
+          created_at?: string
           deleted_at?: string | null
+          end_line?: number | null
           id?: number
           like_count?: number
           post_id: number
+          start_line?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           content?: string
-          created_at?: string | null
+          created_at?: string
           deleted_at?: string | null
+          end_line?: number | null
           id?: number
           like_count?: number
           post_id?: number
+          start_line?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -164,6 +170,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: number
+          is_review_enabled: boolean
           language: string | null
           like_count: number
           updated_at: string | null
@@ -178,6 +185,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: number
+          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null
@@ -192,6 +200,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: number
+          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null

@@ -47,13 +47,22 @@ export function CodeSnippet({
 
     // 1. 이미 선택된 라인을 다시 클릭
     if (selectedLines.includes(lineNumber)) {
-      // 1-1. 한 줄만 선택된 상태에서 다시 클릭 -> 확정 (Confirm)
+      // 1-1. 이미 확정된 상태(폼이 열린 상태)에서 클릭 -> 취소 (Deselect)
+      if (showCommentForm) {
+        setSelectedLines([]);
+        setDragStartLine(null);
+        setShowCommentForm(false);
+        return;
+      }
+
+      // 1-2. 아직 확정 전(폼이 닫힌 상태)에서 클릭 -> 확정 (Confirm Single Line)
+      // (단, 한 줄 선택일 때만 유효. 구간 선택 중 내부 클릭은 범위 재설정으로 간주)
       if (selectedLines.length === 1 && selectedLines[0] === lineNumber) {
         setShowCommentForm(true);
         return;
       }
-      // 1-2. 구간 선택된 상태에서 선택된 라인 클릭 -> 해당 라인 하나만 선택으로 변경
-      // (선택 범위 수정하고 싶을 때 유용)
+
+      // 1-3. 구간 선택 중 내부 클릭 (확정 전) -> 해당 라인 하나만 선택으로 변경
       setSelectedLines([lineNumber]);
       setDragStartLine(lineNumber);
       setIsDragging(true);
@@ -72,11 +81,11 @@ export function CodeSnippet({
       );
       setSelectedLines(newSelection);
       setDragStartLine(null);
-      setShowCommentForm(true); // 입력창 표시
+      setShowCommentForm(true); // 입력창 표시 (구간은 즉시 확정)
       return;
     }
 
-    // 3. 그 외 -> 새로운 선택 시작
+    // 3. 그 외 -> 새로운 선택 시작 (Pending)
     setIsDragging(true);
     setDragStartLine(lineNumber);
     setSelectedLines([lineNumber]);
@@ -105,14 +114,9 @@ export function CodeSnippet({
     setIsDragging(false);
     setDragStartLine(null);
 
-    // 드래그가 끝났을 때:
-    // 1. 여러 줄이 선택된 상태라면 (드래그 완료) -> 입력창 표시
+    // 드래그가 끝났을 때: 여러 줄이 선택된 상태라면 -> 입력창 표시
     if (selectedLines.length > 1) {
       setShowCommentForm(true);
-    }
-    // 2. 한 줄만 선택된 상태라면 (단순 클릭) -> 입력창 숨김 (두 번째 클릭 대기)
-    else {
-      setShowCommentForm(false);
     }
   };
 
@@ -226,6 +230,7 @@ export function CodeSnippet({
                         )}
                       </div>
                     )}
+
                   {/* 라인 별 Footer 렌더링 (ex: 댓글) */}
                   {renderLineFooter && (
                     <div className="w-full text-foreground">

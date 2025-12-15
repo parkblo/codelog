@@ -1,8 +1,7 @@
-"use client";
-
 import { Highlight, themes } from "prism-react-renderer";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Check, Copy } from "lucide-react";
 
 interface CodeSnippetProps {
   code: string;
@@ -30,6 +29,17 @@ export function CodeSnippet({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartLine, setDragStartLine] = useState<number | null>(null);
   const [showCommentForm, setShowCommentForm] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy code: ", err);
+    }
+  };
 
   const handleMouseDown = (lineNumber: number) => {
     if (readOnly) return;
@@ -71,6 +81,27 @@ export function CodeSnippet({
 
   return (
     <div className="rounded-md border bg-[#1e1e1e] overflow-hidden">
+      {/* Code Header */}
+      <div className="flex justify-between items-center px-4 py-2 bg-white/5 border-b border-white/10">
+        <span className="text-xs font-medium text-muted-foreground uppercase">
+          {language}
+        </span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleCopy();
+          }}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Copy code"
+        >
+          {isCopied ? (
+            <Check className="w-4 h-4" />
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+
       <Highlight theme={themes.vsDark} code={code} language={language}>
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <pre

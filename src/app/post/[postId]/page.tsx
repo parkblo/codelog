@@ -26,7 +26,7 @@ export default async function PostPage({ params }: PostPageProps) {
       <div className="sticky flex gap-2 items-center w-full bg-background">
         <BackButton />
       </div>
-      <Post post={post} fullPage />
+      <Post post={post} fullPage comments={comments || undefined} />
       <CommentForm postId={Number(postId)} />
       {comments?.map((comment) => (
         <Comment key={comment.id} comment={comment} />

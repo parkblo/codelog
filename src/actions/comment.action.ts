@@ -67,4 +67,39 @@ async function getCommentsByPostIdAction(postId: number) {
   return { data, error: null };
 }
 
-export { createCommentAction, getCommentsByPostIdAction };
+async function updateCommentAction(
+  commentId: number,
+  data: Partial<CreateCommentDTO>
+) {
+  const commentService = new CommentService();
+
+  const { data: updatedComment, error: updateCommentError } =
+    await commentService.updateComment(commentId, data);
+
+  if (updateCommentError || !updatedComment) {
+    return {
+      error: updateCommentError?.message || "댓글 수정에 실패했습니다.",
+    };
+  }
+
+  revalidatePath(`/post/${data.postId}`);
+
+  return { data: updatedComment, error: null };
+}
+
+async function deleteCommentAction(commentId: number, postId: number) {
+  const commentService = new CommentService();
+
+  const { error } = await commentService.deleteComment(commentId);
+
+  revalidatePath(`/post/${postId}`);
+
+  return { error };
+}
+
+export {
+  createCommentAction,
+  getCommentsByPostIdAction,
+  updateCommentAction,
+  deleteCommentAction,
+};

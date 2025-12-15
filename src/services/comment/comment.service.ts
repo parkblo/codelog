@@ -66,7 +66,7 @@ export class CommentService implements ICommentService {
 
   async updateComment(
     id: number,
-    data: UpdateCommentDTO
+    data: Partial<UpdateCommentDTO>
   ): Promise<{ data: Comment | null; error: Error | null }> {
     const supabase = await createClient();
 

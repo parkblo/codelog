@@ -16,7 +16,7 @@ async function createBookmarkAction(postId: number) {
   const { error } = await bookmarkService.createBookmark(postId, user.id);
 
   if (error) {
-    return { error };
+    return { error: error.message };
   }
 
   revalidatePath(`/post/${postId}`);
@@ -36,7 +36,8 @@ async function deleteBookmarkAction(postId: number) {
   const { error } = await bookmarkService.deleteBookmark(postId, user.id);
 
   if (error) {
-    return { error };
+    console.error(error);
+    return { error: error.message };
   }
 
   revalidatePath(`/post/${postId}`);
@@ -56,7 +57,7 @@ async function getBookmarksAction() {
   const { data, error } = await bookmarkService.getBookmarks(user.id);
 
   if (error) {
-    return { data: null, error };
+    return { data: null, error: error.message };
   }
 
   return { data, error: null };

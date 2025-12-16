@@ -24,7 +24,7 @@ async function createPostAction(data: CreatePostDTO) {
   const { data: newPost, error } = await postService.createPost(secureData);
 
   if (error || !newPost) {
-    // TODO- 추가적인 에러 핸들링 필요
+    console.error(error);
     return { error: error?.message || "포스트 작성에 실패했습니다." };
   }
 
@@ -73,7 +73,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   const { data: updatedPost, error } = await postService.updatePost(id, data);
 
   if (error || !updatedPost) {
-    // TODO- 추가적인 에러 핸들링 필요
+    console.error(error);
     return { error: error?.message || "포스트 수정에 실패했습니다." };
   }
 
@@ -95,7 +95,8 @@ async function getPostsAction({
   });
 
   if (getPostsError) {
-    return { data: null, error: getPostsError };
+    console.error(getPostsError);
+    return { data: null, error: getPostsError.message };
   }
 
   // 비로그인 시 좋아요 여부 false로 설정하고 반환
@@ -146,6 +147,7 @@ async function getPostByIdAction(id: number) {
   const { data: post, error: getPostError } = await postService.getPostById(id);
 
   if (getPostError || !post) {
+    console.error(getPostError);
     return {
       error:
         getPostError?.message || `id:${id} 포스트 불러오기에 실패했습니다.`,
@@ -209,8 +211,7 @@ async function deletePostAction(id: number) {
   const { error } = await postService.deletePost(id);
 
   if (error) {
-    // TODO- 추가적인 에러 핸들링 필요
-    console.error(error?.message || "포스트 삭제에 실패했습니다.");
+    console.error(error);
     return { error: error?.message || "포스트 삭제에 실패했습니다." };
   }
 

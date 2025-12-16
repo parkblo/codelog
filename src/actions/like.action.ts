@@ -16,7 +16,8 @@ async function createPostLikeAction(postId: number) {
   const { error } = await likeService.createPostLike(postId, user.id);
 
   if (error) {
-    return { error: error?.message || "좋아요에 실패했습니다." };
+    console.error(error);
+    return { error: error.message || "좋아요에 실패했습니다." };
   }
 
   revalidatePath(`/post/${postId}`);
@@ -36,7 +37,8 @@ async function deletePostLikeAction(postId: number) {
   const { error } = await likeService.deletePostLike(postId, user.id);
 
   if (error) {
-    return { error: error?.message || "좋아요 취소에 실패했습니다." };
+    console.error(error);
+    return { error: error.message || "좋아요 취소에 실패했습니다." };
   }
 
   revalidatePath(`/post/${postId}`);
@@ -56,7 +58,8 @@ async function createCommentLikeAction(postId: number, commentId: number) {
   const { error } = await likeService.createCommentLike(commentId, user.id);
 
   if (error) {
-    return { error: error?.message || "좋아요에 실패했습니다." };
+    console.error(error);
+    return { error: error.message || "좋아요에 실패했습니다." };
   }
 
   revalidatePath(`/post/${postId}`);
@@ -76,7 +79,8 @@ async function deleteCommentLikeAction(postId: number, commentId: number) {
   const { error } = await likeService.deleteCommentLike(commentId, user.id);
 
   if (error) {
-    return { error: error?.message || "좋아요 취소에 실패했습니다." };
+    console.error(error);
+    return { error: error.message || "좋아요 취소에 실패했습니다." };
   }
 
   revalidatePath(`/post/${postId}`);

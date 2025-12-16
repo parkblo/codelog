@@ -4,14 +4,14 @@ import { Comment } from "@/types/types";
 import { formatRelativeTime } from "@/utils/date";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState } from "react";
 import {
   createCommentLikeAction,
   deleteCommentLikeAction,
 } from "@/actions/like.action";
-import { Button } from "@/components/ui/button";
+
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 import CommentMenu from "./CommentMenu";
 
 interface ReviewCommentProps {

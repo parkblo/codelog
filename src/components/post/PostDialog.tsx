@@ -14,6 +14,7 @@ import { Label } from "../ui/label";
 import { createPostAction, updatePostAction } from "@/actions/post.action";
 import { Post } from "@/types/types";
 import { Checkbox } from "../ui/checkbox";
+import { handleAction } from "@/utils/handle-action";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PostDialogProps {
@@ -34,7 +35,6 @@ export default function PostDialog({
   const [tagInput, setTagInput] = useState("");
   const [codeInput, setCodeInput] = useState(post?.code || "");
   const [languageInput, setLanguageInput] = useState(post?.language || "text");
-  const [errorText, setErrorText] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewEnabled, setIsReviewEnabled] = useState(
     post?.is_review_enabled || false
@@ -82,38 +82,33 @@ export default function PostDialog({
     if (!user || isSubmitting) return;
 
     setIsSubmitting(true);
-    setErrorText(null);
 
-    let result;
+    const commonData = {
+      content,
+      code: snippetMode ? codeInput : null,
+      language: snippetMode ? languageInput : null,
+      tags,
+      is_review_enabled: isReviewEnabled,
+    };
 
-    if (post) {
-      result = await updatePostAction(post.id, {
-        content,
-        code: snippetMode ? codeInput : null,
-        language: snippetMode ? languageInput : null,
-        tags,
-        is_review_enabled: isReviewEnabled,
-      });
-    } else {
-      result = await createPostAction({
-        author: user,
-        content,
-        code: snippetMode ? codeInput : null,
-        language: snippetMode ? languageInput : null,
-        tags,
-        is_review_enabled: isReviewEnabled,
-      });
-    }
+    const action = post
+      ? updatePostAction(post.id, commonData)
+      : createPostAction({
+          author: user,
+          ...commonData,
+        });
 
-    const { error } = result;
+    await handleAction(action, {
+      onSuccess: () => {
+        handleClose();
+        setContent("");
+        setTags([]);
+      },
+      successMessage: post
+        ? "게시글이 성공적으로 수정되었습니다."
+        : "게시글이 성공적으로 작성되었습니다.",
+    });
 
-    if (error) {
-      setErrorText(error);
-    } else {
-      handleClose();
-      setContent("");
-      setTags([]);
-    }
     setIsSubmitting(false);
   };
 
@@ -211,7 +206,6 @@ export default function PostDialog({
                 )}
               </Button>
             </div>
-            <span className="text-color-red">{errorText}</span>
           </div>
         </div>
       </DialogContent>

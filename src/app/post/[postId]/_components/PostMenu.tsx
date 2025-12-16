@@ -13,6 +13,8 @@ import { EllipsisVertical } from "lucide-react";
 import PostDialog from "@/components/post/PostDialog";
 import { useState } from "react";
 import { Post } from "@/types/types";
+import { handleAction } from "@/utils/handle-action";
+import { useRouter } from "next/navigation";
 
 interface PostMenuProps {
   post: Post;
@@ -21,6 +23,7 @@ interface PostMenuProps {
 export default function PostMenu({ post }: PostMenuProps) {
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
 
   if (!user) {
     return null;
@@ -46,7 +49,14 @@ export default function PostMenu({ post }: PostMenuProps) {
           수정
         </DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={() => deletePostAction(post.id)}
+          onSelect={async () => {
+            await handleAction(deletePostAction(post.id), {
+              onSuccess: () => {
+                router.refresh();
+              },
+              successMessage: "게시글이 삭제되었습니다.",
+            });
+          }}
           disabled={!isOwner}
         >
           삭제

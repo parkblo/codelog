@@ -110,7 +110,6 @@ export default function AuthDialog({
       }),
       {
         onSuccess: () => {
-          toast.info("이메일로 가입 확인 메시지를 보냈습니다.");
           setSignUp(false);
         },
       }

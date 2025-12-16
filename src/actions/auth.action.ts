@@ -62,7 +62,7 @@ export async function signUpAction(credentials: SignUpProps) {
       return { error: error.message };
     }
 
-    return { error: null, message: "이메일에 가입 확인 메시지를 보냈습니다." };
+    return { error: null, message: "회원가입이 완료되었습니다." };
   } catch (err) {
     console.error(err);
     return { error: "회원가입 중 알 수 없는 오류가 발생했습니다." };

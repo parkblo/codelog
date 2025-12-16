@@ -25,6 +25,10 @@ export default function CommentMenu({ comment }: { comment: Comment }) {
 
   const isOwner = user.id === comment.author.id;
 
+  if (!isOwner) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

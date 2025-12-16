@@ -312,7 +312,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_post_with_tags: {
+        Args: { post_data: Json; tags: string[] }
+        Returns: Json
+      }
+      update_post_with_tags: {
+        Args: { p_post_id: number; post_data: Json; tags: string[] }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

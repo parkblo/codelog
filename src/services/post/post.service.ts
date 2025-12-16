@@ -143,29 +143,6 @@ export class PostService implements IPostService {
 
     const { tags, author, ...postFields } = data;
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
-      return { data: null, error: new Error("User not authenticated") };
-    }
-
-    // 작성자 확인
-    const { data: originalPost, error: fetchError } = await supabase
-      .from("posts")
-      .select("user_id")
-      .eq("id", id)
-      .single();
-
-    if (fetchError || !originalPost) {
-      return { data: null, error: new Error("Post not found") };
-    }
-
-    if (originalPost.user_id !== userData.user.id) {
-      return {
-        data: null,
-        error: new Error("Unauthorized: You do not own this post"),
-      };
-    }
-
     // 글 내용 업데이트
     const { data: updatedPost, error } = await (
       supabase as SupabaseClient<RpcDatabase>

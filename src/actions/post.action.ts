@@ -11,7 +11,17 @@ import { CommentService } from "@/services/comment/comment.service";
 const postService = new PostService();
 
 async function createPostAction(data: CreatePostDTO) {
-  const { data: newPost, error } = await postService.createPost(data);
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 데이터의 author는 클라이언트에서 오므로, 서버의 신뢰할 수 있는 user 정보로 덮어씌웁니다.
+  const secureData = { ...data, author: user };
+
+  const { data: newPost, error } = await postService.createPost(secureData);
 
   if (error || !newPost) {
     // TODO- 추가적인 에러 핸들링 필요
@@ -39,6 +49,25 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
         error: "코드 리뷰가 존재하는 포스트는 코드를 수정할 수 없습니다.",
       };
     }
+  }
+
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 소유권 확인
+  const { data: originalPost, error: fetchError } =
+    await postService.getPostById(id);
+
+  if (fetchError || !originalPost) {
+    return { error: "포스트를 찾을 수 없습니다." };
+  }
+
+  if (originalPost.author.id !== user.id) {
+    return { error: "본인의 포스트만 수정할 수 있습니다." };
   }
 
   const { data: updatedPost, error } = await postService.updatePost(id, data);
@@ -158,6 +187,25 @@ async function getPostByIdAction(id: number) {
 }
 
 async function deletePostAction(id: number) {
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 소유권 확인
+  const { data: originalPost, error: fetchError } =
+    await postService.getPostById(id);
+
+  if (fetchError || !originalPost) {
+    return { error: "포스트를 찾을 수 없습니다." };
+  }
+
+  if (originalPost.author.id !== user.id) {
+    return { error: "본인의 포스트만 삭제할 수 있습니다." };
+  }
+
   const { error } = await postService.deletePost(id);
 
   if (error) {

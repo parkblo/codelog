@@ -60,6 +60,26 @@ export class CommentService implements ICommentService {
     return { data, error: null };
   }
 
+  async getCommentById(
+    commentId: number
+  ): Promise<{ data: Comment | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("comments")
+      .select(
+        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+      )
+      .eq("id", commentId)
+      .single();
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  }
+
   async updateComment(
     id: number,
     data: Partial<CreateCommentDTO>

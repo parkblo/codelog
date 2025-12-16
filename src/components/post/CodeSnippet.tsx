@@ -137,6 +137,7 @@ export function CodeSnippet({
           }}
           className="text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Copy code"
+          type="button"
         >
           {isCopied ? (
             <Check className="w-4 h-4 text-green-500" />

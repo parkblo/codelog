@@ -209,6 +209,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
                           toggleCommentLine(lineNumber);
                         }}
                         className="mx-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                        type="button"
                       >
                         <div className="flex items-center gap-1">
                           <MessageCircle className="w-4 h-4" />

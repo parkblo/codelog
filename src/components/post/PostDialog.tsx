@@ -36,7 +36,9 @@ export default function PostDialog({
   const [languageInput, setLanguageInput] = useState(post?.language || "text");
   const [errorText, setErrorText] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isReviewEnabled, setIsReviewEnabled] = useState(false);
+  const [isReviewEnabled, setIsReviewEnabled] = useState(
+    post?.is_review_enabled || false
+  );
 
   const toggleSnippetMode = () => {
     setSnippetMode(snippetMode ? false : true);

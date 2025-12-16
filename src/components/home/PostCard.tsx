@@ -38,7 +38,9 @@ export default function PostCard() {
 
   return (
     <>
-      <PostDialog isOpen={isDialogOpen} handleClose={handleCloseDialog} />
+      {isDialogOpen && (
+        <PostDialog isOpen={isDialogOpen} handleClose={handleCloseDialog} />
+      )}
       <Card>
         <CardContent>
           <div className="flex gap-2 items-center">

@@ -52,11 +52,13 @@ export default function PostMenu({ post }: PostMenuProps) {
           삭제
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <PostDialog
-        isOpen={isDialogOpen}
-        handleClose={() => setIsDialogOpen(false)}
-        post={post}
-      />
+      {isDialogOpen && (
+        <PostDialog
+          isOpen={isDialogOpen}
+          handleClose={() => setIsDialogOpen(false)}
+          post={post}
+        />
+      )}
     </DropdownMenu>
   );
 }

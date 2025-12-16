@@ -52,7 +52,7 @@ export default function PostMenu({ post }: PostMenuProps) {
           onSelect={async () => {
             await handleAction(deletePostAction(post.id), {
               onSuccess: () => {
-                router.refresh();
+                router.push("/home");
               },
               successMessage: "게시글이 삭제되었습니다.",
             });

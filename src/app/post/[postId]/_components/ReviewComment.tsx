@@ -4,6 +4,8 @@ import { Comment } from "@/types/types";
 import { formatRelativeTime } from "@/utils/date";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { handleAction } from "@/utils/handle-action";
+
 import {
   createCommentLikeAction,
   deleteCommentLikeAction,
@@ -31,25 +33,16 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
       return newState;
     });
 
-    try {
-      const result = isLiked[idx]
-        ? await deleteCommentLikeAction(
-            lineComments[idx].post_id,
-            lineComments[idx].id
-          )
-        : await createCommentLikeAction(
-            lineComments[idx].post_id,
-            lineComments[idx].id
-          );
+    const action = isLiked[idx]
+      ? deleteCommentLikeAction(lineComments[idx].post_id, lineComments[idx].id)
+      : createCommentLikeAction(
+          lineComments[idx].post_id,
+          lineComments[idx].id
+        );
 
-      // TODO - 에러 핸들링 로직 추후 변경필요
-      if (result.error !== null) {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      setIsLiked(previousState);
-    }
+    await handleAction(action, {
+      onError: () => setIsLiked(previousState),
+    });
   };
 
   return (

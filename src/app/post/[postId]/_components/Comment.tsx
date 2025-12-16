@@ -13,6 +13,7 @@ import { formatRelativeTime } from "@/utils/date";
 import { Heart } from "lucide-react";
 import { useState } from "react";
 import CommentMenu from "./CommentMenu";
+import { handleAction } from "@/utils/handle-action";
 
 interface commentProps {
   comment: CommentType;
@@ -25,19 +26,13 @@ export default function Comment({ comment }: commentProps) {
     const previousState = isLiked;
     setIsLiked(!isLiked);
 
-    try {
-      const result = isLiked
-        ? await deleteCommentLikeAction(comment.post_id, comment.id)
-        : await createCommentLikeAction(comment.post_id, comment.id);
+    const action = isLiked
+      ? deleteCommentLikeAction(comment.post_id, comment.id)
+      : createCommentLikeAction(comment.post_id, comment.id);
 
-      // TODO - 에러 핸들링 로직 추후 변경필요
-      if (result.error !== null) {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      setIsLiked(previousState);
-    }
+    await handleAction(action, {
+      onError: () => setIsLiked(previousState),
+    });
   };
 
   return (

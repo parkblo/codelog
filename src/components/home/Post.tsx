@@ -25,6 +25,7 @@ import {
 import ReviewComment from "@/app/post/[postId]/_components/ReviewComment";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { handleAction } from "@/utils/handle-action";
 
 interface PostProps {
   post: PostType;
@@ -79,38 +80,26 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
     const previousState = isLiked;
     setIsLiked(!isLiked);
 
-    try {
-      const result = isLiked
-        ? await deletePostLikeAction(post.id)
-        : await createPostLikeAction(post.id);
+    const action = isLiked
+      ? deletePostLikeAction(post.id)
+      : createPostLikeAction(post.id);
 
-      // TODO - 에러 핸들링 로직 추후 변경필요
-      if (result.error !== null) {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      setIsLiked(previousState);
-    }
+    await handleAction(action, {
+      onError: () => setIsLiked(previousState),
+    });
   };
 
   const handleBookmarkClick = async () => {
     const previousState = isBookmarked;
     setIsBookmarked(!isBookmarked);
 
-    try {
-      const result = isBookmarked
-        ? await deleteBookmarkAction(post.id)
-        : await createBookmarkAction(post.id);
+    const action = isBookmarked
+      ? deleteBookmarkAction(post.id)
+      : createBookmarkAction(post.id);
 
-      // TODO - 에러 핸들링 로직 추후 변경필요
-      if (result.error !== null) {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      setIsBookmarked(previousState);
-    }
+    await handleAction(action, {
+      onError: () => setIsBookmarked(previousState),
+    });
   };
 
   return (

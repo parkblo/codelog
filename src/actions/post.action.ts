@@ -6,6 +6,7 @@ import { LikeService } from "@/services/like/like.service";
 import { CreatePostDTO } from "@/services/post/post.interface";
 import { PostService } from "@/services/post/post.service";
 import { revalidatePath } from "next/cache";
+import { CommentService } from "@/services/comment/comment.service";
 
 const postService = new PostService();
 
@@ -21,8 +22,6 @@ async function createPostAction(data: CreatePostDTO) {
 
   return { data: newPost, error: null };
 }
-
-import { CommentService } from "@/services/comment/comment.service";
 
 async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   // 코드가 수정되는 경우에만 체크

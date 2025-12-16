@@ -23,6 +23,7 @@ async function createCommentAction(data: CreateCommentDTO) {
     await commentService.createComment(secureData);
 
   if (createCommentError || !createdComment) {
+    console.error(createCommentError);
     return {
       error: createCommentError?.message || "댓글 작성에 실패했습니다.",
     };
@@ -43,6 +44,7 @@ async function getCommentsByPostIdAction(postId: number) {
     await commentService.getCommentsByPostId(postId);
 
   if (getCommentsError) {
+    console.error(getCommentsError);
     return {
       error: getCommentsError?.message || "댓글 불러오기에 실패했습니다.",
     };
@@ -62,6 +64,7 @@ async function getCommentsByPostIdAction(postId: number) {
     await likeService.getCommentLikes(user.id);
 
   if (getCommentLikesError) {
+    console.error(getCommentLikesError);
     return {
       error:
         getCommentLikesError?.message ||
@@ -107,6 +110,7 @@ async function updateCommentAction(
     await commentService.updateComment(commentId, data);
 
   if (updateCommentError || !updatedComment) {
+    console.error(updateCommentError);
     return {
       error: updateCommentError?.message || "댓글 수정에 실패했습니다.",
     };

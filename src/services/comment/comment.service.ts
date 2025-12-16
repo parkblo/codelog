@@ -1,9 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import {
-  ICommentService,
-  CreateCommentDTO,
-  UpdateCommentDTO,
-} from "./comment.interface";
+import { ICommentService, CreateCommentDTO } from "./comment.interface";
 import { Comment } from "@/types/types";
 
 export class CommentService implements ICommentService {
@@ -66,7 +62,7 @@ export class CommentService implements ICommentService {
 
   async updateComment(
     id: number,
-    data: Partial<UpdateCommentDTO>
+    data: Partial<CreateCommentDTO>
   ): Promise<{ data: Comment | null; error: Error | null }> {
     const supabase = await createClient();
 

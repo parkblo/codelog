@@ -5,7 +5,7 @@ export class BookmarkService implements IBookmarkService {
   async createBookmark(
     postId: number,
     userId: string
-  ): Promise<{ error: string | null }> {
+  ): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 
     const { error } = await supabase.from("bookmarks").insert({
@@ -14,7 +14,7 @@ export class BookmarkService implements IBookmarkService {
     });
 
     if (error) {
-      return { error: error.message };
+      return { error };
     }
 
     return { error: null };
@@ -22,7 +22,7 @@ export class BookmarkService implements IBookmarkService {
   async deleteBookmark(
     postId: number,
     userId: string
-  ): Promise<{ error: string | null }> {
+  ): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 
     const { error } = await supabase
@@ -32,14 +32,14 @@ export class BookmarkService implements IBookmarkService {
       .eq("user_id", userId);
 
     if (error) {
-      return { error: error.message };
+      return { error };
     }
 
     return { error: null };
   }
   async getBookmarks(
     userId: string
-  ): Promise<{ data: number[] | null; error: string | null }> {
+  ): Promise<{ data: number[] | null; error: Error | null }> {
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -48,7 +48,7 @@ export class BookmarkService implements IBookmarkService {
       .eq("user_id", userId);
 
     if (error) {
-      return { data: null, error: error.message };
+      return { data: null, error };
     }
 
     return { data: data.map((bookmark) => bookmark.post_id), error: null };

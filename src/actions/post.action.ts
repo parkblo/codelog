@@ -73,7 +73,11 @@ async function getPostsAction({
   // 비로그인 시 좋아요 여부 false로 설정하고 반환
   if (!user) {
     return {
-      data: posts?.map((post) => ({ ...post, is_liked: false })),
+      data: posts?.map((post) => ({
+        ...post,
+        is_liked: false,
+        is_bookmarked: false,
+      })),
       error: null,
     };
   }
@@ -122,7 +126,7 @@ async function getPostByIdAction(id: number) {
 
   if (!user) {
     return {
-      data: { ...post, is_liked: false },
+      data: { ...post, is_liked: false, is_bookmarked: false },
       error: null,
     };
   }

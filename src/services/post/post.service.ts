@@ -1,39 +1,63 @@
 import { createClient } from "@/utils/supabase/server";
 import { CreatePostDTO, IPostService } from "./post.interface";
 import { Post } from "@/types/types";
-import { TagService } from "../tag/tag.service";
+import { Database, Tables } from "@/types/database.types";
+import { SupabaseClient } from "@supabase/supabase-js";
+
+type RpcDatabase = Database & {
+  public: {
+    Functions: {
+      create_post_with_tags: {
+        Args: {
+          post_data: {
+            content: string;
+            code: string | null;
+            language: string | null;
+            user_id: string;
+            is_review_enabled: boolean;
+          };
+          tags: string[];
+        };
+        Returns: Tables<"posts">;
+      };
+      update_post_with_tags: {
+        Args: {
+          p_post_id: number;
+          post_data: {
+            content?: string;
+            code?: string | null;
+            language?: string | null;
+            is_review_enabled?: boolean;
+          };
+          tags: string[] | null;
+        };
+        Returns: Tables<"posts">;
+      };
+    };
+  };
+};
 
 export class PostService implements IPostService {
   async createPost(
     data: CreatePostDTO
   ): Promise<{ data: Post | null; error: Error | null }> {
     const supabase = await createClient();
-    const tagService = new TagService();
 
-    const { data: insertedPost, error } = await supabase
-      .from("posts")
-      .insert({
+    const { data: insertedPost, error } = await (
+      supabase as SupabaseClient<RpcDatabase>
+    ).rpc("create_post_with_tags", {
+      post_data: {
         content: data.content,
         code: data.code,
         language: data.language,
         user_id: data.author.id,
         is_review_enabled: data.is_review_enabled,
-      })
-      .select()
-      .single();
+      },
+      tags: data.tags,
+    });
 
     if (error || !insertedPost) {
       return { data: null, error };
-    }
-
-    for (const tagName of data.tags) {
-      const { data: createdPostTag, error: createPostTagError } =
-        await tagService.createTagForPost(tagName, insertedPost.id);
-
-      if (createPostTagError || !createdPostTag) {
-        console.error("Failed to create tag: ", tagName);
-        continue;
-      }
     }
 
     const newPost: Post = {
@@ -116,7 +140,6 @@ export class PostService implements IPostService {
     data: Partial<CreatePostDTO>
   ): Promise<{ data: Post | null; error: Error | null }> {
     const supabase = await createClient();
-    const tagService = new TagService();
 
     const { tags, author, ...postFields } = data;
 
@@ -144,29 +167,24 @@ export class PostService implements IPostService {
     }
 
     // 글 내용 업데이트
-    const { data: updatedPost, error } = await supabase
-      .from("posts")
-      .update(postFields)
-      .eq("id", id)
-      .select()
-      .single();
+    const { data: updatedPost, error } = await (
+      supabase as SupabaseClient<RpcDatabase>
+    ).rpc("update_post_with_tags", {
+      p_post_id: id,
+      post_data: {
+        content: postFields.content,
+        code: postFields.code,
+        language: postFields.language,
+        is_review_enabled: postFields.is_review_enabled,
+      },
+      tags: tags || null,
+    });
 
     if (error) {
       return { data: null, error };
     }
 
-    if (tags) {
-      await supabase.from("posttags").delete().eq("post_id", id);
-
-      for (const tagName of tags) {
-        const { data: createdPostTag, error: createPostTagError } =
-          await tagService.createTagForPost(tagName, id);
-
-        if (createPostTagError || !createdPostTag) {
-          return { data: null, error: createPostTagError };
-        }
-      }
-    }
+    // RPC는 업데이트된 post row를 반환하지만, author와 tags가 포함된 전체 Post 객체를 반환해야하기 때문에, 재조회합니다.
 
     return this.getPostById(id);
   }

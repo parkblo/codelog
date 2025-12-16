@@ -4,6 +4,7 @@ import CommentForm from "./_components/CommentForm";
 import Comment from "./_components/Comment";
 import { getPostByIdAction } from "@/actions/post.action";
 import { getCommentsByPostIdAction } from "@/actions/comment.action";
+import { notFound } from "next/navigation";
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;
@@ -18,7 +19,12 @@ export default async function PostPage({ params }: PostPageProps) {
     await getCommentsByPostIdAction(Number(postId));
 
   if (error || !post) {
-    return <div>[Error]{error instanceof Error ? error.message : error}</div>;
+    if (error === "포스트를 찾을 수 없습니다." || !post) {
+      notFound();
+    }
+    throw new Error(
+      typeof error === "string" ? error : "알 수 없는 에러가 발생했습니다."
+    );
   }
 
   return (

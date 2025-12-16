@@ -31,6 +31,10 @@ export default function PostMenu({ post }: PostMenuProps) {
 
   const isOwner = user.id === post.author.id;
 
+  if (!isOwner) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

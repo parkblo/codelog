@@ -140,7 +140,7 @@ export function CodeSnippet({
           type="button"
         >
           {isCopied ? (
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4" />
           ) : (
             <Copy className="w-4 h-4" />
           )}

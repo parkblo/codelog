@@ -1,8 +1,7 @@
 "use client";
 
-import { ClientAuthService } from "@/services/auth/client-auth.service";
-
 import { Github, Mail } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -14,8 +13,14 @@ import {
 import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
+import { handleAction } from "@/utils/handle-action";
+import {
+  signInWithOAuthAction,
+  signInWithPasswordAction,
+  signUpAction,
+} from "@/actions/auth.action";
 
 interface AuthDialogProps {
   children: ReactNode;
@@ -52,73 +57,65 @@ export default function AuthDialog({
     }
   };
 
-  const authService = useMemo(() => new ClientAuthService(), []);
-
   const handleGitHubLogin = async () => {
-    const { error } = await authService.signInWithOAuth("github", {
-      redirectTo: `${location.origin}/auth/callback`,
-    });
-
-    if (error) {
-      alert(error.message);
-    }
+    await handleAction(
+      signInWithOAuthAction("github", {
+        redirectTo: `${location.origin}/auth/callback`,
+      }),
+      {
+        onSuccess: (data) => {
+          if (data?.url) {
+            window.location.href = data.url;
+          }
+        },
+      }
+    );
   };
 
-  const handleEmailLogin = async () => {
-    if (!email || !password) {
-      alert("이메일과 비밀번호를 입력해주세요.");
-      return;
-    }
-
+  const handleEmailLogin = async (e: FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    const { error } = await authService.signInWithPassword({
-      email,
-      password,
-    });
+    await handleAction(
+      signInWithPasswordAction({
+        email,
+        password,
+      }),
+      {
+        onSuccess: () => {
+          window.location.reload();
+        },
+      }
+    );
     setLoading(false);
-
-    if (error) {
-      alert(error.message);
-    } else {
-      // 로그인 성공 시 페이지 리로드 또는 상태 업데이트
-      window.location.reload();
-    }
   };
 
-  const handleEmailSignUp = async () => {
-    if (!email || !password || !confirmPassword || !nickname) {
-      alert("모든 항목을 입력해주세요.");
-      return;
-    }
-
-    if (password.length < 6) {
-      alert("비밀번호는 6자 이상이어야 합니다.");
-      return;
-    }
+  const handleEmailSignUp = async (e: FormEvent) => {
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast.error("비밀번호가 일치하지 않습니다.");
       return;
     }
 
     setLoading(true);
-    const { error } = await authService.signUp({
-      email,
-      password,
-      data: {
-        user_name: username,
-        nick_name: nickname,
-        avatar_url: "",
-      },
-    });
+    await handleAction(
+      signUpAction({
+        email,
+        password,
+        data: {
+          user_name: username,
+          nick_name: nickname,
+          avatar_url: "",
+        },
+      }),
+      {
+        onSuccess: () => {
+          toast.info("이메일로 가입 확인 메시지를 보냈습니다.");
+          setSignUp(false);
+        },
+      }
+    );
     setLoading(false);
-
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("이메일에 가입 확인 메시지를 보냈습니다.");
-      setSignUp(false);
-    }
   };
 
   return (
@@ -148,91 +145,115 @@ export default function AuthDialog({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">이메일</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-        </div>
-
-        {isSignUp ? (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">비밀번호</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">비밀번호</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
-          </div>
-        )}
-
-        {isSignUp && (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-          </div>
-        )}
-
-        {isSignUp && (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="username">아이디</Label>
-            <Input
-              id="username"
-              placeholder="아이디"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-            />
-          </div>
-        )}
-
-        {isSignUp && (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="nickname">닉네임</Label>
-            <Input
-              id="nickname"
-              placeholder="닉네임"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              autoComplete="nickname"
-            />
-          </div>
-        )}
-
-        <Button
-          variant="outline"
-          onClick={isSignUp ? handleEmailSignUp : handleEmailLogin}
-          disabled={loading}
+        <form
+          onSubmit={isSignUp ? handleEmailSignUp : handleEmailLogin}
+          className="flex flex-col gap-4"
         >
-          <Mail /> {isSignUp ? "이메일로 가입" : "이메일로 로그인"}
-        </Button>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="email">
+              이메일 <span className="text-orange-600">*</span>
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </div>
+
+          {isSignUp ? (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">
+                비밀번호<span className="text-orange-600">*</span>
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">
+                비밀번호<span className="text-orange-600">*</span>
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </div>
+          )}
+
+          {isSignUp && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="confirmPassword">
+                비밀번호 확인<span className="text-orange-600">*</span>
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+            </div>
+          )}
+
+          {isSignUp && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="username">
+                사용자 이름<span className="text-orange-600">*</span>
+              </Label>
+              <Input
+                id="username"
+                placeholder="사용자 이름"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                required
+              />
+            </div>
+          )}
+
+          {isSignUp && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="nickname">
+                닉네임<span className="text-orange-600">*</span>
+              </Label>
+              <Input
+                id="nickname"
+                placeholder="닉네임"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                autoComplete="nickname"
+                required
+              />
+            </div>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={isSignUp ? handleEmailSignUp : handleEmailLogin}
+            disabled={loading}
+            type="submit"
+          >
+            <Mail /> {isSignUp ? "이메일로 가입" : "이메일로 로그인"}
+          </Button>
+        </form>
         <div className="flex justify-center items-center">
           {!isSignUp && (
             <p className="text-sm text-muted-foreground align-middle">

@@ -9,6 +9,7 @@ import { Send } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { createCommentAction } from "@/actions/comment.action";
+import { handleAction } from "@/utils/handle-action";
 
 export default function CommentForm({
   postId,
@@ -25,19 +26,21 @@ export default function CommentForm({
   const createComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (comment && user) {
-      const { data, error } = await createCommentAction({
-        content: comment,
-        postId,
-        userId: user.id,
-        startLine,
-        endLine,
-      });
-      if (error) {
-        toast.error(error);
-      } else {
-        toast.success("댓글이 작성되었습니다.");
-        setComment("");
-      }
+      await handleAction(
+        createCommentAction({
+          content: comment,
+          postId,
+          userId: user.id,
+          startLine,
+          endLine,
+        }),
+        {
+          onSuccess: () => {
+            setComment("");
+          },
+          successMessage: "댓글이 작성되었습니다.",
+        }
+      );
     } else if (!user) {
       toast.error("로그인 후 댓글을 작성해주세요.");
     } else {

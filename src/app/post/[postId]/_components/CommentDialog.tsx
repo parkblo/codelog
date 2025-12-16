@@ -15,6 +15,7 @@ import { Comment } from "@/types/types";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { handleAction } from "@/utils/handle-action";
 
 interface CommentDialogProps {
   isOpen: boolean;
@@ -33,19 +34,17 @@ export default function CommentDialog({
   const updateComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (commentInput && user) {
-      const { data, error } = await updateCommentAction(
-        comment.id,
-        comment.post_id,
-        {
+      await handleAction(
+        updateCommentAction(comment.id, comment.post_id, {
           content: commentInput,
+        }),
+        {
+          onSuccess: () => {
+            handleClose();
+          },
+          successMessage: "댓글이 수정되었습니다.",
         }
       );
-      if (error) {
-        toast.error(error);
-      } else {
-        toast.success("댓글이 수정되었습니다.");
-        handleClose();
-      }
     } else if (!user) {
       toast.error("먼저 로그인 해주세요.");
     } else {

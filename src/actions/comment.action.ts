@@ -143,11 +143,15 @@ async function deleteCommentAction(commentId: number, postId: number) {
     return { error: "본인의 댓글만 삭제할 수 있습니다." };
   }
 
-  const { error } = await commentService.deleteComment(commentId);
+  const { error: deleteError } = await commentService.deleteComment(commentId);
+  if (deleteError) {
+    console.error(deleteError);
+    return { error: deleteError.message };
+  }
 
   revalidatePath(`/post/${postId}`);
 
-  return { error };
+  return { error: null };
 }
 
 export {

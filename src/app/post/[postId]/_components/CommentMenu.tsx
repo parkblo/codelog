@@ -13,6 +13,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { Comment } from "@/types/types";
 import { deleteCommentAction } from "@/actions/comment.action";
 import CommentDialog from "./CommentDialog";
+import { handleAction } from "@/utils/handle-action";
 
 export default function CommentMenu({ comment }: { comment: Comment }) {
   const { user } = useAuth();
@@ -42,7 +43,12 @@ export default function CommentMenu({ comment }: { comment: Comment }) {
           수정
         </DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={() => deleteCommentAction(comment.id, comment.post_id)}
+          onSelect={async () => {
+            await handleAction(
+              deleteCommentAction(comment.id, comment.post_id),
+              { successMessage: "댓글이 삭제되었습니다." }
+            );
+          }}
           disabled={!isOwner}
         >
           삭제

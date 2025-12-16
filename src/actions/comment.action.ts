@@ -69,6 +69,7 @@ async function getCommentsByPostIdAction(postId: number) {
 
 async function updateCommentAction(
   commentId: number,
+  postId: number,
   data: Partial<CreateCommentDTO>
 ) {
   const commentService = new CommentService();
@@ -82,7 +83,7 @@ async function updateCommentAction(
     };
   }
 
-  revalidatePath(`/post/${data.postId}`);
+  revalidatePath(`/post/${postId}`);
 
   return { data: updatedComment, error: null };
 }

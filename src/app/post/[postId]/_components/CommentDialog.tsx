@@ -33,9 +33,13 @@ export default function CommentDialog({
   const updateComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (commentInput && user) {
-      const { data, error } = await updateCommentAction(comment.id, {
-        content: commentInput,
-      });
+      const { data, error } = await updateCommentAction(
+        comment.id,
+        comment.post_id,
+        {
+          content: commentInput,
+        }
+      );
       if (error) {
         toast.error(error);
       } else {

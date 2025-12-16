@@ -9,8 +9,18 @@ import { LikeService } from "@/services/like/like.service";
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
 
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // userId를 신뢰할 수 있는 서버 세션 정보로 덮어씁니다.
+  const secureData = { ...data, userId: user.id };
+
   const { data: createdComment, error: createCommentError } =
-    await commentService.createComment(data);
+    await commentService.createComment(secureData);
 
   if (createCommentError || !createdComment) {
     return {
@@ -74,6 +84,25 @@ async function updateCommentAction(
 ) {
   const commentService = new CommentService();
 
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 소유권 확인
+  const { data: originalComment, error: fetchError } =
+    await commentService.getCommentById(commentId);
+
+  if (fetchError || !originalComment) {
+    return { error: "댓글을 찾을 수 없습니다." };
+  }
+
+  if (originalComment.author.id !== user.id) {
+    return { error: "본인의 댓글만 수정할 수 있습니다." };
+  }
+
   const { data: updatedComment, error: updateCommentError } =
     await commentService.updateComment(commentId, data);
 
@@ -90,6 +119,25 @@ async function updateCommentAction(
 
 async function deleteCommentAction(commentId: number, postId: number) {
   const commentService = new CommentService();
+
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  // 소유권 확인
+  const { data: originalComment, error: fetchError } =
+    await commentService.getCommentById(commentId);
+
+  if (fetchError || !originalComment) {
+    return { error: "댓글을 찾을 수 없습니다." };
+  }
+
+  if (originalComment.author.id !== user.id) {
+    return { error: "본인의 댓글만 삭제할 수 있습니다." };
+  }
 
   const { error } = await commentService.deleteComment(commentId);
 

@@ -120,7 +120,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
               </Avatar>
               <div className="flex flex-col justify-start">
                 <div className="flex gap-1 items-center">
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium text-sm text-foreground">
                     {post.author.nickname}
                   </span>
                   <span className="text-sm text-muted-foreground">

@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 
-// 힌트: 제네릭 <T>를 사용하여 어떤 데이터가 반환되든 타입을 유지할 수 있도록 하세요.
 interface ActionResponse<T> {
   data?: T | null;
   error?: string | null;
@@ -34,5 +33,6 @@ export async function handleAction<T>(
     return result.data;
   } catch (e) {
     toast.error("알 수 없는 에러가 발생했습니다. 관리자에게 문의하세요.");
+    return null;
   }
 }

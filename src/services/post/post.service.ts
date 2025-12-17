@@ -144,18 +144,19 @@ export class PostService implements IPostService {
     const { tags, author, ...postFields } = data;
 
     // 글 내용 업데이트
-    const { data: updatedPost, error } = await (
-      supabase as SupabaseClient<RpcDatabase>
-    ).rpc("update_post_with_tags", {
-      p_post_id: id,
-      post_data: {
-        content: postFields.content,
-        code: postFields.code,
-        language: postFields.language,
-        is_review_enabled: postFields.is_review_enabled,
-      },
-      tags: tags || null,
-    });
+    const { error } = await (supabase as SupabaseClient<RpcDatabase>).rpc(
+      "update_post_with_tags",
+      {
+        p_post_id: id,
+        post_data: {
+          content: postFields.content,
+          code: postFields.code,
+          language: postFields.language,
+          is_review_enabled: postFields.is_review_enabled,
+        },
+        tags: tags || null,
+      }
+    );
 
     if (error) {
       return { data: null, error };

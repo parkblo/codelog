@@ -3,7 +3,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { AuthCredentials, SignUpProps } from "@/services/auth/auth.interface";
 import { revalidatePath } from "next/cache";
-import { AuthApiError } from "@supabase/supabase-js";
 
 export async function signInWithPasswordAction(credentials: AuthCredentials) {
   try {

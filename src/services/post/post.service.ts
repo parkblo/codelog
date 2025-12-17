@@ -61,7 +61,7 @@ export class PostService implements IPostService {
     }
 
     const newPost: Post = {
-      ...insertedPost,
+      ...(insertedPost as Tables<"posts">),
       author: data.author,
       tags: data.tags,
     };
@@ -154,7 +154,7 @@ export class PostService implements IPostService {
           language: postFields.language,
           is_review_enabled: postFields.is_review_enabled,
         },
-        tags: tags || null,
+        tags: tags ?? [],
       }
     );
 

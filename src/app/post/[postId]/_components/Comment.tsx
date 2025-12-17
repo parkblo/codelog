@@ -55,9 +55,9 @@ export default function Comment({ comment }: commentProps) {
                 </>
               )}
             </Avatar>
-            <div className="flex flex-col">
-              <div className="flex gap-2 items-center">
-                <span className="text-foreground">
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-1 items-center">
+                <span className="font-medium text-sm text-foreground">
                   {comment.author.nickname}
                 </span>
                 <span className="text-muted-foreground text-sm">

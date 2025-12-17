@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { AuthCredentials, SignUpProps } from "@/services/auth/auth.interface";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function signInWithPasswordAction(credentials: AuthCredentials) {
   try {
@@ -74,6 +75,17 @@ export async function signInWithOAuthAction(
 ) {
   try {
     const supabase = await createClient();
+
+    if (options?.redirectTo) {
+      const { origin } = new URL(options.redirectTo);
+      const cookieStore = await cookies();
+      cookieStore.set("redirect_origin", origin, {
+        path: "/",
+        httpOnly: true,
+        maxAge: 60 * 10, // 10 minutes
+      });
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {

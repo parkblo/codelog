@@ -19,12 +19,17 @@ export default async function PostPage({ params }: PostPageProps) {
     await getCommentsByPostIdAction(Number(postId));
 
   if (error || !post) {
-    if (error === "포스트를 찾을 수 없습니다." || !post) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+        ? (error as { message: string }).message
+        : String(error);
+
+    if (errorMessage === "포스트를 찾을 수 없습니다." || !post) {
       notFound();
     }
-    throw new Error(
-      typeof error === "string" ? error : "알 수 없는 에러가 발생했습니다."
-    );
+    throw new Error(errorMessage || "알 수 없는 에러가 발생했습니다.");
   }
 
   return (

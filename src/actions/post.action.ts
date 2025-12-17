@@ -34,23 +34,6 @@ async function createPostAction(data: CreatePostDTO) {
 }
 
 async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
-  // 코드가 수정되는 경우에만 체크
-  if (data.code) {
-    const commentService = new CommentService();
-    const { count, error: countError } =
-      await commentService.getReviewCommentsCount(id);
-
-    if (countError) {
-      return { error: "댓글 정보를 확인하는 중 오류가 발생했습니다." };
-    }
-
-    if (count && count > 0) {
-      return {
-        error: "코드 리뷰가 존재하는 포스트는 코드를 수정할 수 없습니다.",
-      };
-    }
-  }
-
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
@@ -68,6 +51,22 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 
   if (originalPost.author.id !== user.id) {
     return { error: "본인의 포스트만 수정할 수 있습니다." };
+  }
+
+  if (data.code !== undefined && data.code !== originalPost.code) {
+    const commentService = new CommentService();
+    const { count, error: countError } =
+      await commentService.getReviewCommentsCount(id);
+
+    if (countError) {
+      return { error: "댓글 정보를 확인하는 중 오류가 발생했습니다." };
+    }
+
+    if (count && count > 0) {
+      return {
+        error: "코드 리뷰가 존재하는 포스트는 코드를 수정할 수 없습니다.",
+      };
+    }
   }
 
   const { data: updatedPost, error } = await postService.updatePost(id, data);

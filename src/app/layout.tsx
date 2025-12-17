@@ -32,7 +32,7 @@ export default async function RootLayout({
       <body className={`${pretendard.variable} antialiased`}>
         <AuthProvider initialUser={user}>
           <Toaster />
-          <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-6xl mx-auto">
+          <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">
             <aside className="hidden md:block">
               <Navigation />
             </aside>

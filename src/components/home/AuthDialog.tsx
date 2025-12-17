@@ -244,12 +244,7 @@ export default function AuthDialog({
             </div>
           )}
 
-          <Button
-            variant="outline"
-            onClick={isSignUp ? handleEmailSignUp : handleEmailLogin}
-            disabled={loading}
-            type="submit"
-          >
+          <Button variant="outline" disabled={loading} type="submit">
             <Mail /> {isSignUp ? "이메일로 가입" : "이메일로 로그인"}
           </Button>
         </form>

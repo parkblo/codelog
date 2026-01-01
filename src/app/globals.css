@@ -123,3 +123,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+html body[data-scroll-locked] {
+  margin-right: 0px !important;
+}

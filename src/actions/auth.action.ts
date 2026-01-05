@@ -114,3 +114,22 @@ export async function signOutAction() {
     return { error: "로그아웃 실패" };
   }
 }
+
+export async function getCurrentUserAction() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error(error);
+      return { error: error.message };
+    }
+
+    return { error: null, data };
+  } catch (err) {
+    console.error(err);
+    return {
+      error: "현재 사용자 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.",
+    };
+  }
+}

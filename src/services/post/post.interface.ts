@@ -11,8 +11,10 @@ export interface IPostService {
   ): Promise<{ data: Post | null; error: Error | null }>;
   getPosts({
     isReviewEnabled,
+    authorId,
   }: {
     isReviewEnabled?: boolean;
+    authorId?: string;
   }): Promise<{ data: Post[] | null; error: Error | null }>;
   getPostById(id: number): Promise<{ data: Post | null; error: Error | null }>;
   deletePost(id: number): Promise<{ error: Error | null }>;

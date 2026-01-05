@@ -1,0 +1,34 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAuth } from "@/types/types";
+
+interface MyProfileCardProps {
+  user: UserAuth;
+}
+
+export default function MyProfileCard({ user }: MyProfileCardProps) {
+  return (
+    <Card>
+      <CardContent>
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Avatar className="w-30 h-30 border border-border">
+            {/* 사용자 프로필 이미지 */}
+            {user && (
+              <>
+                <AvatarImage src={user.avatar || ""} alt={user.nickname} />
+                <AvatarFallback>
+                  {user.nickname ? user.nickname.charAt(0) : ""}
+                </AvatarFallback>
+              </>
+            )}
+          </Avatar>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <p className="font-semibold">{user?.nickname}</p>
+            <p className="text-sm text-muted-foreground">@{user?.username}</p>
+            <p className="text-sm">{user?.bio}this is mock bio</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

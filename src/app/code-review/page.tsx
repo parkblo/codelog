@@ -7,7 +7,7 @@ export default async function CodeReviewPage() {
   const { data, error } = await getPostsAction({ isReviewEnabled: true });
 
   if (!data || error) {
-    return <span>{error instanceof Error ? error.message : error}</span>;
+    return <span>{error}</span>;
   }
 
   return (

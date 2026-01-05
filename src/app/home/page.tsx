@@ -11,7 +11,7 @@ export default async function HomePage() {
       <div className="p-4 space-y-4">
         <WelcomeCard />
         <PostCard />
-        <span>{error instanceof Error ? error.message : error}</span>
+        <span>{error}</span>
       </div>
     );
   }

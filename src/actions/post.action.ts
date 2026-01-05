@@ -83,19 +83,25 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 
 async function getPostsAction({
   isReviewEnabled = false,
+  authorId,
 }: {
   isReviewEnabled?: boolean;
+  authorId?: string;
 } = {}) {
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
   const { data: posts, error: getPostsError } = await postService.getPosts({
     isReviewEnabled,
+    authorId,
   });
 
   if (getPostsError) {
     console.error(getPostsError);
-    return { data: null, error: getPostsError.message };
+    return {
+      data: null,
+      error: getPostsError.message || "게시글 불러오기에 실패했습니다.",
+    };
   }
 
   // 비로그인 시 좋아요 여부 false로 설정하고 반환
@@ -116,7 +122,10 @@ async function getPostsAction({
     await likeService.getPostLikes(user.id);
 
   if (postLikesError) {
-    return { data: null, error: postLikesError };
+    return {
+      data: null,
+      error: postLikesError.message || "게시글 좋아요에 실패했습니다.",
+    };
   }
 
   const bookmarkService = new BookmarkService();
@@ -125,7 +134,10 @@ async function getPostsAction({
     await bookmarkService.getBookmarks(user.id);
 
   if (postBookmarksError) {
-    return { data: null, error: postBookmarksError };
+    return {
+      data: null,
+      error: postBookmarksError.message || "게시글 북마크에 실패했습니다.",
+    };
   }
 
   const data = posts?.map((post) => {

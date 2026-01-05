@@ -71,8 +71,10 @@ export class PostService implements IPostService {
 
   async getPosts({
     isReviewEnabled = false,
+    authorId,
   }: {
     isReviewEnabled?: boolean;
+    authorId?: string;
   } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
@@ -85,6 +87,10 @@ export class PostService implements IPostService {
 
     if (isReviewEnabled) {
       query = query.eq("is_review_enabled", true);
+    }
+
+    if (authorId) {
+      query = query.eq("user_id", authorId);
     }
 
     query = query.order("created_at", { ascending: false });

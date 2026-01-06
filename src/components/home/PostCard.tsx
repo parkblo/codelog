@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-provider";
-import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
@@ -41,26 +40,24 @@ export default function PostCard() {
       {isDialogOpen && (
         <PostDialog isOpen={isDialogOpen} handleClose={handleCloseDialog} />
       )}
-      <Card className="bg-background border-background">
-        <CardContent>
-          <div className="flex gap-2 items-center">
-            <Avatar className="w-10 h-10 border border-border">
-              <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-              <AvatarFallback>
-                {user.nickname ? user.nickname.charAt(0) : ""}
-              </AvatarFallback>
-            </Avatar>
-            <Textarea
-              placeholder="무엇을 공유할까요?"
-              className="resize-none min-h-4"
-              onFocus={openDialog}
-            />
-            <Button variant="outline" onClick={openDialog}>
-              게시
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-background border-background p-2">
+        <div className="flex gap-2 items-center">
+          <Avatar className="w-10 h-10 border border-border">
+            <AvatarImage src={user.avatar || ""} alt={user.nickname} />
+            <AvatarFallback>
+              {user.nickname ? user.nickname.charAt(0) : ""}
+            </AvatarFallback>
+          </Avatar>
+          <Textarea
+            placeholder="무엇을 공유할까요?"
+            className="resize-none min-h-4"
+            onFocus={openDialog}
+          />
+          <Button variant="outline" onClick={openDialog}>
+            게시
+          </Button>
+        </div>
+      </div>
     </>
   );
 }

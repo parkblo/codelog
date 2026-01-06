@@ -18,4 +18,20 @@ export class UserService implements IUserService {
 
     return { error };
   }
+
+  async getUserByUsername(username: string) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, username, nickname, bio, avatar")
+      .eq("username", username)
+      .single();
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  }
 }

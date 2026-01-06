@@ -27,3 +27,11 @@ export interface Comment extends Omit<Tables<"comments">, "user_id"> {
   author: Author;
   is_liked?: boolean;
 }
+
+/**
+ * 사용자 기여도를 담는 타입
+ */
+export interface UserContribution {
+  contribution_date: string;
+  post_count: number;
+}

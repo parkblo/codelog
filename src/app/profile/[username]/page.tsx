@@ -14,8 +14,10 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
   const userService = new UserService();
 
   const { username } = await params;
-  const currentUser = await authService.getCurrentUser();
-  const { data: user } = await userService.getUserByUsername(username);
+  const [currentUser, { data: user }] = await Promise.all([
+    authService.getCurrentUser(),
+    userService.getUserByUsername(username),
+  ]);
 
   if (!username || !user) {
     return <div>사용자 정보를 가져올 수 없습니다.</div>;

@@ -1,7 +1,7 @@
 import { PostSkeleton } from "@/components/post/PostSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ProfileLoading() {
+export default function UserProfileLoading() {
   return (
     <div className="p-4 space-y-4">
       <Skeleton className="h-62 w-full" />

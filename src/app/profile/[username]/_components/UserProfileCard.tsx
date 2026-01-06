@@ -5,18 +5,18 @@ import ProfileEditDialog from "./ProfileEditDialog";
 
 interface UserProfileCardProps {
   user: UserAuth;
-  currentUser?: UserAuth | null;
+  isEditable?: boolean;
 }
 
 export default function UserProfileCard({
   user,
-  currentUser = null,
+  isEditable = false,
 }: UserProfileCardProps) {
   return (
     <Card>
       <CardContent>
         <div className="relative flex flex-col items-center justify-center gap-4">
-          {user && currentUser && currentUser.id === user.id && (
+          {isEditable && (
             <div className="absolute top-2 right-2">
               <ProfileEditDialog user={user} />
             </div>

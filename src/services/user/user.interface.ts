@@ -1,4 +1,4 @@
-import { UserAuth } from "@/types/types";
+import { UserAuth, UserContribution } from "@/types/types";
 
 export interface IUserService {
   /**
@@ -17,4 +17,7 @@ export interface IUserService {
   getUserByUsername(
     username: string
   ): Promise<{ data: UserAuth | null; error: Error | null }>;
+  getUserContributions(
+    userId: string
+  ): Promise<{ data: UserContribution[] | null; error: Error | null }>;
 }

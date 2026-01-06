@@ -15,12 +15,14 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import CommentMenu from "./CommentMenu";
+import { useRouter } from "next/navigation";
 
 interface ReviewCommentProps {
   lineComments: Comment[];
 }
 
 export default function ReviewComment({ lineComments }: ReviewCommentProps) {
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState<(boolean | undefined)[]>(
     lineComments.map((comment) => comment.is_liked)
   );
@@ -45,6 +47,10 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
     });
   };
 
+  const handleAuthorClick = (username: string) => {
+    router.push(`/profile/${username}`);
+  };
+
   return (
     <div
       className="flex flex-col gap-2 mt-2"
@@ -59,7 +65,10 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
         >
           <div className="flex gap-3 justify-between">
             <div className="flex gap-3 w-full">
-              <Avatar className="w-8 h-8 border border-border">
+              <Avatar
+                className="w-8 h-8 border border-border hover:cursor-pointer"
+                onClick={() => handleAuthorClick(comment.author.username)}
+              >
                 <AvatarImage
                   src={comment.author.avatar || ""}
                   alt={comment.author.nickname}
@@ -70,14 +79,17 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
               </Avatar>
               <div className="flex flex-col gap-1 w-full min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm text-foreground">
+                  <span
+                    className="font-medium text-sm text-foreground hover:cursor-pointer"
+                    onClick={() => handleAuthorClick(comment.author.username)}
+                  >
                     {comment.author.nickname}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {formatRelativeTime(comment.created_at)}
                   </span>
                   <span
-                    className="text-xs text-muted-foreground flex gap-1 items-center p-1 cursor-pointer"
+                    className="text-xs text-muted-foreground flex gap-1 items-center p-1"
                     onClick={() => handleLikeClick(idx)}
                   >
                     <Heart

@@ -14,12 +14,14 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import CommentMenu from "./CommentMenu";
 import { handleAction } from "@/utils/handle-action";
+import { useRouter } from "next/navigation";
 
 interface commentProps {
   comment: CommentType;
 }
 
 export default function Comment({ comment }: commentProps) {
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState(comment.is_liked);
 
   const handleLikeClick = async () => {
@@ -35,12 +37,19 @@ export default function Comment({ comment }: commentProps) {
     });
   };
 
+  const handleAuthorClick = () => {
+    router.push(`/profile/${comment.author.username}`);
+  };
+
   return (
     <Card>
       <CardContent>
         <div className="flex justify-between">
           <div className="flex gap-2">
-            <Avatar className="w-10 h-10 border border-border">
+            <Avatar
+              className="w-10 h-10 border border-border hover:cursor-pointer"
+              onClick={handleAuthorClick}
+            >
               {comment.author && (
                 <>
                   <AvatarImage
@@ -57,12 +66,18 @@ export default function Comment({ comment }: commentProps) {
             </Avatar>
             <div className="flex flex-col gap-1">
               <div className="flex gap-1 items-center">
-                <span className="font-medium text-sm text-foreground">
-                  {comment.author.nickname}
+                <span
+                  className="flex gap-1 items-center hover:cursor-pointer"
+                  onClick={handleAuthorClick}
+                >
+                  <span className="font-medium text-sm text-foreground">
+                    {comment.author.nickname}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    @{comment.author.username}
+                  </span>
                 </span>
-                <span className="text-muted-foreground text-sm">
-                  @{comment.author.username}
-                </span>
+
                 <span className="text-muted-foreground text-sm">·</span>
                 <span className="text-muted-foreground text-sm">
                   {formatRelativeTime(comment.created_at || "")}

@@ -102,6 +102,10 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
     });
   };
 
+  const handleAuthorClick = () => {
+    router.push(`/profile/${post.author.username}`);
+  };
+
   return (
     <Card>
       <CardContent>
@@ -109,7 +113,10 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
           {/* 작성자 정보 영역 */}
           <div className="flex flex-1 min-w-0 gap-2 justify-between">
             <div className="flex gap-2 items-center">
-              <Avatar className="w-10 h-10 border border-border">
+              <Avatar
+                className="w-10 h-10 border border-border hover:cursor-pointer"
+                onClick={handleAuthorClick}
+              >
                 <AvatarImage
                   src={post.author.avatar || ""}
                   alt={post.author.nickname}
@@ -119,7 +126,10 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col justify-start">
-                <div className="flex gap-1 items-center">
+                <div
+                  className="flex gap-1 items-center hover:cursor-pointer"
+                  onClick={handleAuthorClick}
+                >
                   <span className="font-medium text-sm text-foreground">
                     {post.author.nickname}
                   </span>

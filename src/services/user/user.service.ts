@@ -34,4 +34,18 @@ export class UserService implements IUserService {
 
     return { data, error: null };
   }
+
+  async getUserContributions(id: string) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("get_user_contributions", {
+      target_user_id: id,
+    });
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  }
 }

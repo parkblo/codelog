@@ -316,6 +316,13 @@ export type Database = {
         Args: { post_data: Json; tags: string[] }
         Returns: Json
       }
+      get_user_contributions: {
+        Args: { target_user_id: string }
+        Returns: {
+          contribution_date: string
+          post_count: number
+        }[]
+      }
       update_post_with_tags: {
         Args: { p_post_id: number; post_data: Json; tags: string[] }
         Returns: Json

@@ -11,10 +11,12 @@ import {
   Settings,
   User,
 } from "lucide-react";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function LeftSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const handleRouteClick = (path: string) => {
     router.push(`/${path}`);
@@ -26,7 +28,7 @@ export default function LeftSidebar() {
     { icon: MessageSquare, label: "코드 리뷰", page: "code-review" },
     { icon: Bell, label: "알림", page: "notification" },
     { icon: Bookmark, label: "저장됨", page: "bookmarks" },
-    { icon: User, label: "프로필", page: "profile" },
+    { icon: User, label: "프로필", page: `profile/${user?.username}` },
     { icon: Settings, label: "설정", page: "settings" },
   ];
 

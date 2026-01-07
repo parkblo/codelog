@@ -79,7 +79,7 @@ export class UserService implements IUserService {
       p_count: count,
     });
 
-    if (error || !data) {
+    if (error || data === null) {
       return { data: null, error };
     }
 

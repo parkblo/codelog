@@ -22,7 +22,7 @@ export default function ContributionGraph({
     if (scrollRef.current) {
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
-  }, [allContributions]);
+  }, []);
 
   const getColorClass = (count: number) => {
     if (count === 0) return "bg-muted";

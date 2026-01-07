@@ -117,7 +117,7 @@ export class PostService implements IPostService {
 
     interface PostQueryResult extends Tables<"posts"> {
       author: Tables<"users">;
-      tags: { tags: { name: string } | null }[];
+      tags: { tags: { name: string } | null }[] | null;
     }
 
     const { data, error } = await query;
@@ -128,7 +128,10 @@ export class PostService implements IPostService {
 
     const posts = (data as unknown as PostQueryResult[]).map((post) => ({
       ...post,
-      tags: post.tags?.map((t) => t.tags?.name).filter(Boolean) as string[],
+      tags:
+        post.tags
+          ?.map((t) => t.tags?.name)
+          .filter((name): name is string => !!name) ?? [],
     }));
 
     return { data: posts, error: null };
@@ -145,14 +148,17 @@ export class PostService implements IPostService {
       .eq("id", id)
       .single();
 
-    if (error) {
+    if (error || !data) {
       return { data: null, error };
     }
 
     const post = {
       ...data,
-      author: data.author,
-      tags: data.tags.map((t) => t.tags.name),
+      author: data.author as Tables<"users">,
+      tags:
+        (data.tags as { tags: { name: string } | null }[])
+          ?.map((t) => t.tags?.name)
+          .filter((name): name is string => !!name) ?? [],
     };
 
     return { data: post, error: null };

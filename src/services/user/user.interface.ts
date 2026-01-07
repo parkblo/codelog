@@ -20,4 +20,12 @@ export interface IUserService {
   getUserContributions(
     userId: string
   ): Promise<{ data: UserContribution[] | null; error: Error | null }>;
+  updateAvatar(id: string, avatarUrl: string): Promise<{ error: Error | null }>;
+}
+
+export interface IUserServiceBrowser {
+  uploadAvatar(
+    userId: string,
+    file: File
+  ): Promise<{ data: string | null; error: string | null }>;
 }

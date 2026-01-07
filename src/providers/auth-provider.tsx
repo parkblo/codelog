@@ -8,11 +8,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface AuthContextType {
   user: UserAuth | null;
   loading: boolean;
+  updateUser: (user: UserAuth | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  updateUser: () => {},
 });
 
 export const useAuth = () => {
@@ -28,6 +30,10 @@ export default function AuthProvider({
 }) {
   const [user, setUser] = useState<UserAuth | null>(initialUser);
   const [loading, setLoading] = useState(!initialUser);
+
+  const updateUser = (newUser: UserAuth | null) => {
+    setUser(newUser);
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -49,7 +55,7 @@ export default function AuthProvider({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

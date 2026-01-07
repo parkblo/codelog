@@ -28,3 +28,27 @@ export async function editUserAction(user: UserAuth) {
 
   return { error: null };
 }
+
+export async function updateAvatarAction(
+  userId: string,
+  username: string,
+  avatarUrl: string
+) {
+  const authService = new ServerAuthService();
+  const currentUser = await authService.getCurrentUser();
+
+  if (!currentUser || currentUser.id !== userId) {
+    return { error: "권한이 없습니다." };
+  }
+
+  const userService = new UserService();
+  const { error } = await userService.updateAvatar(userId, avatarUrl);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/profile/${username}`);
+
+  return { error: null };
+}

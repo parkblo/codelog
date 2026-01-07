@@ -12,9 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAuth } from "@/types/types";
 import { Image, Loader, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { handleAction } from "@/utils/handle-action";
-import { editUserAction } from "@/actions/user.action";
+import { editUserAction, updateAvatarAction } from "@/actions/user.action";
+import { UserServiceBrowser } from "@/services/user/user.service.browser";
+import { toast } from "sonner";
+import { useAuth } from "@/providers/auth-provider";
 
 interface ProfileEditDialogProps {
   user: UserAuth;
@@ -26,6 +29,45 @@ export default function ProfileEditDialog({
   const [user, setUser] = useState<UserAuth>(initialUser);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updateUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const userService = new UserServiceBrowser();
+      const { data: publicUrl, error } = await userService.uploadAvatar(
+        user.id,
+        file
+      );
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      if (publicUrl) {
+        const avatarWithCache = `${publicUrl}?v=${Date.now()}`;
+        const updatedUser = { ...user, avatar: avatarWithCache };
+        setUser(updatedUser);
+        updateUser(updatedUser);
+        await handleAction(
+          updateAvatarAction(user.id, user.username, avatarWithCache)
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const editUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,6 +77,8 @@ export default function ProfileEditDialog({
     await handleAction(editUserAction(user), {
       successMessage: "프로필이 수정되었습니다.",
     });
+
+    updateUser(user);
 
     setIsSubmitting(false);
   };
@@ -55,6 +99,7 @@ export default function ProfileEditDialog({
             className="w-30 h-30 border border-border hover:cursor-pointer relative"
             onMouseOver={() => setIsAvatarHovered(true)}
             onMouseOut={() => setIsAvatarHovered(false)}
+            onClick={onAvatarClick}
           >
             {user && (
               <>
@@ -70,6 +115,13 @@ export default function ProfileEditDialog({
               </div>
             )}
           </Avatar>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={onFileChange}
+          />
 
           <form onSubmit={editUser} className="w-full">
             <div className="flex flex-col gap-4">

@@ -48,4 +48,23 @@ export class UserService implements IUserService {
 
     return { data, error: null };
   }
+
+  async updateAvatar(id: string, avatar: string) {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("users")
+      .update({ avatar })
+      .eq("id", id);
+
+    if (error) {
+      return { error };
+    }
+
+    // Sync auth metadata to trigger onAuthStateChange
+    await supabase.auth.updateUser({
+      data: { avatar_url: avatar },
+    });
+
+    return { error };
+  }
 }

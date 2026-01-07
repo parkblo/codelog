@@ -74,7 +74,6 @@ export default function PostDialog({
   };
 
   const deleteTag = (tag: string) => {
-    console.log(tag);
     setTags((prev) => prev.filter((t) => t !== tag));
   };
 

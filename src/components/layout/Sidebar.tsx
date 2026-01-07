@@ -1,12 +1,16 @@
 import { Search, TrendingUp, UserPlus } from "lucide-react";
 import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Card, CardContent } from "../ui/card";
 import { TagList } from "../ui/tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
-export default function Sidebar() {
+import { getRandomFeaturedUsersAction } from "@/actions/user.action";
+
+export default async function Sidebar() {
+  const { data: featuredUsers } = await getRandomFeaturedUsersAction(2);
+
   /* NOTE- 실서버 사용 전에 사용될 목데이터 */
   const mockTrendingTags = [
     "React",
@@ -22,20 +26,6 @@ export default function Sidebar() {
     "Docker",
     "GraphQL",
   ];
-  const mockFeaturedUsers = [
-    {
-      username: "kimdev",
-      nickname: "김개발",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=kim",
-      bio: "React 전문가 | 오픈소스 컨트리뷰터",
-    },
-    {
-      username: "leecoder",
-      nickname: "이코더",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=lee",
-      bio: "TypeScript 마스터 | 기술 블로거",
-    },
-  ];
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -45,46 +35,60 @@ export default function Sidebar() {
       </div>
 
       <Card>
-        <CardHeader className="flex">
-          <TrendingUp className="text-xs text-red-400" />
-          트렌딩 태그
-        </CardHeader>
         <CardContent>
+          <div className="flex flex-row items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-red-500" />
+            <span className="font-semibold">트렌딩 태그</span>
+          </div>
           <TagList tags={mockTrendingTags} />
         </CardContent>
       </Card>
 
       <Card>
-        <CardContent className="space-y-4">
-          {mockFeaturedUsers.map((user) => (
-            <div
+        <CardContent>
+          <div className="flex flex-row items-center gap-2 mb-4">
+            <UserPlus className="w-4 h-4 text-blue-500" />
+            <span className="font-semibold">추천 유저</span>
+          </div>
+          {featuredUsers?.map((user) => (
+            <Link
               key={user.username}
-              className="flex p-2 hover:bg-accent rounded-md cursor-pointer transition-colors gap-3"
+              href={`/profile/${user.username}`}
+              className="block"
             >
-              <Avatar className="w-10 h-10 border border-border">
-                <AvatarImage src={user.avatar} alt={user.nickname} />
-                <AvatarFallback>{user.nickname.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-foreground">
-                      {user.nickname}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      @{user.username}
-                    </span>
+              <div className="flex p-2 hover:bg-accent rounded-md cursor-pointer transition-colors gap-3">
+                <Avatar className="w-10 h-10 border border-border">
+                  <AvatarImage src={user.avatar || ""} alt={user.nickname} />
+                  <AvatarFallback>
+                    {user.nickname?.charAt(0) || user.username.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground truncate">
+                        {user.nickname}
+                      </span>
+                      <span className="text-xs text-muted-foreground truncate">
+                        @{user.username}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs px-2"
+                    >
+                      팔로우
+                    </Button>
                   </div>
-                  <Button size="sm" variant="outline" className="h-7 text-xs">
-                    <UserPlus className="w-3 h-3" />
-                    팔로우
-                  </Button>
+                  {user.bio && (
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-tight line-clamp-2">
+                      {user.bio}
+                    </p>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1.5 leading-tight">
-                  {user.bio}
-                </p>
               </div>
-            </div>
+            </Link>
           ))}
         </CardContent>
       </Card>

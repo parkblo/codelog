@@ -15,8 +15,6 @@ export default function PostCard() {
   const { user, loading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  console.log(user);
-
   if (!user || loading) {
     return null;
   }

@@ -13,7 +13,7 @@ export default function UserProfileCard({
   isEditable = false,
 }: UserProfileCardProps) {
   return (
-    <Card>
+    <Card className="bg-background">
       <CardContent>
         <div className="relative flex flex-col items-center justify-center gap-4">
           {isEditable && (

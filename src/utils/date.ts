@@ -29,8 +29,8 @@ export function formatRelativeTime(date: string) {
 
 /**
  * 최근 365일간의 기여도 데이터를 생성합니다.
- * DB에서 받아온 데이터가 없는 날짜는 post_count를 0으로 채웁니다.
- * 타임존 차이가 발생할 수 있어 클라이언트 컴포넌트에서만 사용하는 것을 권장합니다.
+ * 내부적으로 new Date()를 사용하므로, 서버(UTC)와 클라이언트(KST)의 타임존 차이로 인해
+ * 결과물이 달라질 수 있어 Hydration Error를 방지하기 위해 클라이언트 컴포넌트에서만 사용해야 합니다.
  */
 export function generateContributionData(contributions: UserContribution[]) {
   const map = new Map<string, number>();

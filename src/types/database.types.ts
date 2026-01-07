@@ -326,6 +326,13 @@ export type Database = {
           username: string
         }[]
       }
+      get_trending_tags: {
+        Args: { p_limit: number }
+        Returns: {
+          name: string
+          post_count: number
+        }[]
+      }
       get_user_contributions: {
         Args: { target_user_id: string }
         Returns: {

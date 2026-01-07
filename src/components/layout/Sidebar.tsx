@@ -7,25 +7,15 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 
 import { getRandomFeaturedUsersAction } from "@/actions/user.action";
+import { getTrendingTagsAction } from "@/actions/tag.action";
 
 export default async function Sidebar() {
-  const { data: featuredUsers } = await getRandomFeaturedUsersAction(2);
+  const [{ data: featuredUsers }, { data: trendingTags }] = await Promise.all([
+    getRandomFeaturedUsersAction(2),
+    getTrendingTagsAction(10),
+  ]);
 
-  /* NOTE- 실서버 사용 전에 사용될 목데이터 */
-  const mockTrendingTags = [
-    "React",
-    "TypeScript",
-    "JavaScript",
-    "TailwindCSS",
-    "NextJS",
-    "CSS",
-    "NodeJS",
-    "Python",
-    "Vue",
-    "Angular",
-    "Docker",
-    "GraphQL",
-  ];
+  const tags = trendingTags?.map((tag) => tag.name) || [];
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -40,7 +30,13 @@ export default async function Sidebar() {
             <TrendingUp className="w-4 h-4 text-red-500" />
             <span className="font-semibold">트렌딩 태그</span>
           </div>
-          <TagList tags={mockTrendingTags} />
+          {tags.length > 0 ? (
+            <TagList tags={tags} />
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-2">
+              태그가 없습니다.
+            </p>
+          )}
         </CardContent>
       </Card>
 

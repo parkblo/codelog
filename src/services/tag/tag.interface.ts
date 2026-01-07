@@ -5,4 +5,10 @@ export interface ITagService {
     tagName: string,
     postId: number
   ): Promise<{ data: Tables<"posttags"> | null; error: Error | null }>;
+  getTrendingTags(
+    limit: number
+  ): Promise<{
+    data: { name: string; post_count: number }[] | null;
+    error: Error | null;
+  }>;
 }

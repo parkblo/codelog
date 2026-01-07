@@ -1,0 +1,30 @@
+"use server";
+
+import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { UserService } from "@/services/user/user.service";
+import { UserAuth } from "@/types/types";
+import { revalidatePath } from "next/cache";
+
+export async function editUserAction(user: UserAuth) {
+  const authService = new ServerAuthService();
+  const currentUser = await authService.getCurrentUser();
+
+  if (!currentUser) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  if (currentUser.id !== user.id) {
+    return { error: "본인의 정보만 수정할 수 있습니다." };
+  }
+
+  const userService = new UserService();
+  const { error } = await userService.editUser(user);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/profile/${user.username}`);
+
+  return { error: null };
+}

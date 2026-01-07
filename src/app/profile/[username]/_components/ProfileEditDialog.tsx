@@ -119,8 +119,28 @@ export default function ProfileEditDialog({
             type="file"
             ref={fileInputRef}
             className="hidden"
-            accept="image/*"
-            onChange={onFileChange}
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                return;
+              }
+              const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+              const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+              if (file.size > maxSizeBytes) {
+                toast.error("이미지 용량은 최대 5MB까지 업로드할 수 있습니다.");
+                event.target.value = "";
+                return;
+              }
+              if (!allowedTypes.includes(file.type)) {
+                toast.error(
+                  "JPEG, PNG, WebP 형식의 이미지 파일만 업로드할 수 있습니다."
+                );
+                event.target.value = "";
+                return;
+              }
+              onFileChange(event);
+            }}
           />
 
           <form onSubmit={editUser} className="w-full">

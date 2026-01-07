@@ -21,6 +21,14 @@ export interface IUserService {
     userId: string
   ): Promise<{ data: UserContribution[] | null; error: Error | null }>;
   updateAvatar(id: string, avatarUrl: string): Promise<{ error: Error | null }>;
+  getRandomFeaturedUsers(
+    count: number
+  ): Promise<{
+    data:
+      | Pick<UserAuth, "id" | "username" | "nickname" | "bio" | "avatar">[]
+      | null;
+    error: Error | null;
+  }>;
 }
 
 export interface IUserServiceBrowser {

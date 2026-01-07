@@ -67,4 +67,21 @@ export class UserService implements IUserService {
 
     return { error };
   }
+
+  async getRandomFeaturedUsers(count: number) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("get_random_featured_users", {
+      p_count: count,
+    });
+
+    if (error || !data) {
+      return { data: null, error };
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  }
 }

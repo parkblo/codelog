@@ -52,3 +52,14 @@ export async function updateAvatarAction(
 
   return { error: null };
 }
+
+export async function getRandomFeaturedUsersAction(count: number) {
+  const userService = new UserService();
+  const { data, error } = await userService.getRandomFeaturedUsers(count);
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return { data, error: null };
+}

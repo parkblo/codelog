@@ -316,6 +316,16 @@ export type Database = {
         Args: { post_data: Json; tags: string[] }
         Returns: Json
       }
+      get_random_featured_users: {
+        Args: { p_count: number }
+        Returns: {
+          avatar: string
+          bio: string
+          id: string
+          nickname: string
+          username: string
+        }[]
+      }
       get_user_contributions: {
         Args: { target_user_id: string }
         Returns: {

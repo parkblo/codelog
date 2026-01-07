@@ -12,9 +12,13 @@ export interface IPostService {
   getPosts({
     isReviewEnabled,
     authorId,
+    likedByUserId,
+    bookmarkedByUserId,
   }: {
     isReviewEnabled?: boolean;
     authorId?: string;
+    likedByUserId?: string;
+    bookmarkedByUserId?: string;
   }): Promise<{ data: Post[] | null; error: Error | null }>;
   getPostById(id: number): Promise<{ data: Post | null; error: Error | null }>;
   deletePost(id: number): Promise<{ error: Error | null }>;

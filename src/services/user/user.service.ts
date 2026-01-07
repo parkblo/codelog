@@ -51,21 +51,25 @@ export class UserService implements IUserService {
 
   async updateAvatar(id: string, avatar: string) {
     const supabase = await createClient();
-    const { error } = await supabase
+    const { error: dbError } = await supabase
       .from("users")
       .update({ avatar })
       .eq("id", id);
 
-    if (error) {
-      return { error };
+    if (dbError) {
+      return { error: dbError };
     }
 
     // Sync auth metadata to trigger onAuthStateChange
-    await supabase.auth.updateUser({
+    const { error: authError } = await supabase.auth.updateUser({
       data: { avatar_url: avatar },
     });
 
-    return { error };
+    if (authError) {
+      return { error: authError };
+    }
+
+    return { error: null };
   }
 
   async getRandomFeaturedUsers(count: number) {

@@ -72,18 +72,30 @@ export class PostService implements IPostService {
   async getPosts({
     isReviewEnabled = false,
     authorId,
+    likedByUserId,
+    bookmarkedByUserId,
   }: {
     isReviewEnabled?: boolean;
     authorId?: string;
+    likedByUserId?: string;
+    bookmarkedByUserId?: string;
   } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
-    let query = supabase.from("posts").select(
-      `
+    let selectString = `
       *,
       author:users!posts_user_id_fkey(*),
-      tags:posttags(tags(*))`
-    );
+      tags:posttags(tags(*))`;
+
+    if (likedByUserId) {
+      selectString += `, post_likes!inner(user_id)`;
+    }
+
+    if (bookmarkedByUserId) {
+      selectString += `, bookmarks!inner(user_id)`;
+    }
+
+    let query = supabase.from("posts").select(selectString);
 
     if (isReviewEnabled) {
       query = query.eq("is_review_enabled", true);
@@ -93,7 +105,20 @@ export class PostService implements IPostService {
       query = query.eq("user_id", authorId);
     }
 
+    if (likedByUserId) {
+      query = query.eq("post_likes.user_id", likedByUserId);
+    }
+
+    if (bookmarkedByUserId) {
+      query = query.eq("bookmarks.user_id", bookmarkedByUserId);
+    }
+
     query = query.order("created_at", { ascending: false });
+
+    interface PostQueryResult extends Tables<"posts"> {
+      author: Tables<"users">;
+      tags: { tags: { name: string } | null }[];
+    }
 
     const { data, error } = await query;
 
@@ -101,9 +126,9 @@ export class PostService implements IPostService {
       return { data: null, error };
     }
 
-    const posts = data.map((post) => ({
+    const posts = (data as unknown as PostQueryResult[]).map((post) => ({
       ...post,
-      tags: post.tags.map((t) => t.tags.name),
+      tags: post.tags?.map((t) => t.tags?.name).filter(Boolean) as string[],
     }));
 
     return { data: posts, error: null };
@@ -147,7 +172,7 @@ export class PostService implements IPostService {
   ): Promise<{ data: Post | null; error: Error | null }> {
     const supabase = await createClient();
 
-    const { tags, author, ...postFields } = data;
+    const { tags, ...postFields } = data;
 
     // 글 내용 업데이트
     const { error } = await (supabase as SupabaseClient<RpcDatabase>).rpc(

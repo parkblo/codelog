@@ -10,9 +10,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAuth } from "@/types/types";
-import { Image, Pencil } from "lucide-react";
+import { Image, Loader, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import React, { useState } from "react";
+import { handleAction } from "@/utils/handle-action";
+import { editUserAction } from "@/actions/user.action";
 
 interface ProfileEditDialogProps {
   user: UserAuth;
@@ -23,6 +25,19 @@ export default function ProfileEditDialog({
 }: ProfileEditDialogProps) {
   const [user, setUser] = useState<UserAuth>(initialUser);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const editUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    await handleAction(editUserAction(user), {
+      successMessage: "프로필이 수정되었습니다.",
+    });
+
+    setIsSubmitting(false);
+  };
 
   return (
     <Dialog>
@@ -56,7 +71,7 @@ export default function ProfileEditDialog({
             )}
           </Avatar>
 
-          <form className="w-full">
+          <form onSubmit={editUser} className="w-full">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="nickname">닉네임</Label>
@@ -89,8 +104,13 @@ export default function ProfileEditDialog({
                 />
               </div>
               <div className="flex justify-end">
-                <Button>
-                  <Pencil className="h-4 w-4" /> 수정
+                <Button disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <Loader className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Pencil className="h-4 w-4" />
+                  )}{" "}
+                  수정
                 </Button>
               </div>
             </div>

@@ -47,4 +47,18 @@ export class TagService implements ITagService {
 
     return { data: createdPostTag, error: null };
   }
+
+  async getTrendingTags(limit: number) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("get_trending_tags", {
+      p_limit: limit,
+    });
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  }
 }

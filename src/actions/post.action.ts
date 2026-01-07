@@ -84,9 +84,13 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 async function getPostsAction({
   isReviewEnabled = false,
   authorId,
+  likedByUserId,
+  bookmarkedByUserId,
 }: {
   isReviewEnabled?: boolean;
   authorId?: string;
+  likedByUserId?: string;
+  bookmarkedByUserId?: string;
 } = {}) {
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
@@ -94,6 +98,8 @@ async function getPostsAction({
   const { data: posts, error: getPostsError } = await postService.getPosts({
     isReviewEnabled,
     authorId,
+    likedByUserId,
+    bookmarkedByUserId,
   });
 
   if (getPostsError) {

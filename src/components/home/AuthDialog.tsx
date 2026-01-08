@@ -1,6 +1,7 @@
 "use client";
 
 import { Github, Mail } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -20,6 +21,9 @@ import {
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal } =
     useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -47,9 +51,14 @@ export default function AuthDialog() {
   };
 
   const handleGitHubLogin = async () => {
+    const next = searchParams.get("next");
+    const redirectTo = next
+      ? `${location.origin}/auth/callback?next=${next}`
+      : `${location.origin}/auth/callback`;
+
     await handleAction(
       signInWithOAuthAction("github", {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo,
       }),
       {
         onSuccess: (data) => {
@@ -71,7 +80,14 @@ export default function AuthDialog() {
       }),
       {
         onSuccess: () => {
-          window.location.reload();
+          const next = searchParams.get("next");
+          if (next) {
+            router.push(next);
+            // URL 파라미터 청소를 위해 홈으로 리다이렉트가 필요할 수도 있지만
+            // 일단 next로 바로 가는 게 사용자 경험상 좋음
+          } else {
+            window.location.reload();
+          }
         },
       }
     );

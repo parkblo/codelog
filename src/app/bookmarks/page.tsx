@@ -9,7 +9,7 @@ export default async function BookmarksPage() {
   const user = await authService.getCurrentUser();
 
   if (!user) {
-    redirect("/home");
+    redirect("/home/?auth=required&next=/bookmarks");
   }
 
   const { data, error } = await getPostsAction({ bookmarkedByUserId: user.id });

@@ -3,19 +3,43 @@ import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
 import { TagList } from "../ui/tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
 import Link from "next/link";
 
 import { getRandomFeaturedUsersAction } from "@/actions/user.action";
 import { getTrendingTagsAction } from "@/actions/tag.action";
+import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { FollowService } from "@/services/follow/follow.service";
+import FollowButton from "../follow/FollowButton";
 
 export default async function Sidebar() {
-  const [{ data: featuredUsers }, { data: trendingTags }] = await Promise.all([
-    getRandomFeaturedUsersAction(2),
-    getTrendingTagsAction(10),
-  ]);
+  const authService = new ServerAuthService();
+  const followService = new FollowService();
+
+  const [{ data: featuredUsers }, { data: trendingTags }, currentUser] =
+    await Promise.all([
+      getRandomFeaturedUsersAction(3), // 본인 제외 로직을 위해 3명 조회
+      getTrendingTagsAction(10),
+      authService.getCurrentUser(),
+    ]);
 
   const tags = trendingTags?.map((tag) => tag.name) || [];
+
+  // 본인 제외
+  const filteredUsers = featuredUsers
+    ?.filter((u) => u.id !== currentUser?.id)
+    .slice(0, 2);
+
+  // 팔로우 여부 확인
+  const usersWithFollowStatus = await Promise.all(
+    (filteredUsers || []).map(async (u) => {
+      let isFollowing = false;
+      if (currentUser) {
+        const { data } = await followService.isFollowing(currentUser.id, u.id);
+        isFollowing = data;
+      }
+      return { ...u, isFollowing };
+    })
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -46,45 +70,47 @@ export default async function Sidebar() {
             <UserPlus className="w-4 h-4 text-blue-500" />
             <span className="font-semibold">추천 유저</span>
           </div>
-          {featuredUsers?.map((user) => (
-            <Link
+          {usersWithFollowStatus.map((user) => (
+            <div
               key={user.username}
-              href={`/profile/${user.username}`}
-              className="block"
+              className="group flex p-2 hover:bg-accent rounded-md transition-colors gap-3"
             >
-              <div className="flex p-2 hover:bg-accent rounded-md cursor-pointer transition-colors gap-3">
+              <Link href={`/profile/${user.username}`}>
                 <Avatar className="w-10 h-10 border border-border">
                   <AvatarImage src={user.avatar || ""} alt={user.nickname} />
                   <AvatarFallback>
                     {user.nickname?.charAt(0) || user.username.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-foreground truncate">
-                        {user.nickname}
-                      </span>
-                      <span className="text-xs text-muted-foreground truncate">
-                        @{user.username}
-                      </span>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 text-xs px-2"
-                    >
-                      팔로우
-                    </Button>
-                  </div>
-                  {user.bio && (
-                    <p className="text-xs text-muted-foreground mt-1.5 leading-tight line-clamp-2">
-                      {user.bio}
-                    </p>
-                  )}
+              </Link>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/profile/${user.username}`}
+                    className="flex flex-col min-w-0 flex-1"
+                  >
+                    <span className="text-sm font-medium text-foreground truncate">
+                      {user.nickname}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate">
+                      @{user.username}
+                    </span>
+                  </Link>
+                  <FollowButton
+                    followingId={user.id}
+                    followingUsername={user.username}
+                    initialIsFollowing={user.isFollowing}
+                    size="sm"
+                    className="h-7 text-xs px-2"
+                  />
                 </div>
+                {user.bio && (
+                  <p className="text-xs text-muted-foreground mt-1.5 leading-tight line-clamp-2">
+                    {user.bio}
+                  </p>
+                )}
               </div>
-            </Link>
+            </div>
           ))}
         </CardContent>
       </Card>

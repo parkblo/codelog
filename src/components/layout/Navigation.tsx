@@ -16,42 +16,63 @@ import { useAuth } from "@/providers/auth-provider";
 export default function LeftSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
 
-  const handleRouteClick = (path: string) => {
-    router.push(`/${path}`);
+  const handleRouteClick = (item: (typeof navItems)[0]) => {
+    if (item.isAuthRequired && !user) {
+      openAuthModal("login");
+      return;
+    }
+    router.push(`/${item.page}`);
   };
 
   const navItems = [
-    { icon: Home, label: "홈", page: "home" },
-    { icon: Hash, label: "탐색", page: "explore" },
-    { icon: MessageSquare, label: "코드 리뷰", page: "code-review" },
-    { icon: Bell, label: "알림", page: "notification" },
-    { icon: Bookmark, label: "저장됨", page: "bookmarks" },
-    { icon: User, label: "프로필", page: `profile/${user?.username}` },
-    { icon: Settings, label: "설정", page: "settings" },
+    { icon: Home, label: "홈", page: "home", isAuthRequired: false },
+    { icon: Hash, label: "탐색", page: "explore", isAuthRequired: false },
+    {
+      icon: MessageSquare,
+      label: "코드 리뷰",
+      page: "code-review",
+      isAuthRequired: false,
+    },
+    { icon: Bell, label: "알림", page: "notification", isAuthRequired: true },
+    {
+      icon: Bookmark,
+      label: "저장됨",
+      page: "bookmarks",
+      isAuthRequired: true,
+    },
+    {
+      icon: User,
+      label: "프로필",
+      page: `profile/${user?.username}`,
+      isAuthRequired: true,
+    },
+    { icon: Settings, label: "설정", page: "settings", isAuthRequired: true },
   ];
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <h1
         className="text-xl px-2 cursor-pointer"
-        onClick={() => handleRouteClick("home")}
+        onClick={() => router.push("/home")}
       >
         CodeLog
       </h1>
       <div className="flex flex-col gap-1">
-        {navItems.map((item) => (
-          <Button
-            key={item.label}
-            variant={pathname === `/${item.page}` ? "default" : "ghost"}
-            className="justify-start px-4 py-6"
-            onClick={() => handleRouteClick(item.page)}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </Button>
-        ))}
+        {navItems.map((item) => {
+          return (
+            <Button
+              key={item.label}
+              variant={pathname === `/${item.page}` ? "default" : "ghost"}
+              className="justify-start px-4 py-6"
+              onClick={() => handleRouteClick(item)}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </Button>
+          );
+        })}
       </div>
     </div>
   );

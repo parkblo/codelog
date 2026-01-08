@@ -9,12 +9,20 @@ interface AuthContextType {
   user: UserAuth | null;
   loading: boolean;
   updateUser: (user: UserAuth | null) => void;
+  isAuthModalOpen: boolean;
+  authModalView: "login" | "signup";
+  openAuthModal: (view?: "login" | "signup") => void;
+  closeAuthModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   updateUser: () => {},
+  isAuthModalOpen: false,
+  authModalView: "login",
+  openAuthModal: () => {},
+  closeAuthModal: () => {},
 });
 
 export const useAuth = () => {
@@ -30,9 +38,22 @@ export default function AuthProvider({
 }) {
   const [user, setUser] = useState<UserAuth | null>(initialUser);
   const [loading, setLoading] = useState(!initialUser);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalView, setAuthModalView] = useState<"login" | "signup">(
+    "login"
+  );
 
   const updateUser = (newUser: UserAuth | null) => {
     setUser(newUser);
+  };
+
+  const openAuthModal = (view: "login" | "signup" = "login") => {
+    setAuthModalView(view);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
   };
 
   useEffect(() => {
@@ -43,6 +64,8 @@ export default function AuthProvider({
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(mapSupabaseUserToDomainUser(session.user));
+        // 로그인이 성공하면 모달을 닫음
+        setIsAuthModalOpen(false);
       } else {
         setUser(null);
       }
@@ -55,7 +78,17 @@ export default function AuthProvider({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, updateUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        updateUser,
+        isAuthModalOpen,
+        authModalView,
+        openAuthModal,
+        closeAuthModal,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

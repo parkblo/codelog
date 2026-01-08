@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import AuthProvider from "@/providers/auth-provider";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { Toaster } from "@/components/ui/sonner";
+import AuthDialog from "@/components/home/AuthDialog";
 
 const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",
@@ -32,6 +33,7 @@ export default async function RootLayout({
       <body className={`${pretendard.variable} antialiased`}>
         <AuthProvider initialUser={user}>
           <Toaster />
+          <AuthDialog />
           <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">
             <aside className="hidden md:block">
               <Navigation />

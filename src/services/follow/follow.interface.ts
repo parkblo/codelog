@@ -14,7 +14,7 @@ export interface IFollowService {
   /**
    * 팔로우를 취소합니다.
    * @param followerId 팔로우를 취소하는 사용자 ID
-   * @param followingId 팔로우를 취소 당하는(?) 사용자 ID
+   * @param followingId 팔로우 대상 사용자 ID
    */
   unfollow(
     followerId: string,

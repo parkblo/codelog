@@ -8,6 +8,11 @@ export class FollowService implements IFollowService {
     followerId: string,
     followingId: string
   ): Promise<{ error: Error | null }> {
+    // 자기 자신 팔로우 방지
+    if (followerId === followingId) {
+      return { error: new Error("자기 자신을 팔로우할 수 없습니다.") };
+    }
+
     const supabase = await createClient();
     const { error } = await supabase.from("follows").insert({
       follower_id: followerId,
@@ -56,10 +61,14 @@ export class FollowService implements IFollowService {
     const { data, error } = await query;
 
     if (error) return { data: null, error };
+
+    // 타입 가드를 통해 null 제외 및 안전한 캐스팅
+    const followers = (data as FollowersWithAuthor)
+      .map((item) => item.follower)
+      .filter((follower): follower is Author => follower !== null);
+
     return {
-      data: (data as FollowersWithAuthor).map(
-        (item) => item.follower as Author
-      ),
+      data: followers,
       error: null,
     };
   }
@@ -87,10 +96,14 @@ export class FollowService implements IFollowService {
     const { data, error } = await query;
 
     if (error) return { data: null, error };
+
+    // 타입 가드를 통해 null 제외 및 안전한 캐스팅
+    const following = (data as FollowingWithAuthor)
+      .map((item) => item.following)
+      .filter((following): following is Author => following !== null);
+
     return {
-      data: (data as FollowingWithAuthor).map(
-        (item) => item.following as Author
-      ),
+      data: following,
       error: null,
     };
   }

@@ -7,6 +7,7 @@ import AuthProvider from "@/providers/auth-provider";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { Toaster } from "@/components/ui/sonner";
 import AuthDialog from "@/components/home/AuthDialog";
+import BackgroundMesh from "@/components/layout/BackgroundMesh";
 
 const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",
@@ -34,11 +35,13 @@ export default async function RootLayout({
         <AuthProvider initialUser={user}>
           <Toaster />
           <AuthDialog />
+          <BackgroundMesh />
+
           <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">
             <aside className="hidden md:block">
               <Navigation />
             </aside>
-            <main>{children}</main>
+            <main className="relative">{children}</main>
             <aside className="hidden xl:block">
               <Sidebar />
             </aside>

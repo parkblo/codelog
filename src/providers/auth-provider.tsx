@@ -10,6 +10,7 @@ import {
   useContext,
   useEffect,
   useState,
+  Suspense,
 } from "react";
 
 interface AuthContextType {
@@ -49,7 +50,6 @@ export default function AuthProvider({
   const [authModalView, setAuthModalView] = useState<"login" | "signup">(
     "login"
   );
-  const searchParams = useSearchParams();
 
   const updateUser = (newUser: UserAuth | null) => {
     setUser(newUser);
@@ -63,15 +63,6 @@ export default function AuthProvider({
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
   }, []);
-
-  useEffect(() => {
-    if (searchParams.get("auth") === "required" && !user) {
-      const timer = setTimeout(() => {
-        openAuthModal("login");
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams, user, openAuthModal]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -106,7 +97,30 @@ export default function AuthProvider({
         closeAuthModal,
       }}
     >
+      <Suspense fallback={null}>
+        <AuthModalTrigger />
+      </Suspense>
       {children}
     </AuthContext.Provider>
   );
+}
+
+/**
+ * URL 검색 파라미터를 기반으로 인증 모달을 여는 하위 컴포넌트입니다.
+ * 전체 레이아웃이 서버 사이드 렌더링에서 제외되는 것을 방지하기 위해 Suspense로 감싸서 사용합니다.
+ */
+function AuthModalTrigger() {
+  const searchParams = useSearchParams();
+  const { user, openAuthModal } = useAuth();
+
+  useEffect(() => {
+    if (searchParams.get("auth") === "required" && !user) {
+      const timer = setTimeout(() => {
+        openAuthModal("login");
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, user, openAuthModal]);
+
+  return null;
 }

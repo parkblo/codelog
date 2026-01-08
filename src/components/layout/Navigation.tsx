@@ -44,7 +44,7 @@ export default function LeftSidebar() {
     {
       icon: User,
       label: "프로필",
-      page: `profile/${user?.username}`,
+      page: user ? `profile/${user.username}` : "profile",
       isAuthRequired: true,
     },
     { icon: Settings, label: "설정", page: "settings", isAuthRequired: true },

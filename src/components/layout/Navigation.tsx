@@ -3,7 +3,6 @@
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import {
-  Bell,
   Bookmark,
   Hash,
   Home,
@@ -26,6 +25,7 @@ export default function LeftSidebar() {
     router.push(`/${item.page}`);
   };
 
+  /* notification은 추후 추가 예정 */
   const navItems = [
     { icon: Home, label: "홈", page: "home", isAuthRequired: false },
     { icon: Hash, label: "탐색", page: "explore", isAuthRequired: false },
@@ -35,7 +35,6 @@ export default function LeftSidebar() {
       page: "code-review",
       isAuthRequired: false,
     },
-    { icon: Bell, label: "알림", page: "notification", isAuthRequired: true },
     {
       icon: Bookmark,
       label: "저장됨",

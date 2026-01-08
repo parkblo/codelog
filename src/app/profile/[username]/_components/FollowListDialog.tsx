@@ -54,17 +54,12 @@ export default function FollowListDialog({
 
       fetchUsers();
     }
-
-    return () => {
-      // 닫힐 때 혹은 의존성 변경 시 초기화 (잔상 제거 및 렌더링 최적화)
-      setUsers(null);
-    };
   }, [open, userId, type]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>
             {type === "followers" ? "팔로워" : "팔로잉"}

@@ -1,4 +1,4 @@
-import { UserAuth, UserContribution } from "@/types/types";
+import { Author, UserAuth, UserContribution } from "@/types/types";
 
 export interface IUserService {
   /**
@@ -13,11 +13,16 @@ export interface IUserService {
   /**
    * 사용자 이름을 기반으로 사용자 정보를 조회합니다.
    * @param username 조회할 사용자의 고유 ID (username)
+   * @param currentUserId 현재 로그인한 사용자의 ID (팔로우 여부 확인용)
    * @returns 사용자 정보와 에러 객체
    */
   getUserByUsername(
-    username: string
-  ): Promise<{ data: UserAuth | null; error: Error | null }>;
+    username: string,
+    currentUserId?: string
+  ): Promise<{
+    data: (UserAuth & { is_following?: boolean }) | null;
+    error: Error | null;
+  }>;
 
   /**
    * 사용자의 기여도(게시글 작성 수) 데이터를 가져옵니다.
@@ -39,12 +44,14 @@ export interface IUserService {
   /**
    * 랜덤하게 추천 사용자를 가져옵니다.
    * @param count 가져올 사용자 수
+   * @param currentUserId 현재 로그인한 사용자의 ID (팔로우 여부 확인용)
    * @returns 추천 사용자 목록과 에러 객체
    */
-  getRandomFeaturedUsers(count: number): Promise<{
-    data:
-      | Pick<UserAuth, "id" | "username" | "nickname" | "bio" | "avatar">[]
-      | null;
+  getRandomFeaturedUsers(
+    count: number,
+    currentUserId?: string
+  ): Promise<{
+    data: Author[] | null;
     error: Error | null;
   }>;
 }

@@ -54,8 +54,14 @@ export async function updateAvatarAction(
 }
 
 export async function getRandomFeaturedUsersAction(count: number) {
+  const authService = new ServerAuthService();
+  const currentUser = await authService.getCurrentUser();
+
   const userService = new UserService();
-  const { data, error } = await userService.getRandomFeaturedUsers(count);
+  const { data, error } = await userService.getRandomFeaturedUsers(
+    count,
+    currentUser?.id
+  );
 
   if (error) {
     return { data: null, error: error.message };

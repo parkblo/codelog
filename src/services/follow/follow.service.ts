@@ -109,4 +109,30 @@ export class FollowService implements IFollowService {
     if (error) return { data: false, error };
     return { data: (count || 0) > 0, error: null };
   }
+
+  async getFollowersCount(
+    userId: string
+  ): Promise<{ data: number; error: Error | null }> {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("following_id", userId);
+
+    if (error) return { data: 0, error };
+    return { data: count || 0, error: null };
+  }
+
+  async getFollowingCount(
+    userId: string
+  ): Promise<{ data: number; error: Error | null }> {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("follower_id", userId);
+
+    if (error) return { data: 0, error };
+    return { data: count || 0, error: null };
+  }
 }

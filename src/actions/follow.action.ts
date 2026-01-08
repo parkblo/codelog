@@ -93,3 +93,31 @@ export async function isFollowingAction(followingId: string) {
 
   return { data, error: null };
 }
+
+/**
+ * 특정 사용자의 팔로워 목록을 가져오는 서버 액션입니다.
+ */
+export async function getFollowersAction(userId: string) {
+  const followService = new FollowService();
+  const { data, error } = await followService.getFollowers(userId);
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return { data, error: null };
+}
+
+/**
+ * 특정 사용자의 팔로잉 목록을 가져오는 서버 액션입니다.
+ */
+export async function getFollowingAction(userId: string) {
+  const followService = new FollowService();
+  const { data, error } = await followService.getFollowing(userId);
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return { data, error: null };
+}

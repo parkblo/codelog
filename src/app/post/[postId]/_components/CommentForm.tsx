@@ -20,8 +20,14 @@ export default function CommentForm({
   startLine?: number | null;
   endLine?: number | null;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, openAuthModal } = useAuth();
   const [comment, setComment] = useState("");
+
+  const handleFocus = () => {
+    if (!user && !loading) {
+      openAuthModal("login");
+    }
+  };
 
   const createComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,7 +48,7 @@ export default function CommentForm({
         }
       );
     } else if (!user) {
-      toast.error("로그인 후 댓글을 작성해주세요.");
+      openAuthModal("login");
     } else {
       toast.error("댓글을 작성해주세요.");
     }
@@ -68,6 +74,7 @@ export default function CommentForm({
                 className="resize-none"
                 placeholder="댓글을 입력해주세요."
                 value={comment}
+                onFocus={handleFocus}
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {

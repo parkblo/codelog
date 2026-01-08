@@ -17,17 +17,25 @@ import { useState } from "react";
 import CommentMenu from "./CommentMenu";
 import { useRouter } from "next/navigation";
 
+import { useAuth } from "@/providers/auth-provider";
+
 interface ReviewCommentProps {
   lineComments: Comment[];
 }
 
 export default function ReviewComment({ lineComments }: ReviewCommentProps) {
   const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const [isLiked, setIsLiked] = useState<(boolean | undefined)[]>(
     lineComments.map((comment) => comment.is_liked)
   );
 
   const handleLikeClick = async (idx: number) => {
+    if (!user) {
+      openAuthModal("login");
+      return;
+    }
+
     const previousState = isLiked;
     setIsLiked((prev) => {
       const newState = [...prev];

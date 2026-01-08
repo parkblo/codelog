@@ -26,6 +26,7 @@ import ReviewComment from "@/app/post/[postId]/_components/ReviewComment";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { handleAction } from "@/utils/handle-action";
+import { useAuth } from "@/providers/auth-provider";
 
 interface PostProps {
   post: PostType;
@@ -35,15 +36,16 @@ interface PostProps {
 
 export default function Post({ post, fullPage = false, comments }: PostProps) {
   const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [isBookmarked, setIsBookmarked] = useState(post.is_bookmarked);
 
   const [visibleCommentLines, setVisibleCommentLines] = useState<number[]>([]);
 
   const toggleCommentLine = (lineNumber: number) => {
-    setVisibleCommentLines((prev) =>
+    setVisibleCommentLines((prev: number[]) =>
       prev.includes(lineNumber)
-        ? prev.filter((l) => l !== lineNumber)
+        ? prev.filter((l: number) => l !== lineNumber)
         : [...prev, lineNumber]
     );
   };
@@ -77,6 +79,11 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
   };
 
   const handleLikeClick = async () => {
+    if (!user) {
+      openAuthModal("login");
+      return;
+    }
+
     const previousState = isLiked;
     setIsLiked(!isLiked);
 
@@ -90,6 +97,11 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
   };
 
   const handleBookmarkClick = async () => {
+    if (!user) {
+      openAuthModal("login");
+      return;
+    }
+
     const previousState = isBookmarked;
     setIsBookmarked(!isBookmarked);
 

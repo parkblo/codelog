@@ -46,4 +46,20 @@ export interface IFollowService {
     followerId: string,
     followingId: string
   ): Promise<{ data: boolean; error: Error | null }>;
+
+  /**
+   * 특정 사용자의 팔로워 수를 가져옵니다.
+   * @param userId 대상 사용자 ID
+   */
+  getFollowersCount(
+    userId: string
+  ): Promise<{ data: number; error: Error | null }>;
+
+  /**
+   * 특정 사용자의 팔로잉 수를 가져옵니다.
+   * @param userId 대상 사용자 ID
+   */
+  getFollowingCount(
+    userId: string
+  ): Promise<{ data: number; error: Error | null }>;
 }

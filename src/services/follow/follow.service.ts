@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { IFollowService } from "./follow.interface";
 import { Author } from "@/types/types";
+import { QueryData } from "@supabase/supabase-js";
 
 export class FollowService implements IFollowService {
   async follow(
@@ -36,7 +37,7 @@ export class FollowService implements IFollowService {
     userId: string
   ): Promise<{ data: Author[] | null; error: Error | null }> {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    const query = supabase
       .from("follows")
       .select(
         `
@@ -51,10 +52,13 @@ export class FollowService implements IFollowService {
       )
       .eq("following_id", userId);
 
+    type FollowersWithAuthor = QueryData<typeof query>;
+    const { data, error } = await query;
+
     if (error) return { data: null, error };
     return {
-      data: (data as unknown as { follower: Author }[]).map(
-        (item) => item.follower
+      data: (data as FollowersWithAuthor).map(
+        (item) => item.follower as Author
       ),
       error: null,
     };
@@ -64,7 +68,7 @@ export class FollowService implements IFollowService {
     userId: string
   ): Promise<{ data: Author[] | null; error: Error | null }> {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    const query = supabase
       .from("follows")
       .select(
         `
@@ -79,10 +83,13 @@ export class FollowService implements IFollowService {
       )
       .eq("follower_id", userId);
 
+    type FollowingWithAuthor = QueryData<typeof query>;
+    const { data, error } = await query;
+
     if (error) return { data: null, error };
     return {
-      data: (data as unknown as { following: Author }[]).map(
-        (item) => item.following
+      data: (data as FollowingWithAuthor).map(
+        (item) => item.following as Author
       ),
       error: null,
     };

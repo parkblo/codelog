@@ -5,6 +5,7 @@ import ContributionGraph from "./_components/ContributionGraph";
 import ProfileTabs from "./_components/ProfileTabs";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { UserService } from "@/services/user/user.service";
+import { FollowService } from "@/services/follow/follow.service";
 import PostCard from "@/components/home/PostCard";
 
 interface ProfilePageProps {
@@ -18,6 +19,7 @@ export default async function UserProfilePage({
 }: ProfilePageProps) {
   const authService = new ServerAuthService();
   const userService = new UserService();
+  const followService = new FollowService();
 
   const { username } = await params;
   const { tab = "posts" } = await searchParams;
@@ -30,6 +32,18 @@ export default async function UserProfilePage({
   if (!username || !user) {
     return <div>사용자 정보를 가져올 수 없습니다.</div>;
   }
+
+  const [
+    { data: followerCount },
+    { data: followingCount },
+    { data: isFollowing },
+  ] = await Promise.all([
+    followService.getFollowersCount(user.id),
+    followService.getFollowingCount(user.id),
+    currentUser
+      ? followService.isFollowing(currentUser.id, user.id)
+      : Promise.resolve({ data: false, error: null }),
+  ]);
 
   const { data: posts } = await getPostsAction(
     tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id }
@@ -45,6 +59,9 @@ export default async function UserProfilePage({
         <UserProfileCard
           user={user}
           isEditable={(currentUser && user.id === currentUser.id) || false}
+          followerCount={followerCount || 0}
+          followingCount={followingCount || 0}
+          isFollowing={isFollowing || false}
         />
       )}
       {contributions && <ContributionGraph contributions={contributions} />}

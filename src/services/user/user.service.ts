@@ -38,7 +38,7 @@ export class UserService implements IUserService {
     if (currentUserId) {
       const { data: followData, error: followError } = await supabase
         .from("follows")
-        .select("id")
+        .select("follower_id")
         .eq("following_id", userData.id)
         .eq("follower_id", currentUserId)
         .limit(1)

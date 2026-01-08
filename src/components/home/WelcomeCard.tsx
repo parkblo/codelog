@@ -3,11 +3,10 @@
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import AuthDialog from "./AuthDialog";
 import { useAuth } from "@/providers/auth-provider";
 
 export default function WelcomeCard() {
-  const { user, loading } = useAuth();
+  const { user, loading, openAuthModal } = useAuth();
 
   if (loading || user) {
     return null;
@@ -30,16 +29,20 @@ export default function WelcomeCard() {
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <AuthDialog signUp={true}>
-              <Button className="w-full" variant="default">
-                회원가입
-              </Button>
-            </AuthDialog>
-            <AuthDialog signUp={false}>
-              <Button className="w-full" variant="outline">
-                로그인
-              </Button>
-            </AuthDialog>
+            <Button
+              className="w-full"
+              variant="default"
+              onClick={() => openAuthModal("signup")}
+            >
+              회원가입
+            </Button>
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => openAuthModal("login")}
+            >
+              로그인
+            </Button>
           </div>
         </div>
       </CardContent>

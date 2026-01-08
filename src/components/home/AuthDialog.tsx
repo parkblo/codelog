@@ -3,17 +3,12 @@
 import { Github, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useAuth } from "@/providers/auth-provider";
 import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { FormEvent, ReactNode, useState } from "react";
+import { FormEvent, useState } from "react";
 import { cn } from "@/lib/utils";
 import { handleAction } from "@/utils/handle-action";
 import {
@@ -22,16 +17,9 @@ import {
   signUpAction,
 } from "@/actions/auth.action";
 
-interface AuthDialogProps {
-  children: ReactNode;
-  signUp: boolean;
-}
-
-export default function AuthDialog({
-  children,
-  signUp = false,
-}: AuthDialogProps) {
-  const [isSignUp, setSignUp] = useState(signUp);
+export default function AuthDialog() {
+  const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal } =
+    useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,15 +27,16 @@ export default function AuthDialog({
   const [nickname, setNickname] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isSignUp = authModalView === "signup";
+
   /*
     NOTE-
     dialog를 닫아도 상태가 남아있는 문제 해결용.
-    바로 상태를 바꾸면 UI 업데이트가 보이게 되므로 지연 추가
   */
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      closeAuthModal();
       setTimeout(() => {
-        setSignUp(signUp);
         setEmail("");
         setPassword("");
         setConfirmPassword("");
@@ -110,7 +99,7 @@ export default function AuthDialog({
       }),
       {
         onSuccess: () => {
-          setSignUp(false);
+          openAuthModal("login");
         },
       }
     );
@@ -118,10 +107,7 @@ export default function AuthDialog({
   };
 
   return (
-    <Dialog onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <div className="w-full">{children}</div>
-      </DialogTrigger>
+    <Dialog open={isAuthModalOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
           "w-md transition-colors",
@@ -254,7 +240,7 @@ export default function AuthDialog({
               계정이 없으신가요?{" "}
               <span
                 className="underline hover:cursor-pointer"
-                onClick={() => setSignUp(true)}
+                onClick={() => openAuthModal("signup")}
               >
                 가입하기
               </span>
@@ -265,7 +251,7 @@ export default function AuthDialog({
               계정이 이미 있으신가요?{" "}
               <span
                 className="underline hover:cursor-pointer"
-                onClick={() => setSignUp(false)}
+                onClick={() => openAuthModal("login")}
               >
                 로그인하기
               </span>

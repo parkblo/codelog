@@ -14,7 +14,9 @@ export type UserAuth = Omit<
 export type Author = Pick<
   Tables<"users">,
   "username" | "nickname" | "avatar" | "bio" | "id"
->;
+> & {
+  is_following?: boolean;
+};
 
 export interface Post extends Omit<Tables<"posts">, "user_id"> {
   author: Author;

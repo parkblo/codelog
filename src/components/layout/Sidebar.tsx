@@ -8,12 +8,10 @@ import Link from "next/link";
 import { getRandomFeaturedUsersAction } from "@/actions/user.action";
 import { getTrendingTagsAction } from "@/actions/tag.action";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { FollowService } from "@/services/follow/follow.service";
 import FollowButton from "../follow/FollowButton";
 
 export default async function Sidebar() {
   const authService = new ServerAuthService();
-  const followService = new FollowService();
 
   const [{ data: featuredUsers }, { data: trendingTags }, currentUser] =
     await Promise.all([
@@ -25,21 +23,8 @@ export default async function Sidebar() {
   const tags = trendingTags?.map((tag) => tag.name) || [];
 
   // 본인 제외
-  const filteredUsers = featuredUsers
-    ?.filter((u) => u.id !== currentUser?.id)
-    .slice(0, 2);
-
-  // 팔로우 여부 확인
-  const usersWithFollowStatus = await Promise.all(
-    (filteredUsers || []).map(async (u) => {
-      let isFollowing = false;
-      if (currentUser) {
-        const { data } = await followService.isFollowing(currentUser.id, u.id);
-        isFollowing = data;
-      }
-      return { ...u, isFollowing };
-    })
-  );
+  const filteredUsers =
+    featuredUsers?.filter((u) => u.id !== currentUser?.id).slice(0, 2) || [];
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -70,7 +55,7 @@ export default async function Sidebar() {
             <UserPlus className="w-4 h-4 text-blue-500" />
             <span className="font-semibold">추천 유저</span>
           </div>
-          {usersWithFollowStatus.map((user) => (
+          {filteredUsers.map((user) => (
             <div
               key={user.username}
               className="group flex p-2 hover:bg-accent rounded-md transition-colors gap-3"
@@ -99,7 +84,7 @@ export default async function Sidebar() {
                   <FollowButton
                     followingId={user.id}
                     followingUsername={user.username}
-                    initialIsFollowing={user.isFollowing}
+                    initialIsFollowing={user.is_following || false}
                     size="sm"
                     className="h-7 text-xs px-2"
                   />

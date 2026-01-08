@@ -24,26 +24,22 @@ export default async function UserProfilePage({
   const { username } = await params;
   const { tab = "posts" } = await searchParams;
 
-  const [currentUser, { data: user }] = await Promise.all([
-    authService.getCurrentUser(),
-    userService.getUserByUsername(username),
-  ]);
+  const currentUser = await authService.getCurrentUser();
+  const { data: user } = await userService.getUserByUsername(
+    username,
+    currentUser?.id
+  );
 
   if (!username || !user) {
     return <div>사용자 정보를 가져올 수 없습니다.</div>;
   }
 
-  const [
-    { data: followerCount },
-    { data: followingCount },
-    { data: isFollowing },
-  ] = await Promise.all([
-    followService.getFollowersCount(user.id),
-    followService.getFollowingCount(user.id),
-    currentUser
-      ? followService.isFollowing(currentUser.id, user.id)
-      : Promise.resolve({ data: false, error: null }),
-  ]);
+  const [{ data: followerCount }, { data: followingCount }] = await Promise.all(
+    [
+      followService.getFollowersCount(user.id),
+      followService.getFollowingCount(user.id),
+    ]
+  );
 
   const { data: posts } = await getPostsAction(
     tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id }
@@ -61,7 +57,7 @@ export default async function UserProfilePage({
           isEditable={(currentUser && user.id === currentUser.id) || false}
           followerCount={followerCount || 0}
           followingCount={followingCount || 0}
-          isFollowing={isFollowing || false}
+          isFollowing={user.is_following || false}
         />
       )}
       {contributions && <ContributionGraph contributions={contributions} />}

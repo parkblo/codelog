@@ -1,6 +1,7 @@
-import { UserAuth } from "@/types/types";
+import { Author, UserAuth, UserContribution } from "@/types/types";
 import { IUserService } from "./user.interface";
 import { createClient } from "@/utils/supabase/server";
+import { QueryData } from "@supabase/supabase-js";
 
 export class UserService implements IUserService {
   async editUser(user: Pick<UserAuth, "id" | "nickname" | "bio" | "avatar">) {
@@ -19,20 +20,60 @@ export class UserService implements IUserService {
     return { error };
   }
 
-  async getUserByUsername(username: string) {
+  async getUserByUsername(username: string, currentUserId?: string) {
     const supabase = await createClient();
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, username, nickname, bio, avatar")
-      .eq("username", username)
-      .single();
+    if (currentUserId) {
+      const query = supabase
+        .from("users")
+        .select(
+          `
+          id, username, nickname, bio, avatar,
+          is_following:follows!follows_following_id_fkey(follower_id)
+        `
+        )
+        .eq("username", username)
+        .eq("follows.follower_id", currentUserId)
+        .single();
 
-    if (error) {
-      return { data: null, error };
+      type UserWithFollow = QueryData<typeof query>;
+      const { data, error } = await query;
+
+      if (error || !data) {
+        return { data: null, error };
+      }
+
+      const userData = data as UserWithFollow;
+      return {
+        data: {
+          ...userData,
+          is_following:
+            Array.isArray(userData.is_following) &&
+            userData.is_following.length > 0,
+        } as UserAuth & { is_following?: boolean },
+        error: null,
+      };
+    } else {
+      const query = supabase
+        .from("users")
+        .select("id, username, nickname, bio, avatar")
+        .eq("username", username)
+        .single();
+
+      const { data, error } = await query;
+
+      if (error || !data) {
+        return { data: null, error };
+      }
+
+      return {
+        data: {
+          ...data,
+          is_following: false,
+        } as UserAuth & { is_following?: boolean },
+        error: null,
+      };
     }
-
-    return { data, error: null };
   }
 
   async getUserContributions(id: string) {
@@ -72,20 +113,69 @@ export class UserService implements IUserService {
     return { error: null };
   }
 
-  async getRandomFeaturedUsers(count: number) {
+  async getRandomFeaturedUsers(count: number, currentUserId?: string) {
     const supabase = await createClient();
 
-    const { data, error } = await supabase.rpc("get_random_featured_users", {
-      p_count: count,
-    });
+    const { data: featuredIds, error: rpcError } = await supabase.rpc(
+      "get_random_featured_users",
+      {
+        p_count: count,
+      }
+    );
 
-    if (error || data === null) {
-      return { data: null, error };
+    if (rpcError || !featuredIds) {
+      return { data: null, error: rpcError };
     }
 
-    return {
-      data,
-      error: null,
-    };
+    const ids = (featuredIds as { id: string }[]).map((u) => u.id);
+
+    if (currentUserId) {
+      const query = supabase
+        .from("users")
+        .select(
+          `
+          id, username, nickname, bio, avatar,
+          is_following:follows!follows_following_id_fkey(follower_id)
+        `
+        )
+        .in("id", ids)
+        .eq("follows.follower_id", currentUserId);
+
+      type FeaturedUsersWithFollow = QueryData<typeof query>;
+      const { data, error } = await query;
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      const userDataList = data as FeaturedUsersWithFollow;
+      return {
+        data: userDataList.map((user) => ({
+          ...user,
+          is_following:
+            Array.isArray(user.is_following) && user.is_following.length > 0,
+        })) as Author[],
+        error: null,
+      };
+    } else {
+      const query = supabase
+        .from("users")
+        .select("id, username, nickname, bio, avatar")
+        .in("id", ids);
+
+      const { data, error } = await query;
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      return {
+        data: data.map((user) => ({
+          ...user,
+          is_following: false,
+        })) as Author[],
+        error: null,
+      };
+    }
   }
 }

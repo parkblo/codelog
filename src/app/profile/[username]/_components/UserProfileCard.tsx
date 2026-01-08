@@ -2,28 +2,40 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAuth } from "@/types/types";
 import ProfileEditDialog from "./ProfileEditDialog";
+import FollowButton from "@/components/follow/FollowButton";
+import FollowListDialog from "./FollowListDialog";
 
 interface UserProfileCardProps {
   user: UserAuth;
   isEditable?: boolean;
+  followerCount: number;
+  followingCount: number;
+  isFollowing: boolean;
 }
 
 export default function UserProfileCard({
   user,
   isEditable = false,
+  followerCount = 0,
+  followingCount = 0,
+  isFollowing = false,
 }: UserProfileCardProps) {
   return (
     <Card className="bg-background">
       <CardContent>
         <div className="relative flex flex-col items-center justify-center gap-4">
-          {isEditable && (
-            <div className="absolute top-2 right-2">
-              <ProfileEditDialog user={user} />
-            </div>
-          )}
+          <div className="absolute top-2 right-2 flex gap-2">
+            {!isEditable && (
+              <FollowButton
+                followingId={user.id}
+                followingUsername={user.username}
+                initialIsFollowing={isFollowing}
+              />
+            )}
+            {isEditable && <ProfileEditDialog user={user} />}
+          </div>
 
-          <Avatar className="w-30 h-30 border border-border">
-            {/* 사용자 프로필 이미지 */}
+          <Avatar className="w-24 h-24 border border-border">
             {user && (
               <>
                 <AvatarImage src={user.avatar || ""} alt={user.nickname} />
@@ -34,9 +46,38 @@ export default function UserProfileCard({
             )}
           </Avatar>
           <div className="flex flex-col items-center justify-center gap-1">
-            <p className="font-semibold">{user?.nickname}</p>
+            <p className="font-semibold text-xl">{user?.nickname}</p>
             <p className="text-sm text-muted-foreground">@{user?.username}</p>
-            <p className="text-sm">{user?.bio}</p>
+            {user?.bio && (
+              <p className="text-sm mt-2 text-center max-w-md">{user?.bio}</p>
+            )}
+
+            <div className="flex gap-4 mt-4">
+              <FollowListDialog
+                userId={user.id}
+                type="followers"
+                trigger={
+                  <div className="flex flex-col items-center cursor-pointer hover:underline">
+                    <span className="font-bold">{followerCount}</span>
+                    <span className="text-xs text-muted-foreground">
+                      팔로워
+                    </span>
+                  </div>
+                }
+              />
+              <FollowListDialog
+                userId={user.id}
+                type="following"
+                trigger={
+                  <div className="flex flex-col items-center cursor-pointer hover:underline">
+                    <span className="font-bold">{followingCount}</span>
+                    <span className="text-xs text-muted-foreground">
+                      팔로잉
+                    </span>
+                  </div>
+                }
+              />
+            </div>
           </div>
         </div>
       </CardContent>

@@ -3,7 +3,14 @@
 import { UserAuth } from "@/types/types";
 import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
 import { createClient } from "@/utils/supabase/client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface AuthContextType {
   user: UserAuth | null;
@@ -42,19 +49,29 @@ export default function AuthProvider({
   const [authModalView, setAuthModalView] = useState<"login" | "signup">(
     "login"
   );
+  const searchParams = useSearchParams();
 
   const updateUser = (newUser: UserAuth | null) => {
     setUser(newUser);
   };
 
-  const openAuthModal = (view: "login" | "signup" = "login") => {
+  const openAuthModal = useCallback((view: "login" | "signup" = "login") => {
     setAuthModalView(view);
     setIsAuthModalOpen(true);
-  };
+  }, []);
 
-  const closeAuthModal = () => {
+  const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get("auth") === "required" && !user) {
+      const timer = setTimeout(() => {
+        openAuthModal("login");
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, user, openAuthModal]);
 
   useEffect(() => {
     const supabase = createClient();

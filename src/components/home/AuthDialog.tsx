@@ -59,7 +59,7 @@ export default function AuthDialog() {
   const handleGitHubLogin = async () => {
     const next = searchParams.get("next");
     const redirectTo = next
-      ? `${location.origin}/auth/callback?next=${next}`
+      ? `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       : `${location.origin}/auth/callback`;
 
     await handleAction(
@@ -140,7 +140,7 @@ export default function AuthDialog() {
         <DialogHeader>
           <DialogTitle>{isSignUp ? "회원가입" : "로그인"}</DialogTitle>
           <DialogDescription>
-            계정에 로그인하여 Codelog의 모든 기능을 즐겨보세요.
+            계정에 로그인하여 CodeLog의 모든 기능을 즐겨보세요.
           </DialogDescription>
         </DialogHeader>
         <Button onClick={handleGitHubLogin} disabled={loading}>

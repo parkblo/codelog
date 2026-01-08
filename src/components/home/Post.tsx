@@ -43,9 +43,9 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
   const [visibleCommentLines, setVisibleCommentLines] = useState<number[]>([]);
 
   const toggleCommentLine = (lineNumber: number) => {
-    setVisibleCommentLines((prev: number[]) =>
+    setVisibleCommentLines((prev) =>
       prev.includes(lineNumber)
-        ? prev.filter((l: number) => l !== lineNumber)
+        ? prev.filter((l) => l !== lineNumber)
         : [...prev, lineNumber]
     );
   };
@@ -182,7 +182,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
             {/* 본문 영역 */}
             {post.content && (
               <p
-                className="text-foreground whitespace-pre-wrap break-words leading-relaxed"
+                className="text-foreground whitespace-pre-wrap wrap-break-word leading-relaxed"
                 onClick={handlePostClick}
               >
                 {post.content}

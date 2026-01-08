@@ -13,18 +13,16 @@ import FollowButton from "../follow/FollowButton";
 export default async function Sidebar() {
   const authService = new ServerAuthService();
 
-  const [{ data: featuredUsers }, { data: trendingTags }, currentUser] =
-    await Promise.all([
-      getRandomFeaturedUsersAction(3), // 본인 제외 로직을 위해 3명 조회
-      getTrendingTagsAction(10),
-      authService.getCurrentUser(),
-    ]);
+  const currentUser = await authService.getCurrentUser();
+  const [{ data: featuredUsers }, { data: trendingTags }] = await Promise.all([
+    getRandomFeaturedUsersAction(2),
+    getTrendingTagsAction(10),
+  ]);
 
   const tags = trendingTags?.map((tag) => tag.name) || [];
 
-  // 본인 제외
   const filteredUsers =
-    featuredUsers?.filter((u) => u.id !== currentUser?.id).slice(0, 2) || [];
+    featuredUsers?.filter((u) => u.id !== currentUser?.id) || [];
 
   return (
     <div className="flex flex-col gap-4 p-4">

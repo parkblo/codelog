@@ -4,7 +4,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { Button } from "../ui/button";
 import { followUserAction, unfollowUserAction } from "@/actions/follow.action";
 import { useTransition, useState } from "react";
-import { toast } from "sonner";
+import { handleAction } from "@/utils/handle-action";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
 
 interface FollowButtonProps {
@@ -30,6 +30,8 @@ export default function FollowButton({
     e.preventDefault();
     e.stopPropagation();
 
+    if (isPending) return; // 중복 요청 방지
+
     if (!user) {
       openAuthModal("login");
       return;
@@ -41,11 +43,14 @@ export default function FollowButton({
 
     startTransition(async () => {
       const action = originalState ? unfollowUserAction : followUserAction;
-      const { error } = await action(followingId, followingUsername);
+      const result = await handleAction(action(followingId, followingUsername));
 
-      if (error) {
+      if (result === null && !originalState) {
+        // 에러 발생 시 원래 상태로 복구 (팔로우 시도 중 에러)
         setIsFollowing(originalState);
-        toast.error(error);
+      } else if (result === null && originalState) {
+        // 언팔로우 시도 중 에러
+        setIsFollowing(originalState);
       }
     });
   };

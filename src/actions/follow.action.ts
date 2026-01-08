@@ -13,6 +13,10 @@ export async function followUserAction(
   followingId: string,
   followingUsername?: string
 ) {
+  // 유저네임 형식 검증 (보안 및 경로 무효화 안전성)
+  if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
+    return { error: "유효하지 않은 유저네임입니다." };
+  }
   const authService = new ServerAuthService();
   const followService = new FollowService();
   const user = await authService.getCurrentUser();
@@ -49,6 +53,10 @@ export async function unfollowUserAction(
   followingId: string,
   followingUsername?: string
 ) {
+  // 유저네임 형식 검증 (보안 및 경로 무효화 안전성)
+  if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
+    return { error: "유효하지 않은 유저네임입니다." };
+  }
   const authService = new ServerAuthService();
   const followService = new FollowService();
   const user = await authService.getCurrentUser();

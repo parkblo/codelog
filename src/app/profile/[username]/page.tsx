@@ -34,12 +34,13 @@ export default async function UserProfilePage({
     return <div>사용자 정보를 가져올 수 없습니다.</div>;
   }
 
-  const [{ data: followerCount }, { data: followingCount }] = await Promise.all(
-    [
-      followService.getFollowersCount(user.id),
-      followService.getFollowingCount(user.id),
-    ]
-  );
+  const [followersResult, followingResult] = await Promise.all([
+    followService.getFollowersCount(user.id),
+    followService.getFollowingCount(user.id),
+  ]);
+
+  const followerCount = followersResult?.data ?? 0;
+  const followingCount = followingResult?.data ?? 0;
 
   const { data: posts } = await getPostsAction(
     tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id }

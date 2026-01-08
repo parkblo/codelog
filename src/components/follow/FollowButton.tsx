@@ -47,7 +47,14 @@ export default function FollowButton({
 
     startTransition(async () => {
       const action = originalState ? unfollowUserAction : followUserAction;
-      const result = await handleAction(action(followingId, followingUsername));
+      const result = await handleAction(
+        action(followingId, followingUsername),
+        {
+          successMessage: `${
+            isFollowing ? "언팔로우" : "팔로우"
+          }에 성공했습니다.`,
+        }
+      );
 
       if (result === null && !originalState) {
         // 에러 발생 시 원래 상태로 복구 (팔로우 시도 중 에러)

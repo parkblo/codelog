@@ -4,7 +4,13 @@ import { Github, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { useAuth } from "@/providers/auth-provider";
 import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
@@ -133,6 +139,9 @@ export default function AuthDialog() {
       >
         <DialogHeader>
           <DialogTitle>{isSignUp ? "회원가입" : "로그인"}</DialogTitle>
+          <DialogDescription>
+            계정에 로그인하여 Codelog의 모든 기능을 즐겨보세요.
+          </DialogDescription>
         </DialogHeader>
         <Button onClick={handleGitHubLogin} disabled={loading}>
           <Github /> {isSignUp ? "GitHub로 가입" : "GitHub로 로그인"}

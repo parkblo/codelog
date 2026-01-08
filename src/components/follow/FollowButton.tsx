@@ -3,7 +3,7 @@
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "../ui/button";
 import { followUserAction, unfollowUserAction } from "@/actions/follow.action";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { handleAction } from "@/utils/handle-action";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
 
@@ -25,6 +25,10 @@ export default function FollowButton({
   const { user, openAuthModal } = useAuth();
   const [isPending, startTransition] = useTransition();
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing);
+  }, [initialIsFollowing]);
 
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();

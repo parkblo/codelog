@@ -4,22 +4,17 @@ import { Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { useState, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { sanitizeSearchQuery } from "@/utils/search";
 
 export default function SearchInput() {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
   const handleSearch = () => {
-    // 1. Sanitize input
-    const trimmedQuery = query.trim();
+    const sanitizedQuery = sanitizeSearchQuery(query);
 
-    // Empty query check
-    if (!trimmedQuery) return;
+    if (!sanitizedQuery) return;
 
-    // Length limit (e.g., 100 characters)
-    const sanitizedQuery = trimmedQuery.slice(0, 100);
-
-    // 2. Redirect with encoded query
     router.push(`/search?q=${encodeURIComponent(sanitizedQuery)}`);
   };
 

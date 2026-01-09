@@ -122,7 +122,10 @@ export class PostService implements IPostService {
     }
 
     if (keyword) {
-      query = query.or(`content.ilike.%${keyword}%,code.ilike.%${keyword}%`);
+      const escapedKeyword = keyword.replace(/[%_]/g, "\\$&");
+      query = query.or(
+        `content.ilike.%${escapedKeyword}%,code.ilike.%${escapedKeyword}%`
+      );
     }
 
     if (tag) {

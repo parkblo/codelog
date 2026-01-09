@@ -1,8 +1,8 @@
-import { Hash } from "lucide-react";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Hash, Loader2 } from "lucide-react";
 import SearchInput from "@/components/common/SearchInput";
 import { Suspense } from "react";
 import { getTrendingTagsAction } from "@/actions/tag.action";
-import { Loader2 } from "lucide-react";
 import { FeaturedTags } from "@/components/explore/FeaturedTags";
 
 export default function ExplorePage() {
@@ -10,14 +10,11 @@ export default function ExplorePage() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
-          <Hash className="w-6 h-6" /> 탐색
-        </h1>
-        <p className="text-sm text-muted-foreground text-right hidden sm:block">
-          태그를 탐색하고 게시글을 발견해보세요.
-        </p>
-      </div>
+      <PageHeader
+        title="탐색"
+        icon={Hash}
+        description="태그를 탐색하고 게시글을 발견해보세요."
+      />
 
       <div className="flex flex-col items-center gap-6 mt-12 ">
         <div className="w-full max-w-md">

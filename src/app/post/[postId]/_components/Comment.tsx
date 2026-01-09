@@ -15,6 +15,7 @@ import { useState } from "react";
 import CommentMenu from "./CommentMenu";
 import { handleAction } from "@/utils/handle-action";
 import { useRouter } from "next/navigation";
+import { renderContent } from "@/utils/text";
 
 interface commentProps {
   comment: CommentType;
@@ -84,7 +85,7 @@ export default function Comment({ comment }: commentProps) {
                 </span>
               </div>
               <p className="text-foreground whitespace-pre-wrap break-words leading-relaxed">
-                {comment.content}
+                {renderContent(comment.content)}
               </p>
               <div className="flex gap-4 pt-2 justify-start">
                 <Button

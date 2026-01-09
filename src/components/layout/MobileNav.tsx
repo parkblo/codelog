@@ -29,7 +29,7 @@ export default function MobileNav() {
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 top-[53px] z-50 bg-background animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="fixed inset-0 top-(--header-height,53px) z-50 bg-background animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-4 space-y-4">
             <SearchInput />
             <Navigation hideLogo={true} />

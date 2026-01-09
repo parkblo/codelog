@@ -12,7 +12,11 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 
-export default function LeftSidebar() {
+interface NavigationProps {
+  hideLogo?: boolean;
+}
+
+export default function LeftSidebar({ hideLogo = false }: NavigationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, openAuthModal } = useAuth();
@@ -52,12 +56,14 @@ export default function LeftSidebar() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <h1
-        className="text-xl px-2 cursor-pointer"
-        onClick={() => router.push("/home")}
-      >
-        CodeLog
-      </h1>
+      {!hideLogo && (
+        <h1
+          className="text-xl px-2 cursor-pointer"
+          onClick={() => router.push("/home")}
+        >
+          CodeLog
+        </h1>
+      )}
       <div className="flex flex-col gap-1">
         {navItems.map((item) => {
           return (

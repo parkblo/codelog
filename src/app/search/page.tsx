@@ -2,6 +2,7 @@ import { getPostsAction } from "@/actions/post.action";
 import Post from "@/components/home/Post";
 import { Search as SearchIcon } from "lucide-react";
 import { Suspense } from "react";
+import { sanitizeSearchQuery } from "@/utils/search";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
@@ -32,7 +33,8 @@ async function SearchResults({ query }: { query: string }) {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q: query } = await searchParams;
+  const { q } = await searchParams;
+  const query = sanitizeSearchQuery(q);
 
   return (
     <div className="p-4 space-y-4">

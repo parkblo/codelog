@@ -27,6 +27,7 @@ import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { handleAction } from "@/utils/handle-action";
 import { useAuth } from "@/providers/auth-provider";
+import { renderContent } from "@/utils/text";
 
 interface PostProps {
   post: PostType;
@@ -185,7 +186,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
                 className="text-foreground whitespace-pre-wrap wrap-break-word leading-relaxed"
                 onClick={handlePostClick}
               >
-                {post.content}
+                {renderContent(post.content, fullPage)}
               </p>
             )}
 

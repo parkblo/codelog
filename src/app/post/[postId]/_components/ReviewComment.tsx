@@ -18,6 +18,7 @@ import CommentMenu from "./CommentMenu";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth-provider";
+import { renderContent } from "@/utils/text";
 
 interface ReviewCommentProps {
   lineComments: Comment[];
@@ -108,7 +109,7 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
                   </span>
                 </div>
                 <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">
-                  {comment.content}
+                  {renderContent(comment.content)}
                 </p>
               </div>
             </div>

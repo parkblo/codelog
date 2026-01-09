@@ -122,7 +122,7 @@ export class PostService implements IPostService {
     }
 
     if (keyword) {
-      query = query.ilike("content", `%${keyword}%`);
+      query = query.or(`content.ilike.%${keyword}%,code.ilike.%${keyword}%`);
     }
 
     if (tag) {

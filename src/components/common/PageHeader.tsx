@@ -22,13 +22,13 @@ export function PageHeader({
           <BackButton />
         </div>
       )}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
           {Icon && <Icon className="w-6 h-6" />}
           {title}
         </h1>
         {description && (
-          <p className="text-sm text-muted-foreground text-right hidden sm:block">
+          <p className="text-sm text-muted-foreground text-left sm:text-right px-2 sm:px-0 sm:truncate">
             {description}
           </p>
         )}

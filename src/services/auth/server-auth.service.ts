@@ -1,19 +1,29 @@
 import { UserAuth } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 import { IAuthService } from "./auth.interface";
-import { mapSupabaseUserToDomainUser } from "@/utils/auth";
-
 export class ServerAuthService implements IAuthService {
   async getCurrentUser(): Promise<UserAuth | null> {
     const supabase = await createClient();
 
-    const { data, error } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (error || !data.user) {
+    if (authError || !user) {
       return null;
     }
 
-    const domainUser = mapSupabaseUserToDomainUser(data.user);
-    return domainUser;
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("id, username, nickname, avatar, bio")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return null;
+    }
+
+    return profile as UserAuth;
   }
 }

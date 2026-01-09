@@ -45,8 +45,9 @@ async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q, tag } = await searchParams;
+  const { q, tag: rawTag } = await searchParams;
   const query = sanitizeSearchQuery(q);
+  const tag = sanitizeSearchQuery(rawTag);
 
   return (
     <div className="p-4 space-y-4">

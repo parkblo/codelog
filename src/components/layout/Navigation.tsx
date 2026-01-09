@@ -16,7 +16,7 @@ interface NavigationProps {
   hideLogo?: boolean;
 }
 
-export default function LeftSidebar({ hideLogo = false }: NavigationProps) {
+export default function Navigation({ hideLogo = false }: NavigationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, openAuthModal } = useAuth();

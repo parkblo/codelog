@@ -1,7 +1,7 @@
 "use client";
 
 import { UserAuth } from "@/types/types";
-import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
+import { mapSupabaseUserToDomainUser } from "@/utils/auth";
 import { createClient } from "@/utils/supabase/client";
 import { useSearchParams } from "next/navigation";
 import {

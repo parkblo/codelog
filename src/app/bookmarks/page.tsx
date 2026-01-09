@@ -29,7 +29,7 @@ export default async function BookmarksPage() {
         <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
           <Bookmark /> 저장한 게시글
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground text-right hidden sm:block">
           저장한 게시글 목록은 나에게만 표시됩니다.
         </p>
       </div>

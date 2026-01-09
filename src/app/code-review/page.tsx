@@ -17,7 +17,7 @@ export default async function CodeReviewPage() {
         <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
           <MessageSquare /> 코드 리뷰
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground text-right hidden sm:block">
           훈수를 환영하는 게시글 목록입니다.
         </p>
       </div>

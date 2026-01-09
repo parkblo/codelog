@@ -50,7 +50,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
+        <h1 className="text-xl font-bold px-2 flex gap-2 items-center ">
           {tag ? (
             <Hash className="w-5 h-5" />
           ) : (
@@ -64,11 +64,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <span>검색 결과</span>
           )}
         </h1>
-        {(query || tag) && (
-          <p className="text-sm text-muted-foreground">
-            전체 게시글 중에서 검색된 결과입니다.
-          </p>
-        )}
       </div>
 
       <Suspense

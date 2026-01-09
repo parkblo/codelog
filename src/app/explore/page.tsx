@@ -16,7 +16,7 @@ export default function ExplorePage() {
         description="태그를 탐색하고 게시글을 발견해보세요."
       />
 
-      <div className="flex flex-col items-center gap-6 mt-12 ">
+      <div className="flex flex-col items-center gap-6 mt-12">
         <div className="w-full max-w-md">
           <SearchInput />
         </div>

@@ -3,7 +3,7 @@ import Post from "@/components/home/Post";
 import { Search as SearchIcon, Hash, Loader2 } from "lucide-react";
 import { Suspense } from "react";
 import { sanitizeSearchQuery } from "@/utils/search";
-import { BackButton } from "@/components/ui/back-button";
+import { PageHeader } from "@/components/common/PageHeader";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; tag?: string }>;
@@ -50,26 +50,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="sticky flex gap-2 items-center w-full bg-background">
-        <BackButton />
-      </div>
-
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold px-2 flex gap-2 items-center ">
-          {tag ? (
-            <Hash className="w-5 h-5" />
-          ) : (
-            <SearchIcon className="w-5 h-5" />
-          )}
-          {tag ? (
+      <PageHeader
+        showBackButton
+        icon={tag ? Hash : SearchIcon}
+        title={
+          tag ? (
             <span>{tag}</span>
           ) : query ? (
             <span>&quot;{query}&quot;</span>
           ) : (
             <span>검색 결과</span>
-          )}
-        </h1>
-      </div>
+          )
+        }
+      />
 
       <Suspense
         fallback={

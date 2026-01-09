@@ -81,26 +81,21 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   return { data: updatedPost, error: null };
 }
 
-async function getPostsAction({
-  isReviewEnabled = false,
-  authorId,
-  likedByUserId,
-  bookmarkedByUserId,
-}: {
-  isReviewEnabled?: boolean;
-  authorId?: string;
-  likedByUserId?: string;
-  bookmarkedByUserId?: string;
-} = {}) {
+async function getPostsAction(
+  options: {
+    isReviewEnabled?: boolean;
+    authorId?: string;
+    likedByUserId?: string;
+    bookmarkedByUserId?: string;
+    keyword?: string;
+  } = {}
+) {
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
-  const { data: posts, error: getPostsError } = await postService.getPosts({
-    isReviewEnabled,
-    authorId,
-    likedByUserId,
-    bookmarkedByUserId,
-  });
+  const { data: posts, error: getPostsError } = await postService.getPosts(
+    options
+  );
 
   if (getPostsError) {
     console.error(getPostsError);

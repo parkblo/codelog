@@ -23,7 +23,7 @@ export interface IPostService {
 
   /**
    * 조건에 맞는 게시글 목록을 조회합니다.
-   * @param options 조회 필터 옵션 (isReviewEnabled, authorId, likedByUserId, bookmarkedByUserId)
+   * @param options 조회 필터 옵션 (isReviewEnabled, authorId, likedByUserId, bookmarkedByUserId, keyword)
    * @returns 게시글 목록 배열과 에러 객체
    */
   getPosts(options?: {
@@ -31,6 +31,7 @@ export interface IPostService {
     authorId?: string;
     likedByUserId?: string;
     bookmarkedByUserId?: string;
+    keyword?: string;
   }): Promise<{ data: Post[] | null; error: Error | null }>;
 
   /**

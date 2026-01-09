@@ -37,3 +37,11 @@ export interface UserContribution {
   contribution_date: string;
   post_count: number;
 }
+
+/**
+ * 태그의 이름과 해당 태그가 포함된 게시글 수를 담는 타입
+ */
+export interface TagData {
+  name: string;
+  post_count: number;
+}

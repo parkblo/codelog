@@ -1,0 +1,44 @@
+import { Hash } from "lucide-react";
+import SearchInput from "@/components/common/SearchInput";
+import { Suspense } from "react";
+import { getTrendingTagsAction } from "@/actions/tag.action";
+import { Loader2 } from "lucide-react";
+import { FeaturedTags } from "@/components/explore/FeaturedTags";
+
+export default function ExplorePage() {
+  const tagsPromise = getTrendingTagsAction(100);
+
+  return (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-xl font-bold px-2 flex gap-2 items-center">
+          <Hash className="w-6 h-6" /> 탐색
+        </h1>
+        <p className="text-sm text-muted-foreground text-right hidden sm:block">
+          태그를 탐색하고 게시글을 발견해보세요.
+        </p>
+      </div>
+
+      <div className="flex flex-col items-center gap-6 mt-12 ">
+        <div className="w-full max-w-md">
+          <SearchInput />
+        </div>
+      </div>
+
+      <div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-20 gap-2">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <span className="text-muted-foreground font-medium">
+                태그를 불러오는 중...
+              </span>
+            </div>
+          }
+        >
+          <FeaturedTags tagsPromise={tagsPromise} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}

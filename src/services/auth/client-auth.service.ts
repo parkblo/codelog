@@ -1,7 +1,7 @@
 import { UserAuth } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 import { IAuthService, SignUpProps } from "./auth.interface";
-import { mapSupabaseUserToDomainUser } from "@/utils/auth-mapper";
+import { mapSupabaseUserToDomainUser } from "@/utils/auth";
 
 export class ClientAuthService implements IAuthService {
   private supabase = createClient();

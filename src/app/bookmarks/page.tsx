@@ -3,7 +3,7 @@ import Post from "@/components/home/Post";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { Bookmark } from "lucide-react";
 import { redirect } from "next/navigation";
-import { getAuthRedirectUrl } from "@/utils/auth-helpers";
+import { getAuthRedirectUrl } from "@/utils/auth";
 
 export default async function BookmarksPage() {
   const authService = new ServerAuthService();

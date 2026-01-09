@@ -20,8 +20,8 @@ export function FeaturedTags({ tagsPromise }: FeaturedTagsProps) {
 
   const shuffledTags = useMemo(() => {
     if (!tags) return [];
-    return shuffleTagsByChunk(tags);
-  }, [tags]);
+    return shuffleTagsByChunk(tags, randomSeed);
+  }, [tags, randomSeed]);
 
   const rotations = useMemo(() => {
     return shuffledTags.map((_, index) => {

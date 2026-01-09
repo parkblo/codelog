@@ -1,19 +1,36 @@
 import { TagData } from "@/types/types";
 
 /**
+ * 랜덤 시드 생성기 (Mulberry32)
+ */
+const mulberry32 = (a: number) => {
+  return () => {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+/**
  * 태그를 인기도 순으로 정렬한 후, 10개 단위로 묶어 각 묶음 내에서 셔플합니다.
  * @param arr 태그 데이터 배열
+ * @param seed 랜덤 시드 (선택 사항, 서버/클라이언트 일관성을 위해 권장)
  * @returns 셔플된 태그 데이터 배열
  */
-export const shuffleTagsByChunk = (arr: TagData[]): TagData[] => {
+export const shuffleTagsByChunk = (
+  arr: TagData[],
+  seed?: number
+): TagData[] => {
   const sorted = [...arr].sort((a, b) => b.post_count - a.post_count);
   const result: TagData[] = [];
+  const random = seed !== undefined ? mulberry32(seed) : Math.random;
 
   for (let i = 0; i < sorted.length; i += 10) {
     const chunk = sorted.slice(i, i + 10);
     // Fisher-Yates shuffle
     for (let j = chunk.length - 1; j > 0; j--) {
-      const k = Math.floor(Math.random() * (j + 1));
+      const k = Math.floor(random() * (j + 1));
       [chunk[j], chunk[k]] = [chunk[k], chunk[j]];
     }
     result.push(...chunk);

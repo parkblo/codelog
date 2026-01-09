@@ -74,11 +74,13 @@ export class PostService implements IPostService {
     authorId,
     likedByUserId,
     bookmarkedByUserId,
+    keyword,
   }: {
     isReviewEnabled?: boolean;
     authorId?: string;
     likedByUserId?: string;
     bookmarkedByUserId?: string;
+    keyword?: string;
   } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
@@ -111,6 +113,10 @@ export class PostService implements IPostService {
 
     if (bookmarkedByUserId) {
       query = query.eq("bookmarks.user_id", bookmarkedByUserId);
+    }
+
+    if (keyword) {
+      query = query.ilike("content", `%${keyword}%`);
     }
 
     query = query.order("created_at", { ascending: false });

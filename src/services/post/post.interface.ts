@@ -32,6 +32,7 @@ export interface IPostService {
     likedByUserId?: string;
     bookmarkedByUserId?: string;
     keyword?: string;
+    tag?: string;
   }): Promise<{ data: Post[] | null; error: Error | null }>;
 
   /**

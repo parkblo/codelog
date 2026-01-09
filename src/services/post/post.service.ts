@@ -75,12 +75,14 @@ export class PostService implements IPostService {
     likedByUserId,
     bookmarkedByUserId,
     keyword,
+    tag,
   }: {
     isReviewEnabled?: boolean;
     authorId?: string;
     likedByUserId?: string;
     bookmarkedByUserId?: string;
     keyword?: string;
+    tag?: string;
   } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
@@ -95,6 +97,10 @@ export class PostService implements IPostService {
 
     if (bookmarkedByUserId) {
       selectString += `, bookmarks!inner(user_id)`;
+    }
+
+    if (tag) {
+      selectString += `, filter_tags:posttags!inner(tags!inner(name))`;
     }
 
     let query = supabase.from("posts").select(selectString);
@@ -117,6 +123,10 @@ export class PostService implements IPostService {
 
     if (keyword) {
       query = query.ilike("content", `%${keyword}%`);
+    }
+
+    if (tag) {
+      query = query.eq("filter_tags.tags.name", tag);
     }
 
     query = query.order("created_at", { ascending: false });

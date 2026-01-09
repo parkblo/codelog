@@ -88,6 +88,7 @@ async function getPostsAction(
     likedByUserId?: string;
     bookmarkedByUserId?: string;
     keyword?: string;
+    tag?: string;
   } = {}
 ) {
   const authService = new ServerAuthService();

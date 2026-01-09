@@ -1,6 +1,6 @@
 import { getPostsAction } from "@/actions/post.action";
 import Post from "@/components/home/Post";
-import { Search as SearchIcon, Hash } from "lucide-react";
+import { Search as SearchIcon, Hash, Loader2 } from "lucide-react";
 import { Suspense } from "react";
 import { sanitizeSearchQuery } from "@/utils/search";
 
@@ -71,7 +71,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         )}
       </div>
 
-      <Suspense fallback={<div className="p-4 text-center">검색 중...</div>}>
+      <Suspense
+        fallback={
+          <div className="p-4 flex items-center justify-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            검색 중...
+          </div>
+        }
+      >
         {query || tag ? (
           <SearchResults query={query} tag={tag} />
         ) : (

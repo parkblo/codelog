@@ -35,6 +35,6 @@ export function renderContent(content: string, clickable: boolean = true) {
         );
       }
     }
-    return part;
+    return <span key={index}>{part}</span>;
   });
 }

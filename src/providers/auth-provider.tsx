@@ -76,11 +76,17 @@ export default function AuthProvider({
           .eq("id", session.user.id)
           .single();
 
-        if (profile) {
+        // 비동기 작업 도중 로그아웃 등의 상태 변화가 있었는지 다시 확인합니다.
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+
+        if (profile && currentSession?.user.id === session.user.id) {
           setUser(profile as UserAuth);
-        } else {
+        } else if (!currentSession) {
           setUser(null);
         }
+
         // 로그인이 성공하면 모달을 닫음
         setIsAuthModalOpen(false);
       } else {

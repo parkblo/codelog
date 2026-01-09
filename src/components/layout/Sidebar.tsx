@@ -1,5 +1,4 @@
-import { Search, TrendingUp, UserPlus } from "lucide-react";
-import { Input } from "../ui/input";
+import { TrendingUp, UserPlus } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { TagList } from "../ui/tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -9,6 +8,7 @@ import { getRandomFeaturedUsersAction } from "@/actions/user.action";
 import { getTrendingTagsAction } from "@/actions/tag.action";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import FollowButton from "../follow/FollowButton";
+import SearchInput from "../common/SearchInput";
 
 export default async function Sidebar() {
   const authService = new ServerAuthService();
@@ -26,10 +26,7 @@ export default async function Sidebar() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
-        <Input placeholder="검색 ..." className="pl-10" />
-      </div>
+      <SearchInput />
 
       <Card>
         <CardContent>

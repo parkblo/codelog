@@ -1,6 +1,6 @@
 # CodeLog
 
-<img width="1920" height="1080" alt="Pasted image 20251111191305" src="https://github.com/user-attachments/assets/c7032e17-4cb7-41a0-9226-37819bf71a9b" />
+<img width="1920" height="1080" alt="CodeLog 메인 이미지" src="https://github.com/user-attachments/assets/c7032e17-4cb7-41a0-9226-37819bf71a9b" />
 
 코드 기반으로 소통하는 SNS, **CodeLog**입니다.
 
@@ -117,7 +117,7 @@ erDiagram
     }
 ```
 
-## 3-3. 디렉토리 구조
+### 3-3. 디렉토리 구조
 
 프로젝트의 주요 디렉토리 구조는 다음과 같습니다.
 
@@ -131,7 +131,10 @@ codelog/
 │   ├── lib/          # 유틸리티 및 외부 라이브러리 설정
 │   ├── types/        # 전역 TypeScript 타입 정의
 │   ├── styles/       # 전역 스타일 설정
-│   └── utils/        # 공통 헬퍼 함수
+│   ├── utils/        # 공통 헬퍼 함수
+│   ├── actions/      # 서버 액션 및 변이 로직
+│   ├── providers/    # 전역 Provider 컴포넌트
+│   └── proxy.ts      # 프록시 설정 및 API 라우팅
 ├── public/           # 정적 에셋
 └── package.json
 ```
@@ -161,7 +164,7 @@ codelog/
 
 ## 5. 시작하기
 
-직접 Supabase 프로젝트를 생성하고 연결하여, 나만의 Codelog 서비스를 즉시 배포하고 운영할 수 있습니다.
+직접 Supabase 프로젝트를 생성하고 연결하여, 나만의 CodeLog 서비스를 즉시 배포하고 운영할 수 있습니다.
 
 ### 5-1. 준비사항
 
@@ -174,8 +177,8 @@ codelog/
 1. **저장소 클론 (Clone Repository)**
 
 ```bash
-git clone https://github.com/your-username/codelog.git
-cd codelog
+git clone https://github.com/<your-github-username>/<this-repo-name>.git
+cd <this-repo-name>
 ```
 
 2. **의존성 설치 (Install Dependencies)**
@@ -193,6 +196,13 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+> **Tip**: Vercel CLI를 사용하면 다음 명령어로 환경 변수를 한 번에 가져올 수 있습니다.
+> (최초 실행 시 `npx vercel link`로 프로젝트 연결이 필요할 수 있습니다.)
+>
+> ```bash
+> npx vercel env pull .env.local
+> ```
+
 4. **로컬 서버 실행 (Run Local Server)**
 
 ```bash
@@ -203,5 +213,7 @@ npm run dev
 
 이 프로젝트는 **CC BY-NC 4.0** (Creative Commons Attribution-NonCommercial 4.0 International License) 라이선스를 따릅니다.
 
-- ✅ **개인 학습 및 비영리 목적의 사용**: 자유롭게 코드를 참고, 수정 및 사용할 수 있습니다.
-- 🚫 **상업적 이용 금지**: 저작권자의 허락 없이 이 코드를 기반으로 한 서비스를 유료로 배포하거나 수익을 창출하는 행위는 금지됩니다.
+- ✅ **저작자 표시 (Attribution)**: 코드를 사용·수정·배포할 때는 원저작자(프로젝트명, 저장소 링크 등)를 명확히 표시해야 합니다.
+- 🚫 **상업적 이용 금지**: 저작권자의 사전 허락 없이 이 코드를 기반으로 한 서비스를 유료로 배포하거나 수익을 창출하는 행위는 금지됩니다.
+
+위 bullet들은 이해를 돕기 위한 요약이며, 법적 효력이 있는 전체 라이선스 전문은 저장소의 `LICENSE` 파일을 참고하세요.

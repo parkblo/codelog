@@ -1,4 +1,4 @@
-import { getPostsAction } from "@/entities/post/api/post.action";
+import { getPostsAction } from "@/entities/post";
 import { PostCard } from "@/widgets/post-card";
 import { CreatePostForm } from "@/features/create-post";
 import { WelcomeCard } from "@/widgets/sidebar";

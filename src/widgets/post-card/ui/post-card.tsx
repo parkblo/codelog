@@ -12,16 +12,13 @@ import { CodeViewer } from "@/entities/post";
 import { Post as PostType, Comment as CommentType } from "@/shared/types/types";
 import { PostMenu } from "@/features/post-interaction";
 import { formatRelativeTime } from "@/shared/lib/utils/date";
-import {
-  createPostLikeAction,
-  deletePostLikeAction,
-} from "@/entities/like/api/like.action";
+import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
 import { useState, useMemo } from "react";
 import { CommentForm } from "@/features/comment";
 import {
   createBookmarkAction,
   deleteBookmarkAction,
-} from "@/entities/bookmark/api/bookmark.action";
+} from "@/entities/bookmark";
 import { ReviewComment } from "@/entities/comment";
 import { Badge } from "@/shared/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";

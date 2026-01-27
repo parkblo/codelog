@@ -1,4 +1,4 @@
-import { getPostsAction } from "@/entities/post/api/post.action";
+import { getPostsAction } from "@/entities/post";
 import { UserProfileCard } from "@/entities/user";
 import {
   ContributionGraph,

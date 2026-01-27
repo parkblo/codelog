@@ -1,4 +1,4 @@
-import { getPostsAction } from "@/entities/post/api/post.action";
+import { getPostsAction } from "@/entities/post";
 import { PostCard } from "@/widgets/post-card";
 import { Search as SearchIcon, Hash, Loader2 } from "lucide-react";
 import { Suspense } from "react";

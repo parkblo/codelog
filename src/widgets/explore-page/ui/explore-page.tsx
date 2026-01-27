@@ -2,7 +2,7 @@ import { PageHeader } from "@/shared/ui/page-header";
 import { Hash, Loader2 } from "lucide-react";
 import { SearchInput } from "@/features/search";
 import { Suspense } from "react";
-import { getTrendingTagsAction } from "@/entities/tag/api/tag.action";
+import { getTrendingTagsAction } from "@/entities/tag";
 import { FeaturedTags } from "@/widgets/sidebar";
 
 export function ExplorePage() {

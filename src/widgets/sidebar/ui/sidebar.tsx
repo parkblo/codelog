@@ -4,9 +4,9 @@ import { TagList } from "@/shared/ui/tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import Link from "next/link";
 
-import { getRandomFeaturedUsersAction } from "@/entities/user/api/user.action";
-import { getTrendingTagsAction } from "@/entities/tag/api/tag.action";
+import { getRandomFeaturedUsersAction } from "@/entities/user";
 import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getTrendingTagsAction } from "@/entities/tag";
 import { FollowButton } from "@/features/follow";
 import { SearchInput } from "@/features/search";
 

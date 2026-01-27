@@ -1,12 +1,12 @@
 "use server";
 
-import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { BookmarkService } from "@/services/bookmark/bookmark.service";
-import { LikeService } from "@/services/like/like.service";
-import { CreatePostDTO } from "@/services/post/post.interface";
-import { PostService } from "@/services/post/post.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
+import { LikeService } from "@/entities/like/api/like.service";
+import { CreatePostDTO } from "@/entities/post/api/post.interface";
+import { PostService } from "@/entities/post/api/post.service";
 import { revalidatePath } from "next/cache";
-import { CommentService } from "@/services/comment/comment.service";
+import { CommentService } from "@/entities/comment/api/comment.service";
 
 const postService = new PostService();
 

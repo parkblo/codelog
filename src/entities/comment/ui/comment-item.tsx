@@ -3,7 +3,7 @@
 import {
   createCommentLikeAction,
   deleteCommentLikeAction,
-} from "@/actions/like.action";
+} from "@/entities/like/api/like.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";

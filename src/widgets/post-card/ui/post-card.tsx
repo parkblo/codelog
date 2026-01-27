@@ -15,18 +15,18 @@ import { formatRelativeTime } from "@/shared/lib/utils/date";
 import {
   createPostLikeAction,
   deletePostLikeAction,
-} from "@/actions/like.action";
+} from "@/entities/like/api/like.action";
 import { useState, useMemo } from "react";
 import { CommentForm } from "@/features/comment";
 import {
   createBookmarkAction,
   deleteBookmarkAction,
-} from "@/actions/bookmark.action";
+} from "@/entities/bookmark/api/bookmark.action";
 import { ReviewComment } from "@/entities/comment";
 import { Badge } from "@/shared/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { handleAction } from "@/shared/lib/utils/handle-action";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { renderContent } from "@/shared/lib/utils/text";
 
 interface PostProps {

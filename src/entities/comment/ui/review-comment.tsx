@@ -9,7 +9,7 @@ import { handleAction } from "@/shared/lib/utils/handle-action";
 import {
   createCommentLikeAction,
   deleteCommentLikeAction,
-} from "@/actions/like.action";
+} from "@/entities/like/api/like.action";
 
 import { Heart } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
@@ -17,7 +17,7 @@ import { useState } from "react";
 import { CommentMenu } from "@/features/comment";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { renderContent } from "@/shared/lib/utils/text";
 
 interface ReviewCommentProps {

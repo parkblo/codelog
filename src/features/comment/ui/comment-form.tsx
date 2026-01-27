@@ -4,11 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Textarea } from "@/shared/ui/textarea";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { Send } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { createCommentAction } from "@/actions/comment.action";
+import { createCommentAction } from "@/entities/comment/api/comment.action";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 
 export default function CommentForm({

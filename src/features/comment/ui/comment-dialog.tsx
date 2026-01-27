@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCommentAction } from "@/actions/comment.action";
+import { updateCommentAction } from "@/entities/comment/api/comment.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { Comment } from "@/shared/types/types";
 import { Pencil } from "lucide-react";
 import { useState } from "react";

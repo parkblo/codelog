@@ -1,7 +1,7 @@
 "use server";
 
-import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { BookmarkService } from "@/services/bookmark/bookmark.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
 import { revalidatePath } from "next/cache";
 
 async function createBookmarkAction(postId: number) {

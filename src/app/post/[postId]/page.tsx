@@ -1,8 +1,8 @@
 import { PostCard } from "@/widgets/post-card";
 import { CommentForm } from "@/features/comment";
 import { CommentItem } from "@/entities/comment";
-import { getPostByIdAction } from "@/actions/post.action";
-import { getCommentsByPostIdAction } from "@/actions/comment.action";
+import { getPostByIdAction } from "@/entities/post/api/post.action";
+import { getCommentsByPostIdAction } from "@/entities/comment/api/comment.action";
 import { notFound } from "next/navigation";
 import { BackButton } from "@/shared/ui/back-button";
 

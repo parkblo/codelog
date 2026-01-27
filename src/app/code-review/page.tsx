@@ -2,7 +2,7 @@ import { WelcomeCard } from "@/widgets/sidebar";
 import { PostCard } from "@/widgets/post-card";
 import { CreatePostForm } from "@/features/create-post";
 // removed duplicate
-import { getPostsAction } from "@/actions/post.action";
+import { getPostsAction } from "@/entities/post/api/post.action";
 import { PageHeader } from "@/shared/ui/page-header";
 import { MessageSquare } from "lucide-react";
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { deletePostAction, updatePostAction } from "@/actions/post.action";
+import { deletePostAction, updatePostAction } from "@/entities/post/api/post.action";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/shared/ui/dropdown-menu";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { PostDialog } from "@/features/post-interaction";

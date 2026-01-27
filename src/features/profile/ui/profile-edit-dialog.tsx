@@ -14,10 +14,10 @@ import { Image, Loader, Pencil } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import React, { useRef, useState } from "react";
 import { handleAction } from "@/shared/lib/utils/handle-action";
-import { editUserAction, updateAvatarAction } from "@/actions/user.action";
-import { UserServiceBrowser } from "@/services/user/user.service.browser";
+import { editUserAction, updateAvatarAction } from "@/entities/user/api/user.action";
+import { UserServiceBrowser } from "@/entities/user/api/user.service.browser";
 import { toast } from "sonner";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 
 interface ProfileEditDialogProps {
   user: UserAuth;

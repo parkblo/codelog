@@ -10,7 +10,7 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 
 interface NavigationProps {
   hideLogo?: boolean;

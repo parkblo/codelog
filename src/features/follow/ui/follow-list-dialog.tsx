@@ -13,7 +13,7 @@ import Link from "next/link";
 import {
   getFollowersAction,
   getFollowingAction,
-} from "@/actions/follow.action";
+} from "@/entities/follow/api/follow.action";
 import { Author } from "@/shared/types/types";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Loader2 } from "lucide-react";

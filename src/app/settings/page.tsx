@@ -1,6 +1,6 @@
 import { SignOutButton } from "@/features/auth";
 import { redirect } from "next/navigation";
-import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
 import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 
 export default async function SettingsPage() {

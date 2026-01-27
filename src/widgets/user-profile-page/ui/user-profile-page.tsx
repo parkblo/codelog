@@ -1,13 +1,13 @@
-import { getPostsAction } from "@/actions/post.action";
+import { getPostsAction } from "@/entities/post/api/post.action";
 import { UserProfileCard } from "@/entities/user";
 import {
   ContributionGraph,
   ProfileTabs,
   UserPostList,
 } from "@/features/profile";
-import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { UserService } from "@/services/user/user.service";
-import { FollowService } from "@/services/follow/follow.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { UserService } from "@/entities/user/api/user.service";
+import { FollowService } from "@/entities/follow/api/follow.service";
 import { CreatePostForm } from "@/features/create-post";
 
 interface UserProfilePageProps {

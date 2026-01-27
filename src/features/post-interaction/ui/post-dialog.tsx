@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
@@ -11,7 +11,7 @@ import { CodeEditor } from "@/shared/ui/code-editor";
 import { TagList } from "@/shared/ui/tag-list";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { createPostAction, updatePostAction } from "@/actions/post.action";
+import { createPostAction, updatePostAction } from "@/entities/post/api/post.action";
 import { Post } from "@/shared/types/types";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { handleAction } from "@/shared/lib/utils/handle-action";

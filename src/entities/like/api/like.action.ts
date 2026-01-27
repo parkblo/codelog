@@ -1,7 +1,7 @@
 "use server";
 
-import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { LikeService } from "@/services/like/like.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { LikeService } from "@/entities/like/api/like.service";
 import { revalidatePath } from "next/cache";
 
 async function createPostLikeAction(postId: number) {

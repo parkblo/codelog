@@ -1,6 +1,6 @@
 "use server";
 
-import { TagService } from "@/services/tag/tag.service";
+import { TagService } from "@/entities/tag/api/tag.service";
 
 export async function getTrendingTagsAction(limit: number) {
   const tagService = new TagService();

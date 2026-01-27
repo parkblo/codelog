@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { Button } from "@/shared/ui/button";
-import { followUserAction, unfollowUserAction } from "@/actions/follow.action";
+import { followUserAction, unfollowUserAction } from "@/entities/follow/api/follow.action";
 import { useTransition, useState, useEffect } from "react";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";

@@ -3,7 +3,7 @@
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 
 export default function WelcomeCard() {
   const { user, loading, openAuthModal } = useAuth();

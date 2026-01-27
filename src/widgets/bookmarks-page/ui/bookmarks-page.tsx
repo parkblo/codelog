@@ -1,6 +1,6 @@
-import { getPostsAction } from "@/actions/post.action";
+import { getPostsAction } from "@/entities/post/api/post.action";
 import { PostCard } from "@/widgets/post-card";
-import { ServerAuthService } from "@/services/auth/server-auth.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
 import { PageHeader } from "@/shared/ui/page-header";
 import { Bookmark } from "lucide-react";
 import { redirect } from "next/navigation";

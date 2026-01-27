@@ -1,9 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserAuth } from "@/types/types";
-import ProfileEditDialog from "./ProfileEditDialog";
-import FollowButton from "@/components/follow/FollowButton";
-import FollowListDialog from "./FollowListDialog";
+import { Card, CardContent } from "@/shared/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { UserAuth } from "@/shared/types/types";
+import { ProfileEditDialog } from "@/features/profile";
+import { FollowButton } from "@/features/follow";
+import { FollowListDialog } from "@/features/follow";
 
 interface UserProfileCardProps {
   user: UserAuth;

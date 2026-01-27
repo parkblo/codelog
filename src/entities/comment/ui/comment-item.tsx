@@ -4,18 +4,18 @@ import {
   createCommentLikeAction,
   deleteCommentLikeAction,
 } from "@/actions/like.action";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { Comment as CommentType } from "@/types/types";
-import { formatRelativeTime } from "@/utils/date";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent } from "@/shared/ui/card";
+import { cn } from "@/shared/lib/utils";
+import { Comment as CommentType } from "@/shared/types/types";
+import { formatRelativeTime } from "@/shared/lib/utils/date";
 import { Heart } from "lucide-react";
 import { useState } from "react";
-import CommentMenu from "./CommentMenu";
-import { handleAction } from "@/utils/handle-action";
+import { CommentMenu } from "@/features/comment";
+import { handleAction } from "@/shared/lib/utils/handle-action";
 import { useRouter } from "next/navigation";
-import { renderContent } from "@/utils/text";
+import { renderContent } from "@/shared/lib/utils/text";
 
 interface commentProps {
   comment: CommentType;

@@ -1,3 +1,4 @@
+"use client";
 import { Highlight, themes } from "prism-react-renderer";
 import Prism from "prismjs";
 import "prismjs/components/prism-java";
@@ -18,7 +19,7 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-markdown";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { Check, Copy } from "lucide-react";
 
 interface CodeSnippetProps {
@@ -27,7 +28,7 @@ interface CodeSnippetProps {
   readOnly?: boolean;
   renderSelectionComponent?: (
     startLine: number,
-    endLine: number
+    endLine: number,
   ) => React.ReactNode;
   renderLineFooter?: (lineNumber: number) => React.ReactNode;
   renderLineBadge?: (lineNumber: number) => React.ReactNode;
@@ -95,7 +96,7 @@ export function CodeSnippet({
       const end = Math.max(selectedLines[0], lineNumber);
       const newSelection = Array.from(
         { length: end - start + 1 },
-        (_, i) => start + i
+        (_, i) => start + i,
       );
       setSelectedLines(newSelection);
       setDragStartLine(null);
@@ -121,7 +122,7 @@ export function CodeSnippet({
       const end = Math.max(dragStartLine, lineNumber);
       const newSelection = Array.from(
         { length: end - start + 1 },
-        (_, i) => start + i
+        (_, i) => start + i,
       );
       setSelectedLines(newSelection);
     }
@@ -198,7 +199,7 @@ export function CodeSnippet({
                 const end = Math.max(selectedLines[0], hoveredLine);
                 effectiveSelectedLines = Array.from(
                   { length: end - start + 1 },
-                  (_, i) => start + i
+                  (_, i) => start + i,
                 );
               }
 
@@ -222,7 +223,7 @@ export function CodeSnippet({
                       isSelected && "bg-blue-500/20 hover:bg-blue-500/30",
                       !isSelected &&
                         highlightedLines.includes(lineNumber) &&
-                        "bg-yellow-500/10"
+                        "bg-yellow-500/10",
                     )}
                   >
                     <span className="shrink-0 text-right pr-3 pl-2 select-none text-muted-foreground/50 w-[40px] border-r border-border/10">
@@ -250,7 +251,7 @@ export function CodeSnippet({
                       >
                         {renderSelectionComponent(
                           Math.min(...selectedLines),
-                          Math.max(...selectedLines)
+                          Math.max(...selectedLines),
                         )}
                       </div>
                     )}

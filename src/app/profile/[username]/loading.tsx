@@ -1,5 +1,5 @@
-import { PostSkeleton } from "@/components/post/PostSkeleton";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PostSkeleton } from "@/entities/post";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export default function UserProfileLoading() {
   return (

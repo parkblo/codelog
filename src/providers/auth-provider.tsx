@@ -1,8 +1,7 @@
 "use client";
 
-import { UserAuth } from "@/types/types";
-import { mapSupabaseUserToDomainUser } from "@/utils/auth";
-import { createClient } from "@/utils/supabase/client";
+import { UserAuth } from "@/shared/types/types";
+import { createClient } from "@/shared/lib/utils/supabase/client";
 import { useSearchParams } from "next/navigation";
 import {
   createContext,
@@ -69,9 +68,19 @@ export default function AuthProvider({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        setUser(mapSupabaseUserToDomainUser(session.user));
+        const { data: profile } = await supabase
+          .from("users")
+          .select("id, username, nickname, avatar, bio")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profile) {
+          setUser(profile as UserAuth);
+        } else {
+          setUser(null);
+        }
         // 로그인이 성공하면 모달을 닫음
         setIsAuthModalOpen(false);
       } else {

@@ -1,7 +1,7 @@
 import { getPostsAction } from "@/actions/post.action";
-import Post from "@/components/home/Post";
-import PostCard from "@/components/home/PostCard";
-import WelcomeCard from "@/components/home/WelcomeCard";
+import { PostCard } from "@/widgets/post-card";
+import { CreatePostForm } from "@/features/create-post";
+import { WelcomeCard } from "@/widgets/sidebar";
 
 export default async function HomePage() {
   const { data, error } = await getPostsAction();
@@ -10,7 +10,7 @@ export default async function HomePage() {
     return (
       <div className="p-4 space-y-4">
         <WelcomeCard />
-        <PostCard />
+        <CreatePostForm />
         <span>{error}</span>
       </div>
     );
@@ -19,9 +19,9 @@ export default async function HomePage() {
   return (
     <div className="p-4 space-y-4">
       <WelcomeCard />
-      <PostCard />
+      <CreatePostForm />
       {data.map((post) => (
-        <Post key={post.id} post={post} fullPage={false} />
+        <PostCard key={post.id} post={post} fullPage={false} />
       ))}
     </div>
   );

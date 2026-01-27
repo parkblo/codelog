@@ -1,6 +1,6 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
-import { BackButton } from "@/components/ui/back-button";
+import { BackButton } from "@/shared/ui/back-button";
 
 interface PageHeaderProps {
   title: React.ReactNode;

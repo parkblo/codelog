@@ -1,9 +1,9 @@
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageHeader } from "@/shared/ui/page-header";
 import { Hash, Loader2 } from "lucide-react";
-import SearchInput from "@/components/common/SearchInput";
+import { SearchInput } from "@/features/search";
 import { Suspense } from "react";
 import { getTrendingTagsAction } from "@/actions/tag.action";
-import { FeaturedTags } from "@/components/explore/FeaturedTags";
+import { FeaturedTags } from "@/widgets/sidebar";
 
 export default function ExplorePage() {
   const tagsPromise = getTrendingTagsAction(100);

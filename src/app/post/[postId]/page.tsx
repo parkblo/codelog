@@ -1,10 +1,10 @@
-import Post from "@/components/home/Post";
-import CommentForm from "./_components/CommentForm";
-import Comment from "./_components/Comment";
+import { PostCard } from "@/widgets/post-card";
+import { CommentForm } from "@/features/comment";
+import { CommentItem } from "@/entities/comment";
 import { getPostByIdAction } from "@/actions/post.action";
 import { getCommentsByPostIdAction } from "@/actions/comment.action";
 import { notFound } from "next/navigation";
-import { BackButton } from "@/components/ui/back-button";
+import { BackButton } from "@/shared/ui/back-button";
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;
@@ -23,8 +23,8 @@ export default async function PostPage({ params }: PostPageProps) {
       error instanceof Error
         ? error.message
         : typeof error === "object" && error !== null && "message" in error
-        ? (error as { message: string }).message
-        : String(error);
+          ? (error as { message: string }).message
+          : String(error);
 
     if (errorMessage === "포스트를 찾을 수 없습니다." || !post) {
       notFound();
@@ -37,14 +37,14 @@ export default async function PostPage({ params }: PostPageProps) {
       <div className="sticky flex gap-2 items-center w-full">
         <BackButton />
       </div>
-      <Post post={post} fullPage comments={comments || undefined} />
+      <PostCard post={post} fullPage comments={comments || undefined} />
       <CommentForm postId={Number(postId)} />
       {comments
         ?.filter(
-          (comment) => comment.start_line === null || comment.end_line === null
+          (comment) => comment.start_line === null || comment.end_line === null,
         )
         .map((comment) => (
-          <Comment key={comment.id} comment={comment} />
+          <CommentItem key={comment.id} comment={comment} />
         ))}
     </div>
   );

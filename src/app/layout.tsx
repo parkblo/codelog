@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navigation from "@/components/layout/Navigation";
-import Sidebar from "@/components/layout/Sidebar";
+import { Header } from "@/widgets/header";
+import { Sidebar } from "@/widgets/sidebar";
 import AuthProvider from "@/providers/auth-provider";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { Toaster } from "@/components/ui/sonner";
-import AuthDialog from "@/components/home/AuthDialog";
+import { Toaster } from "@/shared/ui/sonner";
+import { AuthDialog } from "@/features/auth";
 import BackgroundMesh from "@/components/layout/BackgroundMesh";
-import MobileNav from "@/components/layout/MobileNav";
+import { MobileNav } from "@/widgets/header";
 
 const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",
@@ -41,7 +41,7 @@ export default async function RootLayout({
 
           <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">
             <aside className="hidden md:block">
-              <Navigation />
+              <Header />
             </aside>
             <main className="relative">{children}</main>
             <aside className="hidden xl:block">

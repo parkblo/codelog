@@ -1,6 +1,6 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 import { ICommentService, CreateCommentDTO } from "./comment.interface";
-import { Comment } from "@/types/types";
+import { Comment } from "@/shared/types/types";
 
 export class CommentService implements ICommentService {
   async createComment(

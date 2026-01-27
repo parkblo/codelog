@@ -1,4 +1,4 @@
-import { Author } from "@/types/types";
+import { Author } from "@/shared/types/types";
 
 export interface IFollowService {
   /**

@@ -1,6 +1,6 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 import { IFollowService } from "./follow.interface";
-import { Author } from "@/types/types";
+import { Author } from "@/shared/types/types";
 import { QueryData } from "@supabase/supabase-js";
 
 export class FollowService implements IFollowService {

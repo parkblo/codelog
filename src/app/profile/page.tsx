@@ -1,6 +1,6 @@
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { redirect } from "next/navigation";
-import { getAuthRedirectUrl } from "@/utils/auth";
+import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 
 export default async function ProfilePage() {
   const authService = new ServerAuthService();

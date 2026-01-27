@@ -1,20 +1,30 @@
-import { UserAuth } from "@/types/types";
-import { createClient } from "@/utils/supabase/client";
+import { UserAuth } from "@/shared/types/types";
+import { createClient } from "@/shared/lib/utils/supabase/client";
 import { IAuthService, SignUpProps } from "./auth.interface";
-import { mapSupabaseUserToDomainUser } from "@/utils/auth";
-
 export class ClientAuthService implements IAuthService {
   private supabase = createClient();
 
   async getCurrentUser(): Promise<UserAuth | null> {
-    const { data, error } = await this.supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await this.supabase.auth.getUser();
 
-    if (error || !data.user) {
+    if (authError || !user) {
       return null;
     }
 
-    const domainUser = mapSupabaseUserToDomainUser(data.user);
-    return domainUser;
+    const { data: profile, error: profileError } = await this.supabase
+      .from("users")
+      .select("id, username, nickname, avatar, bio")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return null;
+    }
+
+    return profile as UserAuth;
   }
 
   async signInWithOAuth(provider: "github", options?: { redirectTo: string }) {

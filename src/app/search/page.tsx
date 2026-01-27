@@ -1,9 +1,10 @@
 import { getPostsAction } from "@/actions/post.action";
-import Post from "@/components/home/Post";
+import { PostCard } from "@/widgets/post-card";
+// removed unused import
 import { Search as SearchIcon, Hash, Loader2 } from "lucide-react";
 import { Suspense } from "react";
-import { sanitizeSearchQuery } from "@/utils/search";
-import { PageHeader } from "@/components/common/PageHeader";
+import { sanitizeSearchQuery } from "@/shared/lib/utils/search";
+import { PageHeader } from "@/shared/ui/page-header";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; tag?: string }>;
@@ -38,7 +39,9 @@ async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
           </p>
         </div>
       ) : (
-        data.map((post) => <Post key={post.id} post={post} fullPage={false} />)
+        data.map((post) => (
+          <PostCard key={post.id} post={post} fullPage={false} />
+        ))
       )}
     </div>
   );

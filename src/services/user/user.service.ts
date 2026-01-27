@@ -1,6 +1,6 @@
-import { Author, UserAuth } from "@/types/types";
+import { Author, UserAuth } from "@/shared/types/types";
 import { IUserService } from "./user.interface";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 
 export class UserService implements IUserService {
   async editUser(user: Pick<UserAuth, "id" | "nickname" | "bio" | "avatar">) {

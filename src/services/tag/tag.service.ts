@@ -1,6 +1,6 @@
-import { Tables } from "@/types/database.types";
+import { Tables } from "@/shared/types/database.types";
 import { ITagService } from "./tag.interface";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 
 export class TagService implements ITagService {
   async createTagForPost(

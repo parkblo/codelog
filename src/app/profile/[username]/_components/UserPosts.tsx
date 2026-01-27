@@ -1,8 +1,8 @@
-import Post from "@/components/home/Post";
-import { Post as PostType } from "@/types/types";
+import { PostCard } from "@/widgets/post-card";
+import { Post as PostType } from "@/shared/types/types";
 
 export default function UserPosts({ posts }: { posts: PostType[] }) {
   return posts.map((post) => (
-    <Post key={post.id} post={post} fullPage={false} />
+    <PostCard key={post.id} post={post} fullPage={false} />
   ));
 }

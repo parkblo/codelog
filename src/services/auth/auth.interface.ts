@@ -1,4 +1,4 @@
-import { UserAuth } from "@/types/types";
+import { UserAuth } from "@/shared/types/types";
 
 /**
  * 인증에 필요한 기본 자격 증명 정보입니다.

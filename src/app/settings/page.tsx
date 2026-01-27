@@ -1,7 +1,7 @@
 import SignOutButton from "./_components/SignOutButton";
 import { redirect } from "next/navigation";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { getAuthRedirectUrl } from "@/utils/auth";
+import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 
 export default async function SettingsPage() {
   const authService = new ServerAuthService();

@@ -1,4 +1,4 @@
-import { Comment } from "@/types/types";
+import { Comment } from "@/shared/types/types";
 
 /**
  * 댓글 생성을 위한 데이터 전송 객체(DTO)입니다.

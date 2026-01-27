@@ -1,8 +1,9 @@
-import WelcomeCard from "@/components/home/WelcomeCard";
-import PostCard from "@/components/home/PostCard";
-import Post from "@/components/home/Post";
+import { WelcomeCard } from "@/widgets/sidebar";
+import { PostCard } from "@/widgets/post-card";
+import { CreatePostForm } from "@/features/create-post";
+// removed duplicate
 import { getPostsAction } from "@/actions/post.action";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageHeader } from "@/shared/ui/page-header";
 import { MessageSquare } from "lucide-react";
 
 export default async function CodeReviewPage() {
@@ -20,9 +21,9 @@ export default async function CodeReviewPage() {
         description="훈수를 환영하는 게시글 목록입니다."
       />
       <WelcomeCard />
-      <PostCard />
+      <CreatePostForm />
       {data.map((post) => (
-        <Post key={post.id} post={post} fullPage={false} />
+        <PostCard key={post.id} post={post} fullPage={false} />
       ))}
     </div>
   );

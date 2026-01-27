@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import { useAuth } from "@/providers/auth-provider";
 import { ClientAuthService } from "@/services/auth/client-auth.service";
 import { useRouter } from "next/navigation";

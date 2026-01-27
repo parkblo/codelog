@@ -1,5 +1,5 @@
-import { BackButton } from "@/components/ui/back-button";
-import { PostSkeleton } from "@/components/post/PostSkeleton";
+import { BackButton } from "@/shared/ui/back-button";
+import { PostSkeleton } from "@/entities/post";
 
 export default function Loading() {
   return (

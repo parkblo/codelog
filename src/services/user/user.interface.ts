@@ -1,4 +1,4 @@
-import { Author, UserAuth, UserContribution } from "@/types/types";
+import { Author, UserAuth, UserContribution } from "@/shared/types/types";
 
 export interface IUserService {
   /**

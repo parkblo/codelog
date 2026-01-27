@@ -1,7 +1,7 @@
 "use server";
 
-import { ServerAuthService } from "@/services/auth/server-auth.service";
-import { UserService } from "@/services/user/user.service";
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { UserService } from "@/entities/user/api/user.service";
 import { UserAuth } from "@/shared/types/types";
 import { revalidatePath } from "next/cache";
 

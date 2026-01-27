@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/app/providers/auth-provider";
 import { Separator } from "@/shared/ui/separator";
 import { Label } from "@/shared/ui/label";
 import { Input } from "@/shared/ui/input";
@@ -22,7 +22,7 @@ import {
   signInWithOAuthAction,
   signInWithPasswordAction,
   signUpAction,
-} from "@/actions/auth.action";
+} from "@/entities/user/api/auth.action";
 
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal } =

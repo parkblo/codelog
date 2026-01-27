@@ -84,7 +84,7 @@ export default function Comment({ comment }: commentProps) {
                   {formatRelativeTime(comment.created_at || "")}
                 </span>
               </div>
-              <p className="text-foreground whitespace-pre-wrap break-words leading-relaxed">
+              <p className="text-foreground whitespace-pre-wrap wrap-break-word leading-relaxed">
                 {renderContent(comment.content)}
               </p>
               <div className="flex gap-4 pt-2 justify-start">

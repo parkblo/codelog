@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   Suspense,
 } from "react";
 
@@ -47,8 +48,10 @@ export default function AuthProvider({
   const [loading, setLoading] = useState(!initialUser);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">(
-    "login"
+    "login",
   );
+
+  const activeUserId = useRef<string | null>(null);
 
   const updateUser = (newUser: UserAuth | null) => {
     setUser(newUser);
@@ -68,25 +71,37 @@ export default function AuthProvider({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("users")
-          .select("id, username, nickname, avatar, bio")
-          .eq("id", session.user.id)
-          .single();
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const currentId = session?.user?.id ?? null;
+      activeUserId.current = currentId;
 
-        if (profile) {
-          setUser(profile as UserAuth);
-        } else {
-          setUser(null);
-        }
-        // 로그인이 성공하면 모달을 닫음
-        setIsAuthModalOpen(false);
-      } else {
+      if (!session) {
         setUser(null);
+        setLoading(false);
+        setIsAuthModalOpen(false);
+        return;
       }
-      setLoading(false);
+
+      const userId = session.user.id;
+
+      setLoading(true);
+      supabase
+        .from("users")
+        .select("id, username, nickname, avatar, bio")
+        .eq("id", userId)
+        .single()
+        .then(({ data: profile, error }) => {
+          if (activeUserId.current === userId) {
+            if (profile && !error) {
+              setUser(profile as UserAuth);
+            } else {
+              setUser(null);
+            }
+            setLoading(false);
+          }
+        });
+
+      setIsAuthModalOpen(false);
     });
 
     return () => {

@@ -89,14 +89,13 @@ async function getPostsAction(
     bookmarkedByUserId?: string;
     keyword?: string;
     tag?: string;
-  } = {}
+  } = {},
 ) {
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
-  const { data: posts, error: getPostsError } = await postService.getPosts(
-    options
-  );
+  const { data: posts, error: getPostsError } =
+    await postService.getPosts(options);
 
   if (getPostsError) {
     console.error(getPostsError);

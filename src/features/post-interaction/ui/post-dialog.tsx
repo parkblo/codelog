@@ -11,7 +11,7 @@ import { CodeEditor } from "@/shared/ui/code-editor";
 import { TagList } from "@/shared/ui/tag-list";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { createPostAction, updatePostAction } from "@/entities/post/api/post.action";
+import { createPostAction, updatePostAction } from "@/entities/post";
 import { Post } from "@/shared/types/types";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { handleAction } from "@/shared/lib/utils/handle-action";
@@ -28,7 +28,7 @@ export default function PostDialog({
   handleClose,
   post,
 }: PostDialogProps) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [content, setContent] = useState(post?.content || "");
   const [snippetMode, setSnippetMode] = useState(!!post?.code);
   const [tags, setTags] = useState<string[]>(post?.tags || []);
@@ -37,7 +37,7 @@ export default function PostDialog({
   const [languageInput, setLanguageInput] = useState(post?.language || "text");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewEnabled, setIsReviewEnabled] = useState(
-    post?.is_review_enabled || false
+    post?.is_review_enabled || false,
   );
 
   const toggleSnippetMode = () => {
@@ -47,7 +47,7 @@ export default function PostDialog({
   const addTag = (
     e:
       | React.KeyboardEvent<HTMLInputElement>
-      | React.MouseEvent<HTMLButtonElement>
+      | React.MouseEvent<HTMLButtonElement>,
   ) => {
     if ("key" in e) {
       if (e.nativeEvent.isComposing) return;

@@ -22,7 +22,7 @@ import {
   signInWithOAuthAction,
   signInWithPasswordAction,
   signUpAction,
-} from "@/entities/user/api/auth.action";
+} from "@/entities/user";
 
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal } =
@@ -72,7 +72,7 @@ export default function AuthDialog() {
             window.location.href = data.url;
           }
         },
-      }
+      },
     );
   };
 
@@ -95,7 +95,7 @@ export default function AuthDialog() {
             window.location.reload();
           }
         },
-      }
+      },
     );
     setLoading(false);
   };
@@ -123,7 +123,7 @@ export default function AuthDialog() {
         onSuccess: () => {
           openAuthModal("login");
         },
-      }
+      },
     );
     setLoading(false);
   };
@@ -134,7 +134,7 @@ export default function AuthDialog() {
         className={cn(
           "w-md transition-colors",
           isSignUp &&
-            "bg-linear-to-br from-blue-600/10 via-purple-600/10 to-pink-600/10 border border-blue-400/20"
+            "bg-linear-to-br from-blue-600/10 via-purple-600/10 to-pink-600/10 border border-blue-400/20",
         )}
       >
         <DialogHeader>

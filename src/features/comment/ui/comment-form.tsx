@@ -8,7 +8,7 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { Send } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { createCommentAction } from "@/entities/comment/api/comment.action";
+import { createCommentAction } from "@/entities/comment";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 
 export default function CommentForm({
@@ -45,7 +45,7 @@ export default function CommentForm({
             setComment("");
           },
           successMessage: "댓글이 작성되었습니다.",
-        }
+        },
       );
     } else if (!user) {
       openAuthModal("login");

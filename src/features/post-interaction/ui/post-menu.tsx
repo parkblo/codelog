@@ -1,6 +1,6 @@
 "use client";
 
-import { deletePostAction, updatePostAction } from "@/entities/post/api/post.action";
+import { deletePostAction } from "@/entities/post";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
@@ -14,7 +14,6 @@ import { PostDialog } from "@/features/post-interaction";
 import { useState } from "react";
 import { Post } from "@/shared/types/types";
 import { handleAction } from "@/shared/lib/utils/handle-action";
-import { useRouter } from "next/navigation";
 
 interface PostMenuProps {
   post: Post;
@@ -23,7 +22,6 @@ interface PostMenuProps {
 export default function PostMenu({ post }: PostMenuProps) {
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const router = useRouter();
 
   if (!user) {
     return null;

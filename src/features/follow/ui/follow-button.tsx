@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/app/providers/auth-provider";
 import { Button } from "@/shared/ui/button";
-import { followUserAction, unfollowUserAction } from "@/entities/follow/api/follow.action";
+import { followUserAction, unfollowUserAction } from "@/entities/follow";
 import { useTransition, useState, useEffect } from "react";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
@@ -53,7 +53,7 @@ export default function FollowButton({
           successMessage: `${
             isFollowing ? "언팔로우" : "팔로우"
           }에 성공했습니다.`,
-        }
+        },
       );
 
       if (result === null && !originalState) {

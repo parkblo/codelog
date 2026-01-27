@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCommentAction } from "@/entities/comment/api/comment.action";
+import { updateCommentAction } from "@/entities/comment";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -43,7 +43,7 @@ export default function CommentDialog({
             handleClose();
           },
           successMessage: "댓글이 수정되었습니다.",
-        }
+        },
       );
     } else if (!user) {
       toast.error("먼저 로그인 해주세요.");

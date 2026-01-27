@@ -10,10 +10,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import Link from "next/link";
-import {
-  getFollowersAction,
-  getFollowingAction,
-} from "@/entities/follow/api/follow.action";
+import { getFollowersAction, getFollowingAction } from "@/entities/follow";
 import { Author } from "@/shared/types/types";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Loader2 } from "lucide-react";

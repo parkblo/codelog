@@ -10,12 +10,15 @@ import {
 import { Label } from "@/shared/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { UserAuth } from "@/shared/types/types";
-import { Image, Loader, Pencil } from "lucide-react";
+import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import React, { useRef, useState } from "react";
 import { handleAction } from "@/shared/lib/utils/handle-action";
-import { editUserAction, updateAvatarAction } from "@/entities/user/api/user.action";
-import { UserServiceBrowser } from "@/entities/user/api/user.service.browser";
+import {
+  editUserAction,
+  updateAvatarAction,
+  UserServiceBrowser,
+} from "@/entities/user";
 import { toast } from "sonner";
 import { useAuth } from "@/app/providers/auth-provider";
 
@@ -47,7 +50,7 @@ export default function ProfileEditDialog({
       const userService = new UserServiceBrowser();
       const { data: publicUrl, error } = await userService.uploadAvatar(
         user.id,
-        file
+        file,
       );
 
       if (error) {
@@ -61,7 +64,7 @@ export default function ProfileEditDialog({
         setUser(updatedUser);
         updateUser(updatedUser);
         await handleAction(
-          updateAvatarAction(user.id, user.username, avatarWithCache)
+          updateAvatarAction(user.id, user.username, avatarWithCache),
         );
       }
     } finally {
@@ -111,7 +114,7 @@ export default function ProfileEditDialog({
             )}
             {isAvatarHovered && (
               <div className="absolute w-30 h-30 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/40 rounded-full flex items-center justify-center">
-                <Image className="h-6 w-6 text-white" />
+                <ImageIcon className="h-6 w-6 text-white" />
               </div>
             )}
           </Avatar>
@@ -134,7 +137,7 @@ export default function ProfileEditDialog({
               }
               if (!allowedTypes.includes(file.type)) {
                 toast.error(
-                  "JPEG, PNG, WebP 형식의 이미지 파일만 업로드할 수 있습니다."
+                  "JPEG, PNG, WebP 형식의 이미지 파일만 업로드할 수 있습니다.",
                 );
                 event.target.value = "";
                 return;

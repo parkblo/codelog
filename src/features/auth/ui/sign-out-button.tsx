@@ -2,7 +2,7 @@
 
 import { Button } from "@/shared/ui/button";
 import { useAuth } from "@/app/providers/auth-provider";
-import { ClientAuthService } from "@/entities/user/api/client-auth.service";
+import { ClientAuthService } from "@/entities/user";
 import { useRouter } from "next/navigation";
 
 export function SignOutButton() {

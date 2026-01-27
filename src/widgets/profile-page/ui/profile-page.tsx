@@ -10,15 +10,15 @@ import { UserService } from "@/entities/user/api/user.service";
 import { FollowService } from "@/entities/follow/api/follow.service";
 import { CreatePostForm } from "@/features/create-post";
 
-interface UserProfilePageProps {
+interface ProfilePageProps {
   username: string;
   tab?: string;
 }
 
-export async function UserProfilePage({
+export async function ProfilePage({
   username,
   tab = "posts",
-}: UserProfilePageProps) {
+}: ProfilePageProps) {
   const authService = new ServerAuthService();
   const userService = new UserService();
   const followService = new FollowService();

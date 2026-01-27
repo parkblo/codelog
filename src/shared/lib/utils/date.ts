@@ -1,4 +1,4 @@
-import { UserContribution } from "@/types/types";
+import { UserContribution } from "@/shared/types/types";
 
 export function formatRelativeTime(date: string) {
   const now = new Date();

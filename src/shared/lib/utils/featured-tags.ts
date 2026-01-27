@@ -1,4 +1,4 @@
-import { TagData } from "@/types/types";
+import { TagData } from "@/shared/types/types";
 
 /**
  * 랜덤 시드 생성기 (Mulberry32)

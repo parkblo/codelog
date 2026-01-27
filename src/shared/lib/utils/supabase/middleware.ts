@@ -1,7 +1,7 @@
 // utils/supabase/middleware.ts
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { Database } from "@/types/database.types";
+import { Database } from "@/shared/types/database.types";
 
 /**
  * 인증 토큰 재발급 및 쿠키 동기화를 거쳐 Supabase 세션을 업데이트합니다.

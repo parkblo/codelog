@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { Database } from "@/types/database.types";
+import { Database } from "@/shared/types/database.types";
 
 /**
  * 서버 사이드에서 사용될 Supabase 클라이언트 인스턴스를 만듭니다.

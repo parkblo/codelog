@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
-export default function ProfileTabs({ username }: { username: string }) {
+export function ProfileTabs({ username }: { username: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "posts";

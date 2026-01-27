@@ -8,12 +8,10 @@ interface ContributionGraphProps {
   contributions: UserContribution[];
 }
 
-export default function ContributionGraph({
-  contributions,
-}: ContributionGraphProps) {
+export function ContributionGraph({ contributions }: ContributionGraphProps) {
   const allContributions = useMemo(
     () => generateContributionData(contributions),
-    [contributions]
+    [contributions],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -44,7 +42,7 @@ export default function ContributionGraph({
               <div
                 key={day.contribution_date}
                 className={`aspect-square rounded-[1px] ${getColorClass(
-                  day.post_count
+                  day.post_count,
                 )}`}
                 title={`${day.contribution_date}: ${day.post_count} posts`}
               />

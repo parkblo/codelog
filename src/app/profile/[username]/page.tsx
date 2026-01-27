@@ -1,8 +1,10 @@
 import { getPostsAction } from "@/actions/post.action";
-import UserPosts from "./_components/UserPosts";
 import { UserProfileCard } from "@/entities/user";
-import ContributionGraph from "./_components/ContributionGraph";
-import ProfileTabs from "./_components/ProfileTabs";
+import {
+  ContributionGraph,
+  ProfileTabs,
+  UserPostList,
+} from "@/features/profile";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { UserService } from "@/services/user/user.service";
 import { FollowService } from "@/services/follow/follow.service";
@@ -27,7 +29,7 @@ export default async function UserProfilePage({
   const currentUser = await authService.getCurrentUser();
   const { data: user } = await userService.getUserByUsername(
     username,
-    currentUser?.id
+    currentUser?.id,
   );
 
   if (!username || !user) {
@@ -43,11 +45,11 @@ export default async function UserProfilePage({
   const followingCount = followingResult?.data ?? 0;
 
   const { data: posts } = await getPostsAction(
-    tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id }
+    tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id },
   );
 
   const { data: contributions } = await userService.getUserContributions(
-    user.id
+    user.id,
   );
 
   return (
@@ -66,7 +68,7 @@ export default async function UserProfilePage({
       {user && currentUser && user.id === currentUser.id && tab === "posts" && (
         <CreatePostForm />
       )}
-      {posts && <UserPosts posts={posts} />}
+      {posts && <UserPostList posts={posts} />}
     </div>
   );
 }

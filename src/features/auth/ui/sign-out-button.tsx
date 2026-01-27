@@ -5,7 +5,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { ClientAuthService } from "@/services/auth/client-auth.service";
 import { useRouter } from "next/navigation";
 
-export default function SignOutButton() {
+export function SignOutButton() {
   const authService = new ClientAuthService();
   const { user } = useAuth();
   const router = useRouter();

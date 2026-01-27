@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 import { AuthCredentials, SignUpProps } from "@/services/auth/auth.interface";
 import { revalidatePath } from "next/cache";
 

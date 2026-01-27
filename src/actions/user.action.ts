@@ -2,7 +2,7 @@
 
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { UserService } from "@/services/user/user.service";
-import { UserAuth } from "@/types/types";
+import { UserAuth } from "@/shared/types/types";
 import { revalidatePath } from "next/cache";
 
 export async function editUserAction(user: UserAuth) {

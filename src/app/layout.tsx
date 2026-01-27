@@ -7,7 +7,7 @@ import AuthProvider from "@/providers/auth-provider";
 import { ServerAuthService } from "@/services/auth/server-auth.service";
 import { Toaster } from "@/shared/ui/sonner";
 import { AuthDialog } from "@/features/auth";
-import BackgroundMesh from "@/components/layout/BackgroundMesh";
+import { BackgroundMesh } from "@/shared/ui/background-mesh";
 import { MobileNav } from "@/widgets/header";
 
 const pretendard = localFont({

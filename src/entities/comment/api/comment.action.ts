@@ -1,10 +1,12 @@
 "use server";
 
-import { CommentService } from "@/entities/comment/api/comment.service";
-import { CreateCommentDTO } from "@/entities/comment/api/comment.interface";
 import { revalidatePath } from "next/cache";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+
+import { CreateCommentDTO } from "@/entities/comment/api/comment.interface";
+import { CommentService } from "@/entities/comment/api/comment.service";
+// eslint-disable-next-line boundaries/element-types
 import { LikeService } from "@/entities/like/api/like.service";
+import { ServerAuthService } from "@/shared/lib/auth";
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
@@ -83,7 +85,7 @@ async function getCommentsByPostIdAction(postId: number) {
 async function updateCommentAction(
   commentId: number,
   postId: number,
-  data: Partial<CreateCommentDTO>
+  data: Partial<CreateCommentDTO>,
 ) {
   const commentService = new CommentService();
 
@@ -156,7 +158,7 @@ async function deleteCommentAction(commentId: number, postId: number) {
 
 export {
   createCommentAction,
+  deleteCommentAction,
   getCommentsByPostIdAction,
   updateCommentAction,
-  deleteCommentAction,
 };

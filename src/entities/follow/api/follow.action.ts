@@ -1,8 +1,9 @@
 "use server";
 
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
-import { FollowService } from "@/entities/follow/api/follow.service";
 import { revalidatePath } from "next/cache";
+
+import { FollowService } from "@/entities/follow/api/follow.service";
+import { ServerAuthService } from "@/shared/lib/auth";
 
 /**
  * 사용자를 팔로우하는 서버 액션입니다.
@@ -11,7 +12,7 @@ import { revalidatePath } from "next/cache";
  */
 export async function followUserAction(
   followingId: string,
-  followingUsername?: string
+  followingUsername?: string,
 ) {
   // 유저네임 형식 검증 (보안 및 경로 무효화 안전성)
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
@@ -51,7 +52,7 @@ export async function followUserAction(
  */
 export async function unfollowUserAction(
   followingId: string,
-  followingUsername?: string
+  followingUsername?: string,
 ) {
   // 유저네임 형식 검증 (보안 및 경로 무효화 안전성)
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {

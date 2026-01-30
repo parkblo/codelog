@@ -1,8 +1,9 @@
 "use server";
 
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
-import { LikeService } from "@/entities/like/api/like.service";
 import { revalidatePath } from "next/cache";
+
+import { LikeService } from "@/entities/like/api/like.service";
+import { ServerAuthService } from "@/shared/lib/auth";
 
 async function createPostLikeAction(postId: number) {
   const authService = new ServerAuthService();
@@ -89,8 +90,8 @@ async function deleteCommentLikeAction(postId: number, commentId: number) {
 }
 
 export {
-  createPostLikeAction,
-  deletePostLikeAction,
   createCommentLikeAction,
+  createPostLikeAction,
   deleteCommentLikeAction,
+  deletePostLikeAction,
 };

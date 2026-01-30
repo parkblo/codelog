@@ -12,7 +12,7 @@ export async function handleAction<T>(
     onSuccess?: (data: T | null) => void;
     onError?: (error: string) => void;
     successMessage?: string;
-  }
+  },
 ) {
   try {
     const result = await promise;
@@ -31,7 +31,7 @@ export async function handleAction<T>(
 
     options?.onSuccess?.(result.data || null);
     return result.data;
-  } catch (e) {
+  } catch {
     toast.error("알 수 없는 에러가 발생했습니다. 관리자에게 문의하세요.");
     return null;
   }

@@ -1,6 +1,7 @@
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
 import { redirect } from "next/navigation";
-import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
+
+import { ServerAuthService } from "@/entities/user";
+import { getAuthRedirectUrl } from "@/shared/lib/utils";
 
 export default async function ProfilePage() {
   const authService = new ServerAuthService();

@@ -1,16 +1,18 @@
 "use client";
 
-import { DropdownMenu, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
-import { Button } from "@/shared/ui/button";
+import { useState } from "react";
+
 import { EllipsisVertical } from "lucide-react";
+
+import { useAuth } from "@/app/providers/auth-provider";
+import { CommentDialog } from "@/features/comment";
+import { deleteCommentAction } from "@/entities/comment";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { Comment } from "@/shared/types/types";
+import { Button } from "@/shared/ui/button";
+import { DropdownMenu, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { DropdownMenuContent } from "@/shared/ui/dropdown-menu";
 import { DropdownMenuItem } from "@/shared/ui/dropdown-menu";
-import { useState } from "react";
-import { useAuth } from "@/app/providers/auth-provider";
-import { Comment } from "@/shared/types/types";
-import { deleteCommentAction } from "@/entities/comment";
-import { CommentDialog } from "@/features/comment";
-import { handleAction } from "@/shared/lib/utils/handle-action";
 
 export default function CommentMenu({ comment }: { comment: Comment }) {
   const { user } = useAuth();

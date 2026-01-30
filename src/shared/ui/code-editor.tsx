@@ -4,6 +4,16 @@ import Editor from "react-simple-code-editor";
 
 import { highlight, languages } from "prismjs";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
+
+import "@/styles/prism-vsc-dark-plus.css";
+
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-typescript";
@@ -22,16 +32,6 @@ import "prismjs/components/prism-json";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-markdown";
-
-import "@/styles/prism-vsc-dark-plus.css";
-import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./select";
 
 interface CodeEditorProps {
   code?: string;

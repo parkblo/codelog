@@ -1,5 +1,5 @@
-import { BackButton } from "@/shared/ui/back-button";
 import { PostSkeleton } from "@/entities/post";
+import { BackButton } from "@/shared/ui/back-button";
 
 export default function Loading() {
   return (

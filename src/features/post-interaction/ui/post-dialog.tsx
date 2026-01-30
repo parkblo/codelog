@@ -1,20 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
-import { Textarea } from "@/shared/ui/textarea";
+
+import { Code2, Info, Loader, Plus, Send } from "lucide-react";
+
 import { useAuth } from "@/app/providers/auth-provider";
+import { createPostAction, updatePostAction } from "@/entities/post";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { Post } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
-import { Code2, Info, Loader, Plus, Send } from "lucide-react";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { CodeEditor } from "@/shared/ui/code-editor";
-import { TagList } from "@/shared/ui/tag-list";
+import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { createPostAction, updatePostAction } from "@/entities/post";
-import { Post } from "@/shared/types/types";
-import { Checkbox } from "@/shared/ui/checkbox";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { TagList } from "@/shared/ui/tag-list";
+import { Textarea } from "@/shared/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
 interface PostDialogProps {

@@ -1,8 +1,9 @@
 "use server";
 
-import { createClient } from "@/shared/lib/utils/supabase/server";
-import { AuthCredentials, SignUpProps } from "@/entities/user/api/auth.interface";
 import { revalidatePath } from "next/cache";
+
+import { AuthCredentials, SignUpProps } from "@/entities/user/api/auth.interface";
+import { createClient } from "@/shared/lib/utils/supabase/server";
 
 export async function signInWithPasswordAction(credentials: AuthCredentials) {
   try {

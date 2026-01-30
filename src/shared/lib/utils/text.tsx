@@ -1,5 +1,5 @@
-import Link from "next/link";
 import React from "react";
+import Link from "next/link";
 
 /**
  * 텍스트 내의 @username 패턴을 찾아 프로필 링크로 변환합니다.

@@ -1,30 +1,32 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { Card, CardContent } from "@/shared/ui/card";
-import { Button } from "@/shared/ui/button";
-import { Bookmark, CodeXml, Heart, MessageCircle, Share } from "lucide-react";
-import { TagList } from "@/shared/ui/tag-list";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/shared/lib/utils";
-import { CodeViewer } from "@/entities/post";
 
-import { Post as PostType, Comment as CommentType } from "@/shared/types/types";
+import { Bookmark, CodeXml, Heart, MessageCircle, Share } from "lucide-react";
+
+import { CommentForm, ReviewComment } from "@/features/comment";
 import { PostMenu } from "@/features/post-interaction";
-import { formatRelativeTime } from "@/shared/lib/utils/date";
-import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
-import { useState, useMemo } from "react";
-import { CommentForm } from "@/features/comment";
 import {
   createBookmarkAction,
   deleteBookmarkAction,
 } from "@/entities/bookmark";
-import { ReviewComment } from "@/entities/comment";
+import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
+import { CodeViewer } from "@/entities/post";
+import { useAuth } from "@/entities/user";
+import {
+  cn,
+  formatRelativeTime,
+  handleAction,
+  renderContent,
+} from "@/shared/lib/utils";
+import { Comment as CommentType, Post as PostType } from "@/shared/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent } from "@/shared/ui/card";
+import { TagList } from "@/shared/ui/tag-list";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
-import { handleAction } from "@/shared/lib/utils/handle-action";
-import { useAuth } from "@/app/providers/auth-provider";
-import { renderContent } from "@/shared/lib/utils/text";
 
 interface PostProps {
   post: PostType;

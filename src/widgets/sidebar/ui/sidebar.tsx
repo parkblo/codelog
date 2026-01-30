@@ -1,14 +1,17 @@
-import { TrendingUp, UserPlus } from "lucide-react";
-import { Card, CardContent } from "@/shared/ui/card";
-import { TagList } from "@/shared/ui/tag-list";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import Link from "next/link";
 
-import { getRandomFeaturedUsersAction } from "@/entities/user";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
-import { getTrendingTagsAction } from "@/entities/tag";
+import { TrendingUp, UserPlus } from "lucide-react";
+
 import { FollowButton } from "@/features/follow";
 import { SearchInput } from "@/features/search";
+import { getTrendingTagsAction } from "@/entities/tag";
+import {
+  getRandomFeaturedUsersAction,
+  ServerAuthService,
+} from "@/entities/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Card, CardContent } from "@/shared/ui/card";
+import { TagList } from "@/shared/ui/tag-list";
 
 export default async function Sidebar() {
   const authService = new ServerAuthService();

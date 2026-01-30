@@ -1,5 +1,6 @@
-import { UserAuth } from "@/shared/types/types";
 import { createClient } from "@/shared/lib/utils/supabase/client";
+import { UserAuth } from "@/shared/types/types";
+
 import { IAuthService, SignUpProps } from "./auth.interface";
 export class ClientAuthService implements IAuthService {
   private supabase = createClient();

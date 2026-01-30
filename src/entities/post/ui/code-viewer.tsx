@@ -1,6 +1,12 @@
 "use client";
+import { useState } from "react";
+
+import { Check, Copy } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import Prism from "prismjs";
+
+import { cn } from "@/shared/lib/utils";
+
 import "prismjs/components/prism-java";
 import "prismjs/components/prism-typescript";
 import "prismjs/components/prism-javascript";
@@ -18,9 +24,6 @@ import "prismjs/components/prism-sql";
 import "prismjs/components/prism-bash";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-markdown";
-import { useState } from "react";
-import { cn } from "@/shared/lib/utils";
-import { Check, Copy } from "lucide-react";
 
 interface CodeSnippetProps {
   code: string;

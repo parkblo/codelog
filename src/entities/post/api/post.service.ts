@@ -1,8 +1,10 @@
-import { createClient } from "@/shared/lib/utils/supabase/server";
-import { CreatePostDTO, IPostService } from "./post.interface";
-import { Post } from "@/shared/types/types";
-import { Database, Tables } from "@/shared/types/database.types";
 import { SupabaseClient } from "@supabase/supabase-js";
+
+import { createClient } from "@/shared/lib/utils/supabase/server";
+import { Database, Tables } from "@/shared/types/database.types";
+import { Post } from "@/shared/types/types";
+
+import { CreatePostDTO, IPostService } from "./post.interface";
 
 type RpcDatabase = Database & {
   public: {

@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/lib/utils/supabase/server";
+
 import { IBookmarkService } from "./bookmark.interface";
 
 export class BookmarkService implements IBookmarkService {

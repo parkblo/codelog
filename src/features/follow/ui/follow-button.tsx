@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect,useState, useTransition } from "react";
+
+import { Loader2,UserCheck, UserPlus } from "lucide-react";
+
 import { useAuth } from "@/app/providers/auth-provider";
-import { Button } from "@/shared/ui/button";
 import { followUserAction, unfollowUserAction } from "@/entities/follow";
-import { useTransition, useState, useEffect } from "react";
 import { handleAction } from "@/shared/lib/utils/handle-action";
-import { UserPlus, UserCheck, Loader2 } from "lucide-react";
+import { Button } from "@/shared/ui/button";
 
 interface FollowButtonProps {
   followingId: string;

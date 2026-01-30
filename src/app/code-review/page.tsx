@@ -1,13 +1,14 @@
-import { WelcomeCard } from "@/widgets/sidebar";
-import { PostCard } from "@/widgets/post-card";
-import { CreatePostForm } from "@/features/create-post";
-// removed duplicate
-import { getPostsAction } from "@/entities/post/api/post.action";
-import { PageHeader } from "@/shared/ui/page-header";
 import { MessageSquare } from "lucide-react";
 
+import { PostCard } from "@/widgets/post-card";
+import { WelcomeCard } from "@/widgets/sidebar";
+import { CreatePostForm } from "@/features/create-post";
+// removed duplicate
+import { getPostListAction } from "@/features/post-list";
+import { PageHeader } from "@/shared/ui/page-header";
+
 export default async function CodeReviewPage() {
-  const { data, error } = await getPostsAction({ isReviewEnabled: true });
+  const { data, error } = await getPostListAction({ isReviewEnabled: true });
 
   if (!data || error) {
     return <span>{error}</span>;

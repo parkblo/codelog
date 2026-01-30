@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
+
 import { Header } from "@/widgets/header";
-import { Sidebar } from "@/widgets/sidebar";
-import AuthProvider from "@/app/providers/auth-provider";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
-import { Toaster } from "@/shared/ui/sonner";
-import { AuthDialog } from "@/features/auth";
-import { BackgroundMesh } from "@/shared/ui/background-mesh";
 import { MobileNav } from "@/widgets/header";
+import { Sidebar } from "@/widgets/sidebar";
+import { AuthDialog } from "@/features/auth";
+import { AuthProvider, ServerAuthService } from "@/entities/user";
+import { BackgroundMesh } from "@/shared/ui/background-mesh";
+import { Toaster } from "@/shared/ui/sonner";
+
+import "./globals.css";
 
 const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",

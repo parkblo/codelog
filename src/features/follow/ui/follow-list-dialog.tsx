@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+
+import { Loader2 } from "lucide-react";
+
+import { getFollowersAction, getFollowingAction } from "@/entities/follow";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { Author } from "@/shared/types/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import Link from "next/link";
-import { getFollowersAction, getFollowingAction } from "@/entities/follow";
-import { Author } from "@/shared/types/types";
-import { handleAction } from "@/shared/lib/utils/handle-action";
-import { Loader2 } from "lucide-react";
 
 interface FollowListDialogProps {
   userId: string;

@@ -1,4 +1,4 @@
-import { ProfilePage } from "@/widgets/profile-page";
+import { ProfilePage } from "@/pages/profile-page";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;

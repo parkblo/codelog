@@ -1,10 +1,12 @@
 "use client";
 
-import { Search } from "lucide-react";
-import { Input } from "@/shared/ui/input";
-import { useState, KeyboardEvent } from "react";
+import { KeyboardEvent,useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { Search } from "lucide-react";
+
 import { sanitizeSearchQuery } from "@/shared/lib/utils/search";
+import { Input } from "@/shared/ui/input";
 
 export default function SearchInput() {
   const [query, setQuery] = useState("");

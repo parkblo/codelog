@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@/shared/ui/button";
+import { useRouter } from "next/navigation";
+
 import { useAuth } from "@/app/providers/auth-provider";
 import { ClientAuthService } from "@/entities/user";
-import { useRouter } from "next/navigation";
+import { Button } from "@/shared/ui/button";
 
 export function SignOutButton() {
   const authService = new ClientAuthService();

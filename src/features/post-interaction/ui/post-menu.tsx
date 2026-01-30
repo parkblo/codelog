@@ -1,19 +1,21 @@
 "use client";
 
+import { useState } from "react";
+
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { EllipsisVertical } from "lucide-react";
+
+import { useAuth } from "@/app/providers/auth-provider";
+import { PostDialog } from "@/features/post-interaction";
 import { deletePostAction } from "@/entities/post";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/shared/ui/dropdown-menu";
-import { useAuth } from "@/app/providers/auth-provider";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { EllipsisVertical } from "lucide-react";
-import { PostDialog } from "@/features/post-interaction";
-import { useState } from "react";
-import { Post } from "@/shared/types/types";
-import { handleAction } from "@/shared/lib/utils/handle-action";
 
 interface PostMenuProps {
   post: Post;

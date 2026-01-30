@@ -1,5 +1,6 @@
-import { ILikeService } from "./like.interface";
 import { createClient } from "@/shared/lib/utils/supabase/server";
+
+import { ILikeService } from "./like.interface";
 
 export class LikeService implements ILikeService {
   async createPostLike(

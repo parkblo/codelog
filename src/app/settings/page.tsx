@@ -1,4 +1,4 @@
-import { SettingsPage } from "@/widgets/settings-page";
+import { SettingsPage } from "@/pages/settings-page";
 
 export default function Page() {
   return <SettingsPage />;

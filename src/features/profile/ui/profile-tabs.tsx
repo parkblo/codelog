@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 export function ProfileTabs({ username }: { username: string }) {

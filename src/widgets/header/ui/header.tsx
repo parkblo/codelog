@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/shared/ui/button";
+import { usePathname,useRouter } from "next/navigation";
+
 import {
   Bookmark,
   Hash,
@@ -10,7 +10,9 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { useAuth } from "@/app/providers/auth-provider";
+
+import { useAuth } from "@/entities/user";
+import { Button } from "@/shared/ui/button";
 
 interface NavigationProps {
   hideLogo?: boolean;

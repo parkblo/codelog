@@ -1,4 +1,4 @@
-import { ExplorePage } from "@/widgets/explore-page";
+import { ExplorePage } from "@/pages/explore-page";
 
 export default function Page() {
   return <ExplorePage />;

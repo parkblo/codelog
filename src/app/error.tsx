@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/shared/ui/button";
+
 import { AlertCircle } from "lucide-react";
+
+import { Button } from "@/shared/ui/button";
 
 export default function Error({
   error,

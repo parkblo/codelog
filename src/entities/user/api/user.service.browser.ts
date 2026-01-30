@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/lib/utils/supabase/client";
+
 import { IUserServiceBrowser } from "./user.interface";
 
 export class UserServiceBrowser implements IUserServiceBrowser {

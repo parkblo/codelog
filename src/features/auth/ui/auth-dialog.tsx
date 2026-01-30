@@ -1,8 +1,19 @@
 "use client";
 
-import { Github, Mail } from "lucide-react";
+import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+import { Github, Mail } from "lucide-react";
 import { toast } from "sonner";
+
+import { useAuth } from "@/app/providers/auth-provider";
+import {
+  signInWithOAuthAction,
+  signInWithPasswordAction,
+  signUpAction,
+} from "@/entities/user";
+import { cn } from "@/shared/lib/utils";
+import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -11,18 +22,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { useAuth } from "@/app/providers/auth-provider";
-import { Separator } from "@/shared/ui/separator";
-import { Label } from "@/shared/ui/label";
 import { Input } from "@/shared/ui/input";
-import { FormEvent, useState } from "react";
-import { cn } from "@/shared/lib/utils";
-import { handleAction } from "@/shared/lib/utils/handle-action";
-import {
-  signInWithOAuthAction,
-  signInWithPasswordAction,
-  signUpAction,
-} from "@/entities/user";
+import { Label } from "@/shared/ui/label";
+import { Separator } from "@/shared/ui/separator";
 
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, openAuthModal, closeAuthModal } =

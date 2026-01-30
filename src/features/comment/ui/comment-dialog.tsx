@@ -1,6 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
+import { Pencil } from "lucide-react";
+import { toast } from "sonner";
+
+import { useAuth } from "@/app/providers/auth-provider";
 import { updateCommentAction } from "@/entities/comment";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { Comment } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -10,12 +18,6 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
-import { useAuth } from "@/app/providers/auth-provider";
-import { Comment } from "@/shared/types/types";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { handleAction } from "@/shared/lib/utils/handle-action";
 
 interface CommentDialogProps {
   isOpen: boolean;

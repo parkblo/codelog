@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Badge } from "@/shared/ui/badge";
-import { cn } from "@/shared/lib/utils";
-import { shuffleTagsByChunk, getFontSize } from "@/shared/lib/utils/featured-tags";
-import { TagData } from "@/shared/types/types";
 import { use, useMemo } from "react";
+import Link from "next/link";
+
+import { cn, getFontSize,shuffleTagsByChunk } from "@/shared/lib/utils";
+import { TagData } from "@/shared/types";
+import { Badge } from "@/shared/ui/badge";
 
 interface FeaturedTagsProps {
   tagsPromise: Promise<{
@@ -24,7 +24,7 @@ export function FeaturedTags({ tagsPromise }: FeaturedTagsProps) {
   }, [tags, randomSeed]);
 
   const rotations = useMemo(() => {
-    return shuffledTags.map((_, index) => {
+    return shuffledTags.map((_: TagData, index: number) => {
       const seed = (randomSeed + index * 137) % 100;
       return (seed % 8) - 4;
     });
@@ -47,7 +47,7 @@ export function FeaturedTags({ tagsPromise }: FeaturedTagsProps) {
 
   return (
     <div className="relative w-full p-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-5 overflow-hidden">
-      {shuffledTags.map((tag, index) => {
+      {shuffledTags.map((tag: TagData, index: number) => {
         const fontSize = getFontSize(tag.post_count, minCount, maxCount);
         const rotation = rotations[index];
 
@@ -64,7 +64,7 @@ export function FeaturedTags({ tagsPromise }: FeaturedTagsProps) {
             <Badge
               className={cn(
                 "px-4 py-1.5 rounded-full cursor-pointer transition-colors border-none",
-                "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
               )}
               style={{
                 fontSize: "inherit",

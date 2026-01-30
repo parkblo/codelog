@@ -1,4 +1,18 @@
 "use client";
+import React, { useRef, useState } from "react";
+
+import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
+import { toast } from "sonner";
+
+import { useAuth } from "@/app/providers/auth-provider";
+import {
+  editUserAction,
+  updateAvatarAction,
+  UserServiceBrowser,
+} from "@/entities/user";
+import { handleAction } from "@/shared/lib/utils/handle-action";
+import { UserAuth } from "@/shared/types/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -7,20 +21,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog";
-import { Label } from "@/shared/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { UserAuth } from "@/shared/types/types";
-import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
 import { Input } from "@/shared/ui/input";
-import React, { useRef, useState } from "react";
-import { handleAction } from "@/shared/lib/utils/handle-action";
-import {
-  editUserAction,
-  updateAvatarAction,
-  UserServiceBrowser,
-} from "@/entities/user";
-import { toast } from "sonner";
-import { useAuth } from "@/app/providers/auth-provider";
+import { Label } from "@/shared/ui/label";
 
 interface ProfileEditDialogProps {
   user: UserAuth;

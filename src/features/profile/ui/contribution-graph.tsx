@@ -1,8 +1,9 @@
 "use client";
 
-import { UserContribution } from "@/shared/types/types";
-import { generateContributionData } from "@/shared/lib/utils/date";
 import { useEffect, useMemo, useRef } from "react";
+
+import { generateContributionData } from "@/shared/lib/utils/date";
+import { UserContribution } from "@/shared/types/types";
 
 interface ContributionGraphProps {
   contributions: UserContribution[];

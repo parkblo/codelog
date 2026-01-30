@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/shared/ui/button";
-import { Header } from "@/widgets/header";
-import { usePathname } from "next/navigation";
-import { SearchInput } from "@/features/search";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { Menu, X } from "lucide-react";
+
+import { Header } from "@/widgets/header";
+import { SearchInput } from "@/features/search";
+import { Button } from "@/shared/ui/button";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);

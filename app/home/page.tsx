@@ -1,5 +1,1 @@
-import { HomePage } from "@/pages/home-page";
-
-export default function Page() {
-  return <HomePage />;
-}
+export { HomePage as default } from "@/pages/home-page";

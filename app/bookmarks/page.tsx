@@ -1,5 +1,1 @@
-import { BookmarksPage } from "@/pages/bookmarks-page";
-
-export default function Page() {
-  return <BookmarksPage />;
-}
+export { BookmarksPage as default } from "@/pages/bookmarks-page";

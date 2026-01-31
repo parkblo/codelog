@@ -1,5 +1,1 @@
-import { ExplorePage } from "@/pages/explore-page";
-
-export default function Page() {
-  return <ExplorePage />;
-}
+export { ExplorePage as default } from "@/pages/explore-page";

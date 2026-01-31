@@ -1,7 +1,7 @@
 "use client";
 
-import { AuthProvider } from "@/entities/user";
 import { AuthDialog } from "@/features/auth";
+import { AuthProvider } from "@/entities/user";
 import { UserAuth } from "@/shared/types";
 import { Toaster } from "@/shared/ui/sonner";
 

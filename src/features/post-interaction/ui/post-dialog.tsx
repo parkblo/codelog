@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
-import { useAuth } from "@/entities/user";
 import { createPostAction, updatePostAction } from "@/entities/post";
+import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Post } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";

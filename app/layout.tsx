@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-import { AppProvider } from "@/app/providers";
+import { Header, MobileNav } from "@/widgets/header";
+import { Sidebar } from "@/widgets/sidebar";
 import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 import { BackgroundMesh } from "@/shared/ui/background-mesh";
-import { MobileNav, Header } from "@/widgets/header";
-import { Sidebar } from "@/widgets/sidebar";
 
-import "@/app/styles/globals.css";
+import { AppProvider } from "./providers";
+
+import "./styles/globals.css";
 
 const pretendard = localFont({
   src: "../public/fonts/pretendard/PretendardVariable.woff2",

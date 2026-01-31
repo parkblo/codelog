@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { PostCard } from "@/widgets/post-card";
 import { CommentForm } from "@/features/comment";
-import { CommentItem } from "@/entities/comment";
+import { CommentItem } from "@/features/comment";
 import { getCommentsByPostIdAction } from "@/entities/comment";
 import { getPostByIdAction } from "@/entities/post";
 import { BackButton } from "@/shared/ui/back-button";
@@ -17,12 +17,7 @@ export async function PostDetailPage({ postId }: PostDetailPageProps) {
   const { data: comments } = await getCommentsByPostIdAction(Number(postId));
 
   if (error || !post) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : typeof error === "object" && error !== null && "message" in error
-          ? (error as { message: string }).message
-          : String(error);
+    const errorMessage = error || "알 수 없는 에러가 발생했습니다.";
 
     if (errorMessage === "포스트를 찾을 수 없습니다." || !post) {
       notFound();

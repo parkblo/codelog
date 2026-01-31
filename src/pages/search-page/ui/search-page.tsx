@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 
-import { Hash, Loader2,Search as SearchIcon } from "lucide-react";
+import { Hash, Loader2, Search as SearchIcon } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
-import { getPostsAction } from "@/entities/post";
+import { getPostListAction } from "@/features/post-list";
 import { sanitizeSearchQuery } from "@/shared/lib/utils/search";
 import { PageHeader } from "@/shared/ui/page-header";
 
@@ -13,7 +13,7 @@ interface SearchPageProps {
 }
 
 async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
-  const { data, error } = await getPostsAction({
+  const { data, error } = await getPostListAction({
     keyword: query,
     tag: tag,
   });

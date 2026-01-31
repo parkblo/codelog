@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { Bookmark } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
-import { getPostsAction } from "@/entities/post/api/post.action";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getPostListAction } from "@/features/post-list";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 import { PageHeader } from "@/shared/ui/page-header";
 
@@ -16,7 +16,9 @@ export async function BookmarksPage() {
     redirect(getAuthRedirectUrl("/bookmarks"));
   }
 
-  const { data, error } = await getPostsAction({ bookmarkedByUserId: user.id });
+  const { data, error } = await getPostListAction({
+    bookmarkedByUserId: user.id,
+  });
 
   if (error) {
     return (

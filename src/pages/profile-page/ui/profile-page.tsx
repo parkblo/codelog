@@ -3,8 +3,9 @@ import { UserPostList } from "@/widgets/post-list";
 import { UserProfileCard } from "@/widgets/user-profile";
 import { getPostListAction } from "@/features/post-list";
 import { ContributionGraph, ProfileTabs } from "@/features/profile";
-import { FollowService } from "@/entities/follow";
-import { ServerAuthService, UserService } from "@/entities/user";
+import { FollowService } from "@/entities/follow/api/follow.service";
+import { UserService } from "@/entities/user/api/user.service";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 interface ProfilePageProps {
   username: string;

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 async function createBookmarkAction(postId: number) {
   const bookmarkService = new BookmarkService();

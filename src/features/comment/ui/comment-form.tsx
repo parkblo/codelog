@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/app/providers/auth-provider";
+import { useAuth } from "@/entities/user";
 import { createCommentAction } from "@/entities/comment";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";

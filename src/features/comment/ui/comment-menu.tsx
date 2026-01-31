@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import { EllipsisVertical } from "lucide-react";
 
-import { useAuth } from "@/app/providers/auth-provider";
 import { CommentDialog } from "@/features/comment";
 import { deleteCommentAction } from "@/entities/comment";
+import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Comment } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";

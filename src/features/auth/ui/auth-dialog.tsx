@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Github, Mail } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/app/providers/auth-provider";
+import { useAuth } from "@/entities/user";
 import {
   signInWithOAuthAction,
   signInWithPasswordAction,
@@ -59,7 +59,7 @@ export default function AuthDialog() {
   };
 
   const handleGitHubLogin = async () => {
-    const next = searchParams.get("next");
+    const next = searchParams?.get("next");
     const redirectTo = next
       ? `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       : `${location.origin}/auth/callback`;
@@ -88,7 +88,7 @@ export default function AuthDialog() {
       }),
       {
         onSuccess: () => {
-          const next = searchParams.get("next");
+          const next = searchParams?.get("next");
           if (next) {
             router.push(next);
             // URL 파라미터 청소를 위해 홈으로 리다이렉트가 필요할 수도 있지만

@@ -139,7 +139,7 @@ function AuthModalTrigger() {
   const { user, openAuthModal } = useAuth();
 
   useEffect(() => {
-    if (searchParams.get("auth") === "required" && !user) {
+    if (searchParams?.get("auth") === "required" && !user) {
       const timer = setTimeout(() => {
         openAuthModal("login");
       }, 0);

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/app/providers/auth-provider";
+import { useAuth } from "@/entities/user";
 import { ClientAuthService } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
 

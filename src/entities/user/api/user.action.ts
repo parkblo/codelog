@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 import { UserService } from "@/entities/user/api/user.service";
 import { UserAuth } from "@/shared/types/types";
 
@@ -33,7 +33,7 @@ export async function editUserAction(user: UserAuth) {
 export async function updateAvatarAction(
   userId: string,
   username: string,
-  avatarUrl: string
+  avatarUrl: string,
 ) {
   const authService = new ServerAuthService();
   const currentUser = await authService.getCurrentUser();
@@ -61,7 +61,7 @@ export async function getRandomFeaturedUsersAction(count: number) {
   const userService = new UserService();
   const { data, error } = await userService.getRandomFeaturedUsers(
     count,
-    currentUser?.id
+    currentUser?.id,
   );
 
   if (error) {

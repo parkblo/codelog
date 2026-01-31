@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 export function ProfileTabs({ username }: { username: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentTab = searchParams.get("tab") || "posts";
+  const currentTab = searchParams?.get("tab") || "posts";
 
   const handleTabChange = (value: string) => {
     router.push(`/profile/${username}?tab=${value}`);

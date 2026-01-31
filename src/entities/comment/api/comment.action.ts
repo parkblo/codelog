@@ -6,7 +6,7 @@ import { CreateCommentDTO } from "@/entities/comment/api/comment.interface";
 import { CommentService } from "@/entities/comment/api/comment.service";
 // eslint-disable-next-line boundaries/element-types
 import { LikeService } from "@/entities/like/api/like.service";
-import { ServerAuthService } from "@/shared/lib/auth";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();

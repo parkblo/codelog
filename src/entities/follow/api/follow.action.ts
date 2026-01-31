@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { FollowService } from "@/entities/follow/api/follow.service";
-import { ServerAuthService } from "@/shared/lib/auth";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 /**
  * 사용자를 팔로우하는 서버 액션입니다.

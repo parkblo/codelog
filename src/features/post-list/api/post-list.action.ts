@@ -3,7 +3,7 @@
 import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
 import { LikeService } from "@/entities/like/api/like.service";
 import { PostService } from "@/entities/post/api/post.service";
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 const postService = new PostService();
 

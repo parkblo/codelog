@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { LikeService } from "@/entities/like/api/like.service";
-import { ServerAuthService } from "@/shared/lib/auth";
+import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 
 async function createPostLikeAction(postId: number) {
   const authService = new ServerAuthService();

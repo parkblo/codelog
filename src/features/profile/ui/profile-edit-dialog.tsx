@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/app/providers/auth-provider";
+import { useAuth } from "@/entities/user";
 import {
   editUserAction,
   updateAvatarAction,

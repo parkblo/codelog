@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
-import { useAuth } from "@/app/providers/auth-provider";
+import { useAuth } from "@/entities/user";
 import { createPostAction, updatePostAction } from "@/entities/post";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Post } from "@/shared/types/types";

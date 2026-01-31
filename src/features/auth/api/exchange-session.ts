@@ -1,4 +1,4 @@
-import { createClient } from "@/shared/lib/utils/supabase/server";
+﻿import { createClient } from "@/shared/lib/utils/supabase/server";
 
 export async function exchangeAuthCode(code: string) {
   const supabase = await createClient();

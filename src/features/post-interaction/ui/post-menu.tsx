@@ -5,9 +5,9 @@ import { useState } from "react";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 
-import { useAuth } from "@/app/providers/auth-provider";
 import { PostDialog } from "@/features/post-interaction";
 import { deletePostAction } from "@/entities/post";
+import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";

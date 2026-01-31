@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 
-import { useAuth } from "@/app/providers/auth-provider";
 import { PostDialog } from "@/features/post-interaction";
+import { useAuth } from "@/entities/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
@@ -23,7 +23,7 @@ export default function PostCard() {
   const openDialog = (
     e:
       | React.FocusEvent<HTMLTextAreaElement>
-      | React.MouseEvent<HTMLButtonElement>
+      | React.MouseEvent<HTMLButtonElement>,
   ) => {
     // TODO - 게시글 작성 모달을 띄우기 위한 함수
     setIsDialogOpen(true);

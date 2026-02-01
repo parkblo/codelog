@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { CreatePostForm } from "@/widgets/create-post";
-import { UserPostList } from "@/widgets/post-list";
+import { PostCard } from "@/widgets/post-card";
 import { UserProfileCard } from "@/widgets/user-profile";
 import { getPostListAction } from "@/features/post-list";
 import { ContributionGraph, ProfileTabs } from "@/features/profile";
@@ -66,7 +66,9 @@ export async function ProfilePage({
       {currentUser && user.id === currentUser.id && tab === "posts" && (
         <CreatePostForm />
       )}
-      {posts && <UserPostList posts={posts} />}
+      {posts?.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
     </div>
   );
 }

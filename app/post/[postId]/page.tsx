@@ -1,4 +1,4 @@
-import { PostDetailPage } from "@/pages/post-detail-page";
+import { PostDetailPage } from "@/pages/post-detail";
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;

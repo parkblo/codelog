@@ -1,4 +1,4 @@
-import { ProfilePage } from "@/pages/profile-page";
+import { ProfilePage } from "@/pages/profile";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;

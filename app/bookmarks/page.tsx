@@ -1,1 +1,1 @@
-export { BookmarksPage as default } from "@/pages/bookmarks-page";
+export { BookmarksPage as default } from "@/pages/bookmarks";

@@ -1,1 +1,1 @@
-export { ExplorePage as default } from "@/pages/explore-page";
+export { ExplorePage as default } from "@/pages/explore";

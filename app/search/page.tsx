@@ -1,4 +1,4 @@
-import { SearchPage } from "@/pages/search-page";
+import { SearchPage } from "@/pages/search";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; tag?: string }>;

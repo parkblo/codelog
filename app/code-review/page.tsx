@@ -1,1 +1,1 @@
-export { CodeReviewPage as default } from "@/pages/code-review-page";
+export { CodeReviewPage as default } from "@/pages/code-review";

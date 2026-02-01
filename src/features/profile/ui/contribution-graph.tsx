@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 
-import { generateContributionData } from "@/shared/lib/utils/date";
+import { generateContributionData } from "@/shared/lib/date";
 import { UserContribution } from "@/shared/types/types";
 
 interface ContributionGraphProps {

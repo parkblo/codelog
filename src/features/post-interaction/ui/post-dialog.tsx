@@ -6,7 +6,7 @@ import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
 import { createPostAction, updatePostAction } from "@/entities/post";
 import { useAuth, UserAvatar } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";

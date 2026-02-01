@@ -12,8 +12,8 @@ import {
   signInWithPasswordAction,
   signUpAction,
 } from "@/entities/user";
-import { cn } from "@/shared/lib/utils";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { cn } from "@/shared/lib";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,

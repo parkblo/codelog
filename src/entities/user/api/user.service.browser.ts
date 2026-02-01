@@ -1,4 +1,4 @@
-import { createClient } from "@/shared/lib/utils/supabase/client";
+﻿import { createClient } from "@/shared/lib/supabase/client";
 
 import { IUserServiceBrowser } from "./user.interface";
 

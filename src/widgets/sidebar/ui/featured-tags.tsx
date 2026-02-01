@@ -3,7 +3,7 @@
 import { use, useMemo } from "react";
 import Link from "next/link";
 
-import { cn, getFontSize,shuffleTagsByChunk } from "@/shared/lib/utils";
+import { cn, getFontSize, shuffleTagsByChunk } from "@/shared/lib";
 import { TagData } from "@/shared/types";
 import { Badge } from "@/shared/ui/badge";
 

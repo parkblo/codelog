@@ -1,6 +1,6 @@
-import { QueryData } from "@supabase/supabase-js";
+﻿import { QueryData } from "@supabase/supabase-js";
 
-import { createClient } from "@/shared/lib/utils/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { Author } from "@/shared/types/types";
 
 import { IFollowService } from "./follow.interface";

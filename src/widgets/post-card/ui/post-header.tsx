@@ -4,7 +4,7 @@ import { CodeXml } from "lucide-react";
 
 import { PostMenu } from "@/features/post-interaction";
 import { UserAvatar } from "@/entities/user";
-import { formatRelativeTime } from "@/shared/lib/utils";
+import { formatRelativeTime } from "@/shared/lib";
 import { Post } from "@/shared/types";
 import { Badge } from "@/shared/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";

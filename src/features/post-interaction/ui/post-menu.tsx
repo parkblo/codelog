@@ -8,7 +8,7 @@ import { EllipsisVertical } from "lucide-react";
 import { PostDialog } from "@/features/post-interaction";
 import { deletePostAction } from "@/entities/post";
 import { useAuth } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import {

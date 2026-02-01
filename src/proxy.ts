@@ -1,6 +1,6 @@
-import { type NextRequest } from "next/server";
+﻿import { type NextRequest } from "next/server";
 
-import { updateSession } from "@/shared/lib/utils/supabase/middleware";
+import { updateSession } from "@/shared/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
   // update user's auth session

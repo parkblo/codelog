@@ -1,11 +1,11 @@
 "use client";
 
-import { KeyboardEvent,useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Search } from "lucide-react";
 
-import { sanitizeSearchQuery } from "@/shared/lib/utils/search";
+import { sanitizeSearchQuery } from "@/shared/lib/search";
 import { Input } from "@/shared/ui/input";
 
 export default function SearchInput() {

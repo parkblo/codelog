@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -8,7 +8,7 @@ import {
 } from "@/entities/bookmark";
 import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
 import { useAuth } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils";
+import { handleAction } from "@/shared/lib";
 
 interface UsePostInteractionProps {
   postId: number;

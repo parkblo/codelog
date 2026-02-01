@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { updateCommentAction } from "@/entities/comment";
 import { useAuth, UserAvatar } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Comment } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import {

@@ -5,7 +5,7 @@ import { Check, Copy } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import Prism from "prismjs";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib";
 
 import "prismjs/components/prism-java";
 import "prismjs/components/prism-typescript";

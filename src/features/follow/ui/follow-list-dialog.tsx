@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { getFollowersAction, getFollowingAction } from "@/entities/follow";
 import { UserAvatar } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Author } from "@/shared/types/types";
 import {
   Dialog,

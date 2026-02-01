@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 
 import { ServerAuthService } from "@/entities/user/server";
-import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
+import { getAuthRedirectUrl } from "@/shared/lib/auth";
 import type { UserAuth } from "@/shared/types/types";
 
 import "server-only";

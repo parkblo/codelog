@@ -1,4 +1,4 @@
-import { createClient } from "@/shared/lib/utils/supabase/server";
+﻿import { createClient } from "@/shared/lib/supabase/server";
 import { UserAuth } from "@/shared/types/types";
 
 import { IAuthService } from "./auth.interface";

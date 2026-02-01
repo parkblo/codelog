@@ -4,7 +4,7 @@ import { Hash, Loader2, Search as SearchIcon } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
 import { getPostListAction } from "@/features/post-list";
-import { sanitizeSearchQuery } from "@/shared/lib/utils/search";
+import { sanitizeSearchQuery } from "@/shared/lib/search";
 import { PageHeader } from "@/shared/ui/page-header";
 
 interface SearchPageProps {

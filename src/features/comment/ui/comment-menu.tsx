@@ -7,7 +7,7 @@ import { EllipsisVertical } from "lucide-react";
 import { CommentDialog } from "@/features/comment";
 import { deleteCommentAction } from "@/entities/comment";
 import { useAuth } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Comment } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { DropdownMenu, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";

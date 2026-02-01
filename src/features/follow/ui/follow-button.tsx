@@ -6,7 +6,7 @@ import { Loader2, UserCheck, UserPlus } from "lucide-react";
 
 import { followUserAction, unfollowUserAction } from "@/entities/follow";
 import { useAuth } from "@/entities/user";
-import { handleAction } from "@/shared/lib/utils/handle-action";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Button } from "@/shared/ui/button";
 
 interface FollowButtonProps {

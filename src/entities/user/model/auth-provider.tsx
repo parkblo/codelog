@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { createClient } from "@/shared/lib/utils";
+import { createClient } from "@/shared/lib";
 import { UserAuth } from "@/shared/types";
 
 interface AuthContextType {

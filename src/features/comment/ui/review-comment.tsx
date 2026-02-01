@@ -10,10 +10,10 @@ import {
   deleteCommentLikeAction,
 } from "@/entities/like/api/like.action";
 import { useAuth } from "@/entities/user";
-import { cn } from "@/shared/lib/utils";
-import { formatRelativeTime } from "@/shared/lib/utils/date";
-import { handleAction } from "@/shared/lib/utils/handle-action";
-import { renderContent } from "@/shared/lib/utils/text";
+import { cn } from "@/shared/lib";
+import { formatRelativeTime } from "@/shared/lib/date";
+import { handleAction } from "@/shared/lib/handle-action";
+import { renderContent } from "@/shared/lib/text";
 import { Comment } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { cn, renderContent } from "@/shared/lib/utils";
+import { cn, renderContent } from "@/shared/lib";
 import { Comment as CommentType, Post as PostType } from "@/shared/types";
 import { Card, CardContent } from "@/shared/ui/card";
 import { TagList } from "@/shared/ui/tag-list";

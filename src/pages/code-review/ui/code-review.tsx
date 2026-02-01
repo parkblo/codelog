@@ -9,8 +9,8 @@ import { PageHeader } from "@/shared/ui/page-header";
 export async function CodeReviewPage() {
   const { data, error } = await getPostListAction({ isReviewEnabled: true });
 
-  if (!data || error) {
-    return <span>{error}</span>;
+  if (error || !data) {
+    throw new Error(error || "게시글을 불러오는데 실패했습니다.");
   }
 
   return (

@@ -13,11 +13,7 @@ export async function BookmarksPage() {
   });
 
   if (error) {
-    return (
-      <div className="p-4">
-        <span>{error}</span>
-      </div>
-    );
+    throw new Error(error || "저장한 게시글을 불러오는데 실패했습니다.");
   }
 
   return (

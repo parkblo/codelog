@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 import { CreatePostForm } from "@/widgets/create-post";
 import { UserPostList } from "@/widgets/post-list";
 import { UserProfileCard } from "@/widgets/user-profile";
@@ -21,13 +23,17 @@ export async function ProfilePage({
   const followService = new FollowService();
 
   const currentUser = await authService.getCurrentUser();
-  const { data: user } = await userService.getUserByUsername(
+  const { data: user, error } = await userService.getUserByUsername(
     username,
     currentUser?.id,
   );
 
-  if (!username || !user) {
-    return <div>사용자 정보를 가져올 수 없습니다.</div>;
+  if (error) {
+    throw new Error(error.message || "사용자 정보를 불러오는데 실패했습니다.");
+  }
+
+  if (!user) {
+    notFound();
   }
 
   const [followersResult, followingResult] = await Promise.all([
@@ -48,18 +54,16 @@ export async function ProfilePage({
 
   return (
     <div className="p-4 space-y-4">
-      {user && (
-        <UserProfileCard
-          user={user}
-          isEditable={(currentUser && user.id === currentUser.id) || false}
-          followerCount={followerCount || 0}
-          followingCount={followingCount || 0}
-          isFollowing={user.is_following || false}
-        />
-      )}
+      <UserProfileCard
+        user={user}
+        isEditable={(currentUser && user.id === currentUser.id) || false}
+        followerCount={followerCount || 0}
+        followingCount={followingCount || 0}
+        isFollowing={user.is_following || false}
+      />
       {contributions && <ContributionGraph contributions={contributions} />}
       <ProfileTabs username={username} />
-      {user && currentUser && user.id === currentUser.id && tab === "posts" && (
+      {currentUser && user.id === currentUser.id && tab === "posts" && (
         <CreatePostForm />
       )}
       {posts && <UserPostList posts={posts} />}

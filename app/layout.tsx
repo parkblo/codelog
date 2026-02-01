@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 
 import { Header, MobileNav } from "@/widgets/header";
 import { Sidebar } from "@/widgets/sidebar";
-import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
+import { ServerAuthService } from "@/entities/user/server";
 import { BackgroundMesh } from "@/shared/ui/background-mesh";
 
 import { AppProvider } from "./providers";

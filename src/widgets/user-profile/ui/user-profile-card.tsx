@@ -1,8 +1,8 @@
 import { FollowButton } from "@/features/follow";
 import { FollowListDialog } from "@/features/follow";
 import { ProfileEditDialog } from "@/features/profile";
+import { UserAvatar } from "@/entities/user";
 import { UserAuth } from "@/shared/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Card, CardContent } from "@/shared/ui/card";
 
 interface UserProfileCardProps {
@@ -35,16 +35,7 @@ export default function UserProfileCard({
             {isEditable && <ProfileEditDialog user={user} />}
           </div>
 
-          <Avatar className="w-24 h-24 border border-border">
-            {user && (
-              <>
-                <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-                <AvatarFallback>
-                  {user.nickname ? user.nickname.charAt(0) : ""}
-                </AvatarFallback>
-              </>
-            )}
-          </Avatar>
+          <UserAvatar user={user} size="xl" />
           <div className="flex flex-col items-center justify-center gap-1">
             <p className="font-semibold text-xl">{user?.nickname}</p>
             <p className="text-sm text-muted-foreground">@{user?.username}</p>

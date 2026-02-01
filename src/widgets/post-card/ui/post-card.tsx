@@ -13,7 +13,7 @@ import {
 } from "@/entities/bookmark";
 import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
 import { CodeViewer } from "@/entities/post";
-import { useAuth } from "@/entities/user";
+import { useAuth, UserAvatar } from "@/entities/user";
 import {
   cn,
   formatRelativeTime,
@@ -21,7 +21,6 @@ import {
   renderContent,
 } from "@/shared/lib/utils";
 import { Comment as CommentType, Post as PostType } from "@/shared/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -125,18 +124,7 @@ export default function Post({ post, fullPage = false, comments }: PostProps) {
           {/* 작성자 정보 영역 */}
           <div className="flex flex-1 min-w-0 gap-2 justify-between">
             <div className="flex gap-2 items-center">
-              <Avatar
-                className="w-10 h-10 border border-border hover:cursor-pointer"
-                onClick={handleAuthorClick}
-              >
-                <AvatarImage
-                  src={post.author.avatar || ""}
-                  alt={post.author.nickname}
-                />
-                <AvatarFallback>
-                  {post.author.nickname.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar user={post.author} onClick={handleAuthorClick} />
               <div className="flex flex-col justify-start">
                 <div
                   className="flex gap-1 items-center hover:cursor-pointer"

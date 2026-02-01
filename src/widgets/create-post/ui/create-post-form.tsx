@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 
 import { PostDialog } from "@/features/post-interaction";
-import { useAuth } from "@/entities/user";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { useAuth, UserAvatar } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 
@@ -43,12 +42,7 @@ export default function PostCard() {
       )}
       <div className="bg-background border-background p-2">
         <div className="flex gap-2 items-center">
-          <Avatar className="w-10 h-10 border border-border">
-            <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-            <AvatarFallback>
-              {user.nickname ? user.nickname.charAt(0) : ""}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} />
           <Textarea
             placeholder="무엇을 공유할까요?"
             className="resize-none min-h-4"

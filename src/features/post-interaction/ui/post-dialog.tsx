@@ -5,10 +5,9 @@ import { useState } from "react";
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
 import { createPostAction, updatePostAction } from "@/entities/post";
-import { useAuth } from "@/entities/user";
+import { useAuth, UserAvatar } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Post } from "@/shared/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { CodeEditor } from "@/shared/ui/code-editor";
@@ -118,14 +117,7 @@ export default function PostDialog({
       <DialogContent>
         <DialogTitle>{post ? "게시글 수정" : "새 게시글 작성"}</DialogTitle>
         <div className="flex gap-2">
-          {user && (
-            <Avatar className="w-10 h-10 border border-border">
-              <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-              <AvatarFallback>
-                {user.nickname ? user.nickname.charAt(0) : ""}
-              </AvatarFallback>
-            </Avatar>
-          )}
+          {user && <UserAvatar user={user} />}
           <div className="flex flex-col gap-2 w-full">
             <Textarea
               className="resize-none"

@@ -10,5 +10,8 @@ export * from "./api/user.service.browser";
 // export * from "./api/server-auth.service";
 // export * from "./api/user.service";
 
+// UI Components
+export { UserAvatar } from "./ui/user-avatar";
+
 // Model & Context
 export { default as AuthProvider, useAuth } from "./model/auth-provider";

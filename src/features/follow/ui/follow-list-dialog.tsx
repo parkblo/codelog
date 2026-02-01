@@ -6,9 +6,9 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 import { getFollowersAction, getFollowingAction } from "@/entities/follow";
+import { UserAvatar } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Author } from "@/shared/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -81,15 +81,7 @@ export default function FollowListDialog({
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 overflow-hidden"
                   >
-                    <Avatar className="w-10 h-10 border border-border">
-                      <AvatarImage
-                        src={user.avatar || ""}
-                        alt={user.nickname}
-                      />
-                      <AvatarFallback>
-                        {user.nickname?.charAt(0) || user.username.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar user={user} />
                     <div className="flex flex-col min-w-0">
                       <span className="text-sm font-medium truncate">
                         {user.nickname}

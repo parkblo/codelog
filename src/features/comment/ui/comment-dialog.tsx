@@ -6,10 +6,9 @@ import { Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 import { updateCommentAction } from "@/entities/comment";
-import { useAuth } from "@/entities/user";
+import { useAuth, UserAvatar } from "@/entities/user";
 import { handleAction } from "@/shared/lib/utils/handle-action";
 import { Comment } from "@/shared/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -63,16 +62,7 @@ export default function CommentDialog({
         <form onSubmit={updateComment}>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <Avatar className="w-10 h-10 border border-border">
-                {user && (
-                  <>
-                    <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-                    <AvatarFallback>
-                      {user.nickname ? user.nickname.charAt(0) : ""}
-                    </AvatarFallback>
-                  </>
-                )}
-              </Avatar>
+              {user && <UserAvatar user={user} />}
               <Textarea
                 className="resize-none"
                 placeholder="댓글을 입력해주세요."

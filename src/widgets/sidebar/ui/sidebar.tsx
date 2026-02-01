@@ -5,9 +5,8 @@ import { TrendingUp, UserPlus } from "lucide-react";
 import { FollowButton } from "@/features/follow";
 import { SearchInput } from "@/features/search";
 import { getTrendingTagsAction } from "@/entities/tag";
-import { getRandomFeaturedUsersAction } from "@/entities/user";
+import { getRandomFeaturedUsersAction, UserAvatar } from "@/entities/user";
 import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Card, CardContent } from "@/shared/ui/card";
 import { TagList } from "@/shared/ui/tag-list";
 
@@ -57,12 +56,7 @@ export default async function Sidebar() {
               className="group flex p-2 hover:bg-accent rounded-md transition-colors gap-3"
             >
               <Link href={`/profile/${user.username}`}>
-                <Avatar className="w-10 h-10 border border-border">
-                  <AvatarImage src={user.avatar || ""} alt={user.nickname} />
-                  <AvatarFallback>
-                    {user.nickname?.charAt(0) || user.username.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar user={user} />
               </Link>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">

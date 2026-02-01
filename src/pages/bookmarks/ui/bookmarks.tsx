@@ -1,20 +1,12 @@
-import { redirect } from "next/navigation";
-
 import { Bookmark } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
+import { requireAuth } from "@/features/auth/index.server-only";
 import { getPostListAction } from "@/features/post-list";
-import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
-import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 import { PageHeader } from "@/shared/ui/page-header";
 
 export async function BookmarksPage() {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
-
-  if (!user) {
-    redirect(getAuthRedirectUrl("/bookmarks"));
-  }
+  const user = await requireAuth("/bookmarks");
 
   const { data, error } = await getPostListAction({
     bookmarkedByUserId: user.id,

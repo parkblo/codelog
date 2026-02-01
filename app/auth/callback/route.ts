@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCallbackRedirectUrl } from "@/features/auth";
-import { exchangeAuthCode } from "@/features/auth/api/exchange-session";
+import { exchangeAuthCode } from "@/features/auth/index.server-only";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);

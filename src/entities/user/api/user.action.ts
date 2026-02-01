@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { UserService } from "@/entities/user/api/user.service";
-import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
 import { UserAuth } from "@/shared/types/types";
+
+import { ServerAuthService } from "./server-auth.service";
 
 export async function editUserAction(user: UserAuth) {
   const authService = new ServerAuthService();

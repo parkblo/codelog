@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache";
 import { CommentService } from "@/entities/comment/api/comment.service";
 import { CreatePostDTO } from "@/entities/post/api/post.interface";
 import { PostService } from "@/entities/post/api/post.service";
-import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
+// eslint-disable-next-line boundaries/element-types
+import { ServerAuthService } from "@/entities/user/api/server-auth.service";
 
 const postService = new PostService();
 

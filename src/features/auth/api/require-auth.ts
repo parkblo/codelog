@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { ServerAuthService } from "@/shared/lib/auth/server-auth.service";
+import { ServerAuthService } from "@/entities/user";
 import { getAuthRedirectUrl } from "@/shared/lib/utils/auth";
 import type { UserAuth } from "@/shared/types/types";
 

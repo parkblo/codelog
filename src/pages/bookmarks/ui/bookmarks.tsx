@@ -1,7 +1,7 @@
 import { Bookmark } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
-import { requireAuth } from "@/features/auth/index.server-only";
+import { requireAuth } from "@/features/auth/server";
 import { getPostListAction } from "@/features/post-list";
 import { PageHeader } from "@/shared/ui/page-header";
 

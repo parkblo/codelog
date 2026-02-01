@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "./select";
 
-import "@/styles/prism-vsc-dark-plus.css";
+import "@/shared/styles/prism-vsc-dark-plus.css";
 
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";

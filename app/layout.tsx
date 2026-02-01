@@ -8,7 +8,7 @@ import { BackgroundMesh } from "@/shared/ui/background-mesh";
 
 import { AppProvider } from "./providers";
 
-import "./styles/globals.css";
+import "@/shared/styles/globals.css";
 
 const pretendard = localFont({
   src: "../public/fonts/pretendard/PretendardVariable.woff2",

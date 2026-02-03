@@ -4,7 +4,7 @@ import { PostCard } from "@/widgets/post-card";
 import { CommentForm } from "@/features/comment";
 import { CommentItem } from "@/features/comment";
 import { getCommentsByPostIdAction } from "@/entities/comment";
-import { getPostByIdAction } from "@/entities/post";
+import { getPostDetailAction } from "@/features/post-view";
 import { BackButton } from "@/shared/ui/back-button";
 
 interface PostDetailPageProps {
@@ -12,7 +12,7 @@ interface PostDetailPageProps {
 }
 
 export async function PostDetailPage({ postId }: PostDetailPageProps) {
-  const { data: post, error } = await getPostByIdAction(Number(postId));
+  const { data: post, error } = await getPostDetailAction(Number(postId));
 
   const { data: comments } = await getCommentsByPostIdAction(Number(postId));
 

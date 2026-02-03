@@ -1,4 +1,4 @@
-﻿import { QueryData } from "@supabase/supabase-js";
+import { QueryData } from "@supabase/supabase-js";
 
 import { createClient } from "@/shared/lib/supabase/server";
 import { Author } from "@/shared/types/types";

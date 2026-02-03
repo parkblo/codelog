@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/shared/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { Tables } from "@/shared/types/database.types";
 
 import { ITagService } from "./tag.interface";

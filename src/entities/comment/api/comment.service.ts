@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/shared/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { Comment } from "@/shared/types/types";
 
 import { CreateCommentDTO,ICommentService } from "./comment.interface";

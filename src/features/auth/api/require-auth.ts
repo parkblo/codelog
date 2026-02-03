@@ -1,4 +1,4 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { ServerAuthService } from "@/entities/user/server";
 import { getAuthRedirectUrl } from "@/shared/lib/auth";

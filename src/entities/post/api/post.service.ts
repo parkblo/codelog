@@ -1,4 +1,4 @@
-﻿import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/shared/lib/supabase/server";
 import { Database, Tables } from "@/shared/types/database.types";

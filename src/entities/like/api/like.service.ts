@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/shared/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 
 import { ILikeService } from "./like.interface";
 

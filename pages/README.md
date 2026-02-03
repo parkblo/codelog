@@ -1,0 +1,3 @@
+- 이 폴더는 Next.js가 `src/pages`를 Pages Router로 인식하지 못하도록 하기 위해 존재합니다.
+- `src/pages`의 파일들은 FSD Architecture의 Pages Layer에 해당합니다.
+- 더 자세한 내용은 https://feature-sliced.github.io/documentation/kr/docs/guides/tech/with-nextjs 문서를 확인해주세요.

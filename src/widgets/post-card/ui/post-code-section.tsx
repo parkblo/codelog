@@ -1,11 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 
 import { MessageCircle } from "lucide-react";
 
 import { CommentForm, ReviewComment } from "@/features/comment";
-import { CodeViewer } from "@/entities/post";
+import { Skeleton } from "@/shared/ui/skeleton";
+
+const CodeViewer = dynamic(
+  () => import("@/entities/post/ui/code-viewer").then((mod) => mod.CodeSnippet),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-48 w-full rounded-md" />,
+  },
+);
 import { Comment, Post } from "@/shared/types";
 
 interface PostCodeSectionProps {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
@@ -10,7 +11,15 @@ import { handleAction } from "@/shared/lib/handle-action";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
-import { CodeEditor } from "@/shared/ui/code-editor";
+import { Skeleton } from "@/shared/ui/skeleton";
+
+const CodeEditor = dynamic(
+  () => import("@/shared/ui/code-editor").then((mod) => mod.CodeEditor),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-48 w-full rounded-md" />,
+  },
+);
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";

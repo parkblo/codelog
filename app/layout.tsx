@@ -18,8 +18,34 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CodeLog",
+  title: {
+    default: "CodeLog",
+    template: "%s | CodeLog",
+  },
   description: "우리 코드로 이야기 나눠요.",
+  metadataBase: new URL("https://codelog.vercel.app"),
+  openGraph: {
+    title: "CodeLog",
+    description: "우리 코드로 이야기 나눠요.",
+    type: "website",
+    locale: "ko_KR",
+    siteName: "CodeLog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeLog",
+    description: "우리 코드로 이야기 나눠요.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default async function RootLayout({

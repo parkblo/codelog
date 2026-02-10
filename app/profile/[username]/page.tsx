@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ProfilePage } from "@/pages/profile";
-import { UserService } from "@/entities/user/api/user.service";
+import { getUserByUsernameCached } from "@/entities/user/server";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -13,8 +13,7 @@ export async function generateMetadata({
 }: Pick<ProfilePageProps, "params">): Promise<Metadata> {
   const { username } = await params;
 
-  const userService = new UserService();
-  const { data: user } = await userService.getUserByUsername(username);
+  const { data: user } = await getUserByUsernameCached(username);
 
   if (!user) {
     return {

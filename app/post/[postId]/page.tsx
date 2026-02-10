@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { PostDetailPage } from "@/pages/post-detail";
-import { getPostByIdAction } from "@/entities/post";
+import { getPostByIdCached } from "@/entities/post/server";
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;
@@ -11,7 +11,7 @@ export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
   const { postId } = await params;
-  const { data: post } = await getPostByIdAction(Number(postId));
+  const { data: post } = await getPostByIdCached(Number(postId));
 
   if (!post) {
     return {

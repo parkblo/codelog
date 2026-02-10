@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { MessageCircle } from "lucide-react";
 
 import { CommentForm, ReviewComment } from "@/features/comment";
+import { Comment, Post } from "@/shared/types";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 const CodeViewer = dynamic(
@@ -15,7 +16,6 @@ const CodeViewer = dynamic(
     loading: () => <Skeleton className="h-48 w-full rounded-md" />,
   },
 );
-import { Comment, Post } from "@/shared/types";
 
 interface PostCodeSectionProps {
   post: Post;

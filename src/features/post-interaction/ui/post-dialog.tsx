@@ -11,6 +11,7 @@ import { handleAction } from "@/shared/lib/handle-action";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
+import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 const CodeEditor = dynamic(
@@ -20,7 +21,6 @@ const CodeEditor = dynamic(
     loading: () => <Skeleton className="h-48 w-full rounded-md" />,
   },
 );
-import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { TagList } from "@/shared/ui/tag-list";

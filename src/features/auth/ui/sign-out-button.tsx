@@ -3,21 +3,21 @@
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/entities/user";
-import { ClientAuthService } from "@/entities/user";
+import { signOutAction } from "@/entities/user";
+import { handleAction } from "@/shared/lib/handle-action";
 import { Button } from "@/shared/ui/button";
 
 export function SignOutButton() {
-  const authService = new ClientAuthService();
   const { user } = useAuth();
   const router = useRouter();
 
   const signOut = async () => {
-    const { error } = await authService.signOut();
-    if (error) {
-      console.error(error);
-    } else {
-      router.push("/");
-    }
+    await handleAction(signOutAction(), {
+      actionName: "sign_out",
+      onSuccess: () => {
+        router.push("/");
+      },
+    });
   };
 
   if (!user) {

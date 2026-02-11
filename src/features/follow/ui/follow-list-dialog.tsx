@@ -40,6 +40,8 @@ export default function FollowListDialog({
           type === "followers" ? getFollowersAction : getFollowingAction;
 
         await handleAction(action(userId), {
+          actionName:
+            type === "followers" ? "get_followers_list" : "get_following_list",
           onSuccess: (data) => {
             setUsers(data);
           },

@@ -49,7 +49,10 @@ export default function CommentMenu({ comment }: { comment: Comment }) {
           onSelect={async () => {
             await handleAction(
               deleteCommentAction(comment.id, comment.post_id),
-              { successMessage: "댓글이 삭제되었습니다." },
+              {
+                actionName: "delete_comment",
+                successMessage: "댓글이 삭제되었습니다.",
+              },
             );
           }}
           disabled={!isOwner}

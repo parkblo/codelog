@@ -49,6 +49,7 @@ export default function CommentDialog({
         content: data.content,
       }),
       {
+        actionName: "update_comment",
         onSuccess: () => {
           handleClose();
         },

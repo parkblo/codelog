@@ -16,6 +16,14 @@ export interface CreateCommentDTO {
   endLine?: number | null;
 }
 
+export type CommentType = "all" | "general" | "review";
+
+export interface CommentListOptions {
+  offset?: number;
+  limit?: number;
+  type?: CommentType;
+}
+
 /**
  * 댓글 관련 비즈니스 로직을 처리하는 서비스 인터페이스입니다.
  */
@@ -53,6 +61,7 @@ export interface ICommentService {
    * @returns 댓글 목록 배열과 에러 객체
    */
   getCommentsByPostId(
-    postId: number
+    postId: number,
+    options?: CommentListOptions
   ): Promise<{ data: Comment[] | null; error: Error | null }>;
 }

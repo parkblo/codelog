@@ -2,12 +2,75 @@
 
 import { revalidatePath } from "next/cache";
 
-import { CreateCommentDTO } from "@/entities/comment/api/comment.interface";
+import {
+  CommentListOptions,
+  CreateCommentDTO,
+} from "@/entities/comment/api/comment.interface";
 import { CommentService } from "@/entities/comment/api/comment.service";
 // eslint-disable-next-line boundaries/element-types
 import { LikeService } from "@/entities/like/api/like.service";
 // eslint-disable-next-line boundaries/element-types
 import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { Comment } from "@/shared/types";
+
+const DEFAULT_COMMENT_PAGE_SIZE = 10;
+const MAX_COMMENT_PAGE_SIZE = 50;
+
+function getSafePageSize(limit?: number) {
+  if (!limit || limit <= 0) {
+    return DEFAULT_COMMENT_PAGE_SIZE;
+  }
+
+  return Math.min(limit, MAX_COMMENT_PAGE_SIZE);
+}
+
+function getSafeOffset(offset?: number) {
+  if (!offset || offset < 0) {
+    return 0;
+  }
+
+  return offset;
+}
+
+async function resolveCommentInteraction(comments: Comment[] | null) {
+  const authService = new ServerAuthService();
+  const user = await authService.getCurrentUser();
+
+  if (!comments) {
+    return { data: [], error: null };
+  }
+
+  if (!user) {
+    return {
+      data: comments.map((comment) => ({
+        ...comment,
+        is_liked: false,
+      })),
+      error: null,
+    };
+  }
+
+  const likeService = new LikeService();
+  const { data: commentLikes, error: getCommentLikesError } =
+    await likeService.getCommentLikes(user.id);
+
+  if (getCommentLikesError) {
+    console.error(getCommentLikesError);
+    return {
+      data: null,
+      error:
+        getCommentLikesError.message || "댓글 좋아요 정보 불러오기에 실패했습니다.",
+    };
+  }
+
+  return {
+    data: comments.map((comment) => ({
+      ...comment,
+      is_liked: commentLikes?.includes(comment.id),
+    })),
+    error: null,
+  };
+}
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
@@ -37,50 +100,56 @@ async function createCommentAction(data: CreateCommentDTO) {
   return { data: createdComment, error: null };
 }
 
-async function getCommentsByPostIdAction(postId: number) {
+async function getCommentsByPostIdAction(
+  postId: number,
+  options: CommentListOptions = {},
+) {
   const commentService = new CommentService();
-  const authService = new ServerAuthService();
-  const likeService = new LikeService();
-  const user = await authService.getCurrentUser();
 
   const { data: comments, error: getCommentsError } =
-    await commentService.getCommentsByPostId(postId);
+    await commentService.getCommentsByPostId(postId, options);
 
   if (getCommentsError) {
     console.error(getCommentsError);
     return {
+      data: null,
       error: getCommentsError?.message || "댓글 불러오기에 실패했습니다.",
     };
   }
 
-  if (!user) {
+  return resolveCommentInteraction(comments);
+}
+
+async function getCommentsByPostIdPageAction(
+  postId: number,
+  options: CommentListOptions = {},
+) {
+  const safeLimit = getSafePageSize(options.limit);
+  const safeOffset = getSafeOffset(options.offset);
+
+  const { data: comments, error: getCommentsError } =
+    await getCommentsByPostIdAction(postId, {
+      ...options,
+      offset: safeOffset,
+      limit: safeLimit + 1,
+    });
+
+  if (getCommentsError) {
     return {
-      data: comments?.map((comment) => ({
-        ...comment,
-        is_liked: false,
-      })),
-      error: null,
+      data: null,
+      error: getCommentsError || "댓글 불러오기에 실패했습니다.",
+      hasMore: false,
     };
   }
 
-  const { data: commentLikes, error: getCommentLikesError } =
-    await likeService.getCommentLikes(user.id);
+  const safeComments = comments ?? [];
+  const hasMore = safeComments.length > safeLimit;
 
-  if (getCommentLikesError) {
-    console.error(getCommentLikesError);
-    return {
-      error:
-        getCommentLikesError?.message ||
-        "댓글 좋아요 정보 불러오기에 실패했습니다.",
-    };
-  }
-
-  const data = comments?.map((comment) => ({
-    ...comment,
-    is_liked: commentLikes?.includes(comment.id),
-  }));
-
-  return { data, error: null };
+  return {
+    data: hasMore ? safeComments.slice(0, safeLimit) : safeComments,
+    error: null,
+    hasMore,
+  };
 }
 
 async function updateCommentAction(
@@ -161,5 +230,6 @@ export {
   createCommentAction,
   deleteCommentAction,
   getCommentsByPostIdAction,
+  getCommentsByPostIdPageAction,
   updateCommentAction,
 };

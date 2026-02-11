@@ -137,7 +137,7 @@ async function getCommentsByPostIdPageAction(
   if (getCommentsError) {
     return {
       data: null,
-      error: getCommentsError || "댓글 불러오기에 실패했습니다.",
+      error: getCommentsError,
       hasMore: false,
     };
   }

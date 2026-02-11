@@ -11,7 +11,14 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 
+import * as Sentry from "@sentry/nextjs";
+
 import { createClient } from "@/shared/lib";
+import {
+  captureEvent,
+  identifyPostHogUser,
+  resetPostHogUser,
+} from "@/shared/lib/posthog";
 import { UserAuth } from "@/shared/types";
 
 interface AuthContextType {
@@ -61,11 +68,30 @@ export default function AuthProvider({
   const openAuthModal = useCallback((view: "login" | "signup" = "login") => {
     setAuthModalView(view);
     setIsAuthModalOpen(true);
+    captureEvent("auth_modal_opened", { view });
   }, []);
 
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
+    captureEvent("auth_modal_closed");
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      identifyPostHogUser(user.id, {
+        username: user.username,
+        nickname: user.nickname,
+      });
+      Sentry.setUser({
+        id: user.id,
+        username: user.username,
+      });
+      return;
+    }
+
+    resetPostHogUser();
+    Sentry.setUser(null);
+  }, [user]);
 
   useEffect(() => {
     const supabase = createClient();

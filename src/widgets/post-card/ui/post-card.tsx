@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { cn, renderContent } from "@/shared/lib";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Comment as CommentType, Post as PostType } from "@/shared/types";
 import { Card, CardContent } from "@/shared/ui/card";
 import { TagList } from "@/shared/ui/tag-list";
@@ -34,6 +35,10 @@ export default function PostCard({
 
   const handlePostClick = () => {
     if (!fullPage) {
+      captureEvent("post_detail_opened", {
+        post_id: post.id,
+        source: "post_card",
+      });
       router.push(`/post/${post.id}`);
     }
   };
@@ -70,6 +75,7 @@ export default function PostCard({
           {post.tags && <TagList tags={post.tags} className="pb-2" />}
 
           <PostActions
+            postId={post.id}
             likeCount={post.like_count}
             commentCount={post.comment_count}
             bookmarkCount={post.bookmark_count}

@@ -9,6 +9,7 @@ import { PostDialog } from "@/features/post-interaction";
 import { deletePostAction } from "@/entities/post";
 import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import {
@@ -47,6 +48,7 @@ export default function PostMenu({ post }: PostMenuProps) {
           disabled={!isOwner}
           onSelect={(e) => {
             e.preventDefault();
+            captureEvent("post_edit_clicked", { post_id: post.id });
             setIsDialogOpen(true);
           }}
         >
@@ -54,7 +56,9 @@ export default function PostMenu({ post }: PostMenuProps) {
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={async () => {
+            captureEvent("post_delete_clicked", { post_id: post.id });
             await handleAction(deletePostAction(post.id), {
+              actionName: "delete_post",
               successMessage: "게시글이 삭제되었습니다.",
             });
           }}

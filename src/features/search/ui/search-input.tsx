@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Search } from "lucide-react";
 
+import { captureEvent } from "@/shared/lib/posthog";
 import { sanitizeSearchQuery } from "@/shared/lib/search";
 import { Input } from "@/shared/ui/input";
 
@@ -16,6 +17,10 @@ export default function SearchInput() {
     const sanitizedQuery = sanitizeSearchQuery(query);
 
     if (!sanitizedQuery) return;
+
+    captureEvent("search_submitted", {
+      query_length: sanitizedQuery.length,
+    });
 
     router.push(`/search?q=${encodeURIComponent(sanitizedQuery)}`);
   };

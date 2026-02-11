@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { createPostAction, updatePostAction } from "@/entities/post";
 import { useAuth, UserAvatar } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -29,7 +30,7 @@ import { TagList } from "@/shared/ui/tag-list";
 import { Textarea } from "@/shared/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
-import { postSchema, type PostFormData } from "../model/post.schema";
+import { type PostFormData, postSchema } from "../model/post.schema";
 
 interface PostDialogProps {
   isOpen: boolean;
@@ -70,6 +71,10 @@ export default function PostDialog({
   const isReviewEnabledValue = watch("isReviewEnabled");
 
   const toggleSnippetMode = () => {
+    captureEvent("post_snippet_mode_toggled", {
+      enabled: !snippetMode,
+      mode: post ? "edit" : "create",
+    });
     setSnippetMode((prev) => !prev);
   };
 
@@ -124,8 +129,19 @@ export default function PostDialog({
           ...commonData,
         });
 
+    captureEvent(post ? "post_update_submitted" : "post_create_submitted", {
+      has_code: Boolean(commonData.code),
+      tag_count: tags.length,
+      review_enabled: commonData.is_review_enabled,
+    });
+
     await handleAction(action, {
+      actionName: post ? "update_post" : "create_post",
       onSuccess: () => {
+        captureEvent(post ? "post_updated" : "post_created", {
+          has_code: Boolean(commonData.code),
+          tag_count: tags.length,
+        });
         handleClose();
         reset();
         setTags([]);

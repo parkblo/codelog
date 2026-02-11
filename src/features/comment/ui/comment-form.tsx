@@ -1,20 +1,21 @@
 "use client";
 
 import React from "react";
+import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { createCommentAction } from "@/entities/comment";
 import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Textarea } from "@/shared/ui/textarea";
 
-import { commentSchema, type CommentFormData } from "../model/comment.schema";
+import { type CommentFormData,commentSchema } from "../model/comment.schema";
 
 export default function CommentForm({
   postId,
@@ -38,15 +39,19 @@ export default function CommentForm({
 
   const handleFocus = () => {
     if (!user && !loading) {
+      captureEvent("auth_required_modal_opened", { source: "comment_form_focus" });
       openAuthModal("login");
     }
   };
 
   const onSubmit = async (data: CommentFormData) => {
     if (!user) {
+      captureEvent("auth_required_modal_opened", { source: "comment_submit" });
       openAuthModal("login");
       return;
     }
+
+    captureEvent("comment_submitted", { post_id: postId });
 
     await handleAction(
       createCommentAction({
@@ -57,6 +62,7 @@ export default function CommentForm({
         endLine,
       }),
       {
+        actionName: "create_comment",
         onSuccess: () => {
           reset();
         },

@@ -1,9 +1,9 @@
 "use client";
 import React, { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useAuth } from "@/entities/user";
@@ -26,7 +26,7 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 
-import { profileSchema, type ProfileFormData } from "../model/profile.schema";
+import { type ProfileFormData, profileSchema } from "../model/profile.schema";
 
 interface ProfileEditDialogProps {
   user: UserAuth;

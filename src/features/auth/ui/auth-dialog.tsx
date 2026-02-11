@@ -15,6 +15,7 @@ import {
 } from "@/entities/user";
 import { cn } from "@/shared/lib";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -55,13 +56,17 @@ function LoginForm({
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    captureEvent("auth_email_login_submitted");
+
     await handleAction(
       signInWithPasswordAction({
         email: data.email,
         password: data.password,
       }),
       {
+        actionName: "sign_in_with_password",
         onSuccess: () => {
+          captureEvent("auth_email_login_succeeded");
           const next = searchParams?.get("next");
           if (next) {
             router.push(next);
@@ -76,7 +81,10 @@ function LoginForm({
   return (
     <>
       <Button
-        onClick={onGitHubLogin}
+        onClick={() => {
+          captureEvent("auth_github_login_clicked");
+          onGitHubLogin();
+        }}
         disabled={isSubmitting || isGitHubLoading}
       >
         <Github /> GitHub로 로그인
@@ -134,7 +142,10 @@ function LoginForm({
           계정이 없으신가요?{" "}
           <span
             className="underline hover:cursor-pointer"
-            onClick={() => openAuthModal("signup")}
+            onClick={() => {
+              captureEvent("auth_view_switched", { next_view: "signup" });
+              openAuthModal("signup");
+            }}
           >
             가입하기
           </span>
@@ -169,6 +180,8 @@ function SignUpForm({
   });
 
   const onSubmit = async (data: SignUpFormData) => {
+    captureEvent("auth_email_signup_submitted");
+
     await handleAction(
       signUpAction({
         email: data.email,
@@ -180,7 +193,9 @@ function SignUpForm({
         },
       }),
       {
+        actionName: "sign_up_with_password",
         onSuccess: () => {
+          captureEvent("auth_email_signup_succeeded");
           openAuthModal("login");
         },
       },
@@ -190,7 +205,10 @@ function SignUpForm({
   return (
     <>
       <Button
-        onClick={onGitHubLogin}
+        onClick={() => {
+          captureEvent("auth_github_signup_clicked");
+          onGitHubLogin();
+        }}
         disabled={isSubmitting || isGitHubLoading}
       >
         <Github /> GitHub로 가입
@@ -300,7 +318,10 @@ function SignUpForm({
           계정이 이미 있으신가요?{" "}
           <span
             className="underline hover:cursor-pointer"
-            onClick={() => openAuthModal("login")}
+            onClick={() => {
+              captureEvent("auth_view_switched", { next_view: "login" });
+              openAuthModal("login");
+            }}
           >
             로그인하기
           </span>
@@ -324,6 +345,8 @@ export default function AuthDialog() {
   };
 
   const handleGitHubLogin = async () => {
+    captureEvent("auth_oauth_requested", { provider: "github" });
+
     const next = searchParams?.get("next");
     const redirectTo = next
       ? `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`
@@ -336,14 +359,17 @@ export default function AuthDialog() {
         redirectTo,
       }),
       {
+        actionName: "sign_in_with_oauth",
         onSuccess: (data) => {
           if (data?.url) {
+            captureEvent("auth_oauth_redirected", { provider: "github" });
             window.location.href = data.url;
           } else {
             setIsGitHubLoading(false);
           }
         },
         onError: () => {
+          captureEvent("auth_oauth_failed", { provider: "github" });
           setIsGitHubLoading(false);
         },
       },

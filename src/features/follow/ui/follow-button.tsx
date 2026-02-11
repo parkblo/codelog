@@ -7,6 +7,7 @@ import { Loader2, UserCheck, UserPlus } from "lucide-react";
 import { followUserAction, unfollowUserAction } from "@/entities/follow";
 import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
 
 interface FollowButtonProps {
@@ -39,6 +40,7 @@ export default function FollowButton({
     if (isPending) return; // 중복 요청 방지
 
     if (!user) {
+      captureEvent("auth_required_modal_opened", { source: "follow_button" });
       openAuthModal("login");
       return;
     }
@@ -49,9 +51,13 @@ export default function FollowButton({
 
     startTransition(async () => {
       const action = originalState ? unfollowUserAction : followUserAction;
+      captureEvent(originalState ? "unfollow_clicked" : "follow_clicked", {
+        target_user_id: followingId,
+      });
       const result = await handleAction(
         action(followingId, followingUsername),
         {
+          actionName: originalState ? "unfollow_user" : "follow_user",
           successMessage: `${
             isFollowing ? "언팔로우" : "팔로우"
           }에 성공했습니다.`,

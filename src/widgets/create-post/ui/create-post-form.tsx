@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import { PostDialog } from "@/features/post-interaction";
 import { useAuth, UserAvatar } from "@/entities/user";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 
@@ -25,6 +26,7 @@ export default function PostCard() {
       | React.MouseEvent<HTMLButtonElement>,
   ) => {
     // TODO - 게시글 작성 모달을 띄우기 위한 함수
+    captureEvent("post_dialog_opened", { source: "create_post_widget" });
     setIsDialogOpen(true);
     if (e.target instanceof HTMLTextAreaElement) {
       e.target.blur();

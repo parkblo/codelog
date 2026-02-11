@@ -136,7 +136,7 @@ export async function getPostListPageAction(
   if (interactionError) {
     return {
       data: null,
-      error: interactionError || "게시글 상태 불러오기에 실패했습니다.",
+      error: interactionError,
       hasMore: false,
     };
   }

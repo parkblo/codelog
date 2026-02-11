@@ -33,6 +33,8 @@ export interface IPostService {
     bookmarkedByUserId?: string;
     keyword?: string;
     tag?: string;
+    offset?: number;
+    limit?: number;
   }): Promise<{ data: Post[] | null; error: Error | null }>;
 
   /**

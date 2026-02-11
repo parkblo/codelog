@@ -78,6 +78,8 @@ export class PostService implements IPostService {
     bookmarkedByUserId,
     keyword,
     tag,
+    offset,
+    limit,
   }: {
     isReviewEnabled?: boolean;
     authorId?: string;
@@ -85,6 +87,8 @@ export class PostService implements IPostService {
     bookmarkedByUserId?: string;
     keyword?: string;
     tag?: string;
+    offset?: number;
+    limit?: number;
   } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
     const supabase = await createClient();
 
@@ -135,6 +139,11 @@ export class PostService implements IPostService {
     }
 
     query = query.order("created_at", { ascending: false });
+
+    if (limit && limit > 0) {
+      const safeOffset = Math.max(0, offset ?? 0);
+      query = query.range(safeOffset, safeOffset + limit - 1);
+    }
 
     interface PostQueryResult extends Tables<"posts"> {
       author: Tables<"users">;

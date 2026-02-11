@@ -1,7 +1,9 @@
 "use client";
 import React, { useRef, useState } from "react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Image as ImageIcon, Loader, Pencil } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useAuth } from "@/entities/user";
@@ -24,6 +26,8 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 
+import { profileSchema, type ProfileFormData } from "../model/profile.schema";
+
 interface ProfileEditDialogProps {
   user: UserAuth;
 }
@@ -31,19 +35,31 @@ interface ProfileEditDialogProps {
 export default function ProfileEditDialog({
   user: initialUser,
 }: ProfileEditDialogProps) {
-  const [user, setUser] = useState<UserAuth>(initialUser);
+  const [avatarUrl, setAvatarUrl] = useState(initialUser.avatar || "");
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const { updateUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      nickname: initialUser.nickname,
+      bio: initialUser.bio || "",
+    },
+  });
 
   const onAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+    if (isAvatarUploading) return;
+    setIsAvatarUploading(true);
 
     try {
       const file = e.target.files?.[0];
@@ -51,7 +67,7 @@ export default function ProfileEditDialog({
 
       const userService = new UserServiceBrowser();
       const { data: publicUrl, error } = await userService.uploadAvatar(
-        user.id,
+        initialUser.id,
         file,
       );
 
@@ -62,30 +78,35 @@ export default function ProfileEditDialog({
 
       if (publicUrl) {
         const avatarWithCache = `${publicUrl}?v=${Date.now()}`;
-        const updatedUser = { ...user, avatar: avatarWithCache };
-        setUser(updatedUser);
+        setAvatarUrl(avatarWithCache);
+        const updatedUser = { ...initialUser, avatar: avatarWithCache };
         updateUser(updatedUser);
         await handleAction(
-          updateAvatarAction(user.id, user.username, avatarWithCache),
+          updateAvatarAction(
+            initialUser.id,
+            initialUser.username,
+            avatarWithCache,
+          ),
         );
       }
     } finally {
-      setIsSubmitting(false);
+      setIsAvatarUploading(false);
     }
   };
 
-  const editUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  const onSubmit = async (data: ProfileFormData) => {
+    const updatedUser: UserAuth = {
+      ...initialUser,
+      nickname: data.nickname,
+      bio: data.bio || null,
+      avatar: avatarUrl,
+    };
 
-    await handleAction(editUserAction(user), {
+    await handleAction(editUserAction(updatedUser), {
       successMessage: "프로필이 수정되었습니다.",
     });
 
-    updateUser(user);
-
-    setIsSubmitting(false);
+    updateUser(updatedUser);
   };
 
   return (
@@ -106,11 +127,11 @@ export default function ProfileEditDialog({
             onMouseOut={() => setIsAvatarHovered(false)}
             onClick={onAvatarClick}
           >
-            {user && (
+            {initialUser && (
               <>
-                <AvatarImage src={user.avatar || ""} alt={user.nickname} />
+                <AvatarImage src={avatarUrl} alt={initialUser.nickname} />
                 <AvatarFallback>
-                  {user.nickname ? user.nickname.charAt(0) : ""}
+                  {initialUser.nickname ? initialUser.nickname.charAt(0) : ""}
                 </AvatarFallback>
               </>
             )}
@@ -148,40 +169,38 @@ export default function ProfileEditDialog({
             }}
           />
 
-          <form onSubmit={editUser} className="w-full">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="nickname">닉네임</Label>
                 <Input
                   id="nickname"
                   type="text"
-                  value={user.nickname}
                   placeholder="닉네임을 입력해주세요."
-                  onChange={(e) => {
-                    setUser({
-                      ...user,
-                      nickname: e.target.value,
-                    });
-                  }}
+                  {...register("nickname")}
                 />
+                {errors.nickname && (
+                  <p className="text-sm text-destructive">
+                    {errors.nickname.message}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="bio">소개글</Label>
                 <Input
                   id="bio"
                   type="text"
-                  value={user.bio || ""}
                   placeholder="나를 소개하는 한 줄을 입력해주세요."
-                  onChange={(e) => {
-                    setUser({
-                      ...user,
-                      bio: e.target.value,
-                    });
-                  }}
+                  {...register("bio")}
                 />
+                {errors.bio && (
+                  <p className="text-sm text-destructive">
+                    {errors.bio.message}
+                  </p>
+                )}
               </div>
               <div className="flex justify-end">
-                <Button disabled={isSubmitting}>
+                <Button disabled={isSubmitting || isAvatarUploading}>
                   {isSubmitting ? (
                     <Loader className="h-4 w-4 animate-spin" />
                   ) : (

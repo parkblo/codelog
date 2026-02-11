@@ -258,11 +258,11 @@ function SignUpForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="username">
-            사용자 이름<span className="text-orange-600">*</span>
+            아이디<span className="text-orange-600">*</span>
           </Label>
           <Input
             id="username"
-            placeholder="사용자 이름"
+            placeholder="honggildong"
             autoComplete="username"
             {...register("username")}
           />
@@ -279,7 +279,7 @@ function SignUpForm({
           </Label>
           <Input
             id="nickname"
-            placeholder="닉네임"
+            placeholder="gildong_code"
             autoComplete="nickname"
             {...register("nickname")}
           />

@@ -31,6 +31,15 @@ export function PostDetailCommentsInfiniteList({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFetchingRef = useRef(false);
 
+  useEffect(() => {
+    setComments(initialComments);
+    setOffset(initialComments.length);
+    setHasMore(initialHasMore);
+    setError(null);
+    setIsLoading(false);
+    isFetchingRef.current = false;
+  }, [initialComments, initialHasMore, postId]);
+
   const loadMoreComments = useCallback(async () => {
     if (isFetchingRef.current || !hasMore) {
       return;

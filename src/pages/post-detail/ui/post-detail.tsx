@@ -18,17 +18,22 @@ interface PostDetailPageProps {
 export async function PostDetailPage({ postId }: PostDetailPageProps) {
   const { data: post, error } = await getPostDetailAction(Number(postId));
 
-  const { data: reviewComments } = await getCommentsByPostIdAction(
-    Number(postId),
-    { type: "review" },
-  );
+  const {
+    data: reviewComments,
+    error: reviewCommentsError,
+  } = await getCommentsByPostIdAction(Number(postId), {
+    type: "review",
+  });
 
-  const { data: generalComments, hasMore: hasMoreGeneralComments } =
-    await getCommentsByPostIdPageAction(Number(postId), {
-      type: "general",
-      offset: 0,
-      limit: 10,
-    });
+  const {
+    data: generalComments,
+    error: generalCommentsError,
+    hasMore: hasMoreGeneralComments,
+  } = await getCommentsByPostIdPageAction(Number(postId), {
+    type: "general",
+    offset: 0,
+    limit: 10,
+  });
 
   if (error || !post) {
     const errorMessage = error || "알 수 없는 에러가 발생했습니다.";
@@ -37,6 +42,18 @@ export async function PostDetailPage({ postId }: PostDetailPageProps) {
       notFound();
     }
     throw new Error(errorMessage || "알 수 없는 에러가 발생했습니다.");
+  }
+
+  if (reviewCommentsError) {
+    console.error(
+      "Failed to load review comments for post",
+      postId,
+      reviewCommentsError,
+    );
+  }
+
+  if (generalCommentsError) {
+    throw new Error(generalCommentsError);
   }
 
   return (

@@ -2,8 +2,8 @@ import { Suspense } from "react";
 
 import { Hash, Loader2, Search as SearchIcon } from "lucide-react";
 
-import { PostCard } from "@/widgets/post-card";
-import { getPostListAction } from "@/features/post-list";
+import { PostInfiniteList } from "@/widgets/post-card";
+import { getPostListPageAction } from "@/features/post-list";
 import { sanitizeSearchQuery } from "@/shared/lib/search";
 import { PageHeader } from "@/shared/ui/page-header";
 
@@ -13,9 +13,11 @@ interface SearchPageProps {
 }
 
 async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
-  const { data, error } = await getPostListAction({
+  const { data, error, hasMore } = await getPostListPageAction({
     keyword: query,
     tag: tag,
+    offset: 0,
+    limit: 10,
   });
 
   if (error) {
@@ -27,8 +29,11 @@ async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      {!data || data.length === 0 ? (
+    <PostInfiniteList
+      initialPosts={data || []}
+      initialHasMore={hasMore}
+      filterOptions={{ keyword: query, tag }}
+      emptyState={
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
           <p>
             {query || tag ? (
@@ -40,12 +45,8 @@ async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
             )}
           </p>
         </div>
-      ) : (
-        data.map((post) => (
-          <PostCard key={post.id} post={post} fullPage={false} />
-        ))
-      )}
-    </div>
+      }
+    />
   );
 }
 

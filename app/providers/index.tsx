@@ -2,6 +2,7 @@
 
 import { AuthDialog } from "@/features/auth";
 import { AuthProvider } from "@/entities/user";
+import { PostHogPageViewTracker, PostHogProvider } from "@/shared/lib/posthog";
 import { UserAuth } from "@/shared/types";
 import { Toaster } from "@/shared/ui/sonner";
 
@@ -12,10 +13,13 @@ interface AppProviderProps {
 
 export function AppProvider({ children, initialUser }: AppProviderProps) {
   return (
-    <AuthProvider initialUser={initialUser}>
-      <Toaster />
-      <AuthDialog />
-      {children}
-    </AuthProvider>
+    <PostHogProvider>
+      <AuthProvider initialUser={initialUser}>
+        <PostHogPageViewTracker />
+        <Toaster />
+        <AuthDialog />
+        {children}
+      </AuthProvider>
+    </PostHogProvider>
   );
 }

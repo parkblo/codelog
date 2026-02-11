@@ -194,6 +194,22 @@ npm install
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# PostHog
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+
+# Sentry (Client/Server 공통)
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+NEXT_PUBLIC_SENTRY_ENABLED=true
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
+NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE=0.05
+NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE=1
+
+# Sentry Source Map Upload (배포 환경 권장)
+SENTRY_AUTH_TOKEN=your_sentry_auth_token
+SENTRY_ORG=your_sentry_org_slug
+SENTRY_PROJECT=your_sentry_project_slug
 ```
 
 > **Tip**: Vercel CLI를 사용하면 다음 명령어로 환경 변수를 한 번에 가져올 수 있습니다.

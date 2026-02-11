@@ -1,7 +1,11 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Comment } from "@/shared/types/types";
 
-import { CreateCommentDTO,ICommentService } from "./comment.interface";
+import {
+  CommentListOptions,
+  CreateCommentDTO,
+  ICommentService,
+} from "./comment.interface";
 
 export class CommentService implements ICommentService {
   async createComment(
@@ -42,17 +46,33 @@ export class CommentService implements ICommentService {
   }
 
   async getCommentsByPostId(
-    postId: number
+    postId: number,
+    { offset, limit, type = "all" }: CommentListOptions = {},
   ): Promise<{ data: Comment[] | null; error: Error | null }> {
     const supabase = await createClient();
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("comments")
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`,
       )
       .eq("post_id", postId)
       .order("created_at", { ascending: true });
+
+    if (type === "general") {
+      query = query.or("start_line.is.null,end_line.is.null");
+    }
+
+    if (type === "review") {
+      query = query.not("start_line", "is", null).not("end_line", "is", null);
+    }
+
+    if (limit && limit > 0) {
+      const safeOffset = Math.max(0, offset ?? 0);
+      query = query.range(safeOffset, safeOffset + limit - 1);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       return { data: null, error };

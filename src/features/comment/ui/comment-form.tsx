@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 
 import { createCommentAction } from "@/entities/comment";
 import { useAuth } from "@/entities/user";
@@ -12,6 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Textarea } from "@/shared/ui/textarea";
+
+import { commentSchema, type CommentFormData } from "../model/comment.schema";
 
 export default function CommentForm({
   postId,
@@ -23,7 +26,15 @@ export default function CommentForm({
   endLine?: number | null;
 }) {
   const { user, loading, openAuthModal } = useAuth();
-  const [comment, setComment] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CommentFormData>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: { content: "" },
+  });
 
   const handleFocus = () => {
     if (!user && !loading) {
@@ -31,35 +42,33 @@ export default function CommentForm({
     }
   };
 
-  const createComment = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (comment && user) {
-      await handleAction(
-        createCommentAction({
-          content: comment,
-          postId,
-          userId: user.id,
-          startLine,
-          endLine,
-        }),
-        {
-          onSuccess: () => {
-            setComment("");
-          },
-          successMessage: "댓글이 작성되었습니다.",
-        },
-      );
-    } else if (!user) {
+  const onSubmit = async (data: CommentFormData) => {
+    if (!user) {
       openAuthModal("login");
-    } else {
-      toast.error("댓글을 작성해주세요.");
+      return;
     }
+
+    await handleAction(
+      createCommentAction({
+        content: data.content,
+        postId,
+        userId: user.id,
+        startLine,
+        endLine,
+      }),
+      {
+        onSuccess: () => {
+          reset();
+        },
+        successMessage: "댓글이 작성되었습니다.",
+      },
+    );
   };
 
   return (
     <Card>
       <CardContent>
-        <form onSubmit={createComment}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <Avatar className="w-10 h-10 border border-border">
@@ -75,9 +84,8 @@ export default function CommentForm({
               <Textarea
                 className="resize-none"
                 placeholder="댓글을 입력해주세요."
-                value={comment}
                 onFocus={handleFocus}
-                onChange={(e) => setComment(e.target.value)}
+                {...register("content")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -86,6 +94,11 @@ export default function CommentForm({
                 }}
               />
             </div>
+            {errors.content && (
+              <p className="text-sm text-destructive">
+                {errors.content.message}
+              </p>
+            )}
             <div className="flex justify-end">
               <Button variant="outline" type="submit">
                 <Send className="w-4 h-4" />

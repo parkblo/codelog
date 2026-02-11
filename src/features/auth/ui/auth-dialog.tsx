@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -311,6 +312,7 @@ function SignUpForm({
 
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, closeAuthModal } = useAuth();
+  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
   const searchParams = useSearchParams();
 
   const isSignUp = authModalView === "signup";
@@ -327,6 +329,8 @@ export default function AuthDialog() {
       ? `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       : `${location.origin}/auth/callback`;
 
+    setIsGitHubLoading(true);
+
     await handleAction(
       signInWithOAuthAction("github", {
         redirectTo,
@@ -335,7 +339,12 @@ export default function AuthDialog() {
         onSuccess: (data) => {
           if (data?.url) {
             window.location.href = data.url;
+          } else {
+            setIsGitHubLoading(false);
           }
+        },
+        onError: () => {
+          setIsGitHubLoading(false);
         },
       },
     );
@@ -359,12 +368,12 @@ export default function AuthDialog() {
         {isSignUp ? (
           <SignUpForm
             onGitHubLogin={handleGitHubLogin}
-            isGitHubLoading={false}
+            isGitHubLoading={isGitHubLoading}
           />
         ) : (
           <LoginForm
             onGitHubLogin={handleGitHubLogin}
-            isGitHubLoading={false}
+            isGitHubLoading={isGitHubLoading}
           />
         )}
       </DialogContent>

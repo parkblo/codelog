@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import * as Sentry from "@sentry/nextjs";
 import { AlertCircle } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
@@ -14,6 +15,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 

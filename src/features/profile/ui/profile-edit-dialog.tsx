@@ -87,6 +87,9 @@ export default function ProfileEditDialog({
             initialUser.username,
             avatarWithCache,
           ),
+          {
+            actionName: "update_user_avatar",
+          },
         );
       }
     } finally {
@@ -103,6 +106,7 @@ export default function ProfileEditDialog({
     };
 
     await handleAction(editUserAction(updatedUser), {
+      actionName: "edit_user_profile",
       successMessage: "프로필이 수정되었습니다.",
     });
 

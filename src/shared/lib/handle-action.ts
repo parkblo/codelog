@@ -1,3 +1,15 @@
+/**
+ * 클라이언트에서 실행되는 비동기 액션 결과를 표준화해 처리합니다.
+ *
+ * 이 유틸은 다음 책임을 가집니다.
+ * 1) 액션 실패(`result.error`) 시 사용자 토스트 + 모니터링(Sentry/PostHog) 전송
+ * 2) 액션 성공 시 메시지 토스트 및 `onSuccess` 콜백 실행
+ * 3) 예외 throw 시 런타임 예외 캡처 및 공통 에러 메시지 노출
+ *
+ * 반환 규약:
+ * - 성공: `result.data` 반환
+ * - 실패/예외: `null` 반환
+ */
 import * as Sentry from "@sentry/nextjs";
 import { toast } from "sonner";
 

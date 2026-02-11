@@ -37,6 +37,7 @@ export default function Comment({ comment }: commentProps) {
       : createCommentLikeAction(comment.post_id, comment.id);
 
     await handleAction(action, {
+      actionName: isLiked ? "delete_comment_like" : "create_comment_like",
       onError: () => setIsLiked(previousState),
     });
   };

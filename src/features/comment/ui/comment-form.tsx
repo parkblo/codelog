@@ -15,7 +15,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Textarea } from "@/shared/ui/textarea";
 
-import { type CommentFormData,commentSchema } from "../model/comment.schema";
+import { type CommentFormData, commentSchema } from "../model/comment.schema";
 
 export default function CommentForm({
   postId,

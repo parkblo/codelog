@@ -2,10 +2,14 @@ import { notFound } from "next/navigation";
 
 import { PostCard } from "@/widgets/post-card";
 import { CommentForm } from "@/features/comment";
-import { CommentItem } from "@/features/comment";
-import { getCommentsByPostIdAction } from "@/entities/comment";
 import { getPostDetailAction } from "@/features/post-view";
+import {
+  getCommentsByPostIdAction,
+  getCommentsByPostIdPageAction,
+} from "@/entities/comment";
 import { BackButton } from "@/shared/ui/back-button";
+
+import { PostDetailCommentsInfiniteList } from "./post-detail-comments-infinite-list";
 
 interface PostDetailPageProps {
   postId: string;
@@ -14,7 +18,17 @@ interface PostDetailPageProps {
 export async function PostDetailPage({ postId }: PostDetailPageProps) {
   const { data: post, error } = await getPostDetailAction(Number(postId));
 
-  const { data: comments } = await getCommentsByPostIdAction(Number(postId));
+  const { data: reviewComments } = await getCommentsByPostIdAction(
+    Number(postId),
+    { type: "review" },
+  );
+
+  const { data: generalComments, hasMore: hasMoreGeneralComments } =
+    await getCommentsByPostIdPageAction(Number(postId), {
+      type: "general",
+      offset: 0,
+      limit: 10,
+    });
 
   if (error || !post) {
     const errorMessage = error || "알 수 없는 에러가 발생했습니다.";
@@ -30,15 +44,13 @@ export async function PostDetailPage({ postId }: PostDetailPageProps) {
       <div className="sticky flex gap-2 items-center w-full">
         <BackButton />
       </div>
-      <PostCard post={post} fullPage comments={comments || undefined} />
+      <PostCard post={post} fullPage comments={reviewComments || undefined} />
       <CommentForm postId={Number(postId)} />
-      {comments
-        ?.filter(
-          (comment) => comment.start_line === null || comment.end_line === null,
-        )
-        .map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
-        ))}
+      <PostDetailCommentsInfiniteList
+        postId={Number(postId)}
+        initialComments={generalComments || []}
+        initialHasMore={hasMoreGeneralComments}
+      />
     </div>
   );
 }

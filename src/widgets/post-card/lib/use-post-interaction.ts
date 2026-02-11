@@ -9,6 +9,7 @@ import {
 import { createPostLikeAction, deletePostLikeAction } from "@/entities/like";
 import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib";
+import { captureEvent } from "@/shared/lib/posthog";
 
 interface UsePostInteractionProps {
   postId: number;
@@ -27,6 +28,7 @@ export function usePostInteraction({
 
   const handleLikeClick = async () => {
     if (!user) {
+      captureEvent("auth_required_modal_opened", { source: "post_like" });
       openAuthModal("login");
       return;
     }
@@ -39,12 +41,14 @@ export function usePostInteraction({
       : createPostLikeAction(postId);
 
     await handleAction(action, {
+      actionName: isLiked ? "delete_post_like" : "create_post_like",
       onError: () => setIsLiked(previousState),
     });
   };
 
   const handleBookmarkClick = async () => {
     if (!user) {
+      captureEvent("auth_required_modal_opened", { source: "post_bookmark" });
       openAuthModal("login");
       return;
     }
@@ -57,6 +61,7 @@ export function usePostInteraction({
       : createBookmarkAction(postId);
 
     await handleAction(action, {
+      actionName: isBookmarked ? "delete_bookmark" : "create_bookmark",
       onError: () => setIsBookmarked(previousState),
     });
   };

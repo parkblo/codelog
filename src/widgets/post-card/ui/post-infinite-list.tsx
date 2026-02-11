@@ -5,6 +5,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { Loader2 } from "lucide-react";
 
 import { getPostListPageAction } from "@/features/post-list";
+import { captureEvent } from "@/shared/lib/posthog";
 import { Post } from "@/shared/types";
 import { Button } from "@/shared/ui/button";
 
@@ -68,9 +69,19 @@ export function PostInfiniteList({
         });
 
       if (getPostsError || !data) {
+        captureEvent("post_list_load_more_failed", {
+          offset,
+          error_message: getPostsError || "unknown_error",
+        });
         setError(getPostsError || "게시글 불러오기에 실패했습니다.");
         return;
       }
+
+      captureEvent("post_list_load_more_succeeded", {
+        offset,
+        loaded_count: data.length,
+        has_more: nextHasMore,
+      });
 
       setPosts((prevPosts) => {
         const existingPostIds = new Set(prevPosts.map((post) => post.id));
@@ -128,7 +139,13 @@ export function PostInfiniteList({
       {error && (
         <div className="flex flex-col items-center gap-3 py-4">
           <p className="text-sm text-destructive">{error}</p>
-          <Button variant="outline" onClick={() => void loadMorePosts()}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              captureEvent("post_list_load_more_retry_clicked");
+              void loadMorePosts();
+            }}
+          >
             다시 시도
           </Button>
         </div>

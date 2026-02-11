@@ -1,8 +1,9 @@
 "use client";
 
+import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { updateCommentAction } from "@/entities/comment";
 import { useAuth, UserAvatar } from "@/entities/user";
@@ -17,7 +18,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
 
-import { commentSchema, type CommentFormData } from "../model/comment.schema";
+import { type CommentFormData, commentSchema } from "../model/comment.schema";
 
 interface CommentDialogProps {
   isOpen: boolean;

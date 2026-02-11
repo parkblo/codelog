@@ -13,6 +13,7 @@ import { useAuth } from "@/entities/user";
 import { cn } from "@/shared/lib";
 import { formatRelativeTime } from "@/shared/lib/date";
 import { handleAction } from "@/shared/lib/handle-action";
+import { captureEvent } from "@/shared/lib/posthog";
 import { renderContent } from "@/shared/lib/text";
 import { Comment } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -33,6 +34,7 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
 
   const handleLikeClick = async (idx: number) => {
     if (!user) {
+      captureEvent("auth_required_modal_opened", { source: "review_comment_like" });
       openAuthModal("login");
       return;
     }
@@ -51,7 +53,14 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
           lineComments[idx].id,
         );
 
+    captureEvent("review_comment_like_clicked", {
+      post_id: lineComments[idx].post_id,
+      comment_id: lineComments[idx].id,
+      will_like: !isLiked[idx],
+    });
+
     await handleAction(action, {
+      actionName: isLiked[idx] ? "delete_comment_like" : "create_comment_like",
       onError: () => setIsLiked(previousState),
     });
   };

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 
 import { updateCommentAction } from "@/entities/comment";
 import { useAuth, UserAvatar } from "@/entities/user";
@@ -18,6 +17,8 @@ import {
 } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
 
+import { commentSchema, type CommentFormData } from "../model/comment.schema";
+
 interface CommentDialogProps {
   isOpen: boolean;
   handleClose: () => void;
@@ -30,27 +31,29 @@ export default function CommentDialog({
   comment,
 }: CommentDialogProps) {
   const { user } = useAuth();
-  const [commentInput, setCommentInput] = useState(comment?.content || "");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CommentFormData>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: { content: comment?.content || "" },
+  });
 
-  const updateComment = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (commentInput && user) {
-      await handleAction(
-        updateCommentAction(comment.id, comment.post_id, {
-          content: commentInput,
-        }),
-        {
-          onSuccess: () => {
-            handleClose();
-          },
-          successMessage: "댓글이 수정되었습니다.",
+  const onSubmit = async (data: CommentFormData) => {
+    if (!user) return;
+
+    await handleAction(
+      updateCommentAction(comment.id, comment.post_id, {
+        content: data.content,
+      }),
+      {
+        onSuccess: () => {
+          handleClose();
         },
-      );
-    } else if (!user) {
-      toast.error("먼저 로그인 해주세요.");
-    } else {
-      toast.error("댓글을 작성해주세요.");
-    }
+        successMessage: "댓글이 수정되었습니다.",
+      },
+    );
   };
 
   return (
@@ -59,15 +62,14 @@ export default function CommentDialog({
         <DialogHeader>
           <DialogTitle>댓글 수정</DialogTitle>
         </DialogHeader>
-        <form onSubmit={updateComment}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               {user && <UserAvatar user={user} />}
               <Textarea
                 className="resize-none"
                 placeholder="댓글을 입력해주세요."
-                value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
+                {...register("content")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -76,6 +78,11 @@ export default function CommentDialog({
                 }}
               />
             </div>
+            {errors.content && (
+              <p className="text-sm text-destructive">
+                {errors.content.message}
+              </p>
+            )}
             <div className="flex justify-end">
               <Button variant="outline" type="submit">
                 <Pencil className="w-4 h-4" />

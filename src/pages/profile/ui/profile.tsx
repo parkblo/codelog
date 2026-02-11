@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
 import { CreatePostForm } from "@/widgets/create-post";
-import { PostCard } from "@/widgets/post-card";
+import { PostInfiniteList } from "@/widgets/post-card";
 import { UserProfileCard } from "@/widgets/user-profile";
-import { getPostListAction } from "@/features/post-list";
+import { getPostListPageAction } from "@/features/post-list";
 import { ContributionGraph, ProfileTabs } from "@/features/profile";
 import { FollowService } from "@/entities/follow/api/follow.service";
 import { UserService } from "@/entities/user/api/user.service";
@@ -44,9 +44,20 @@ export async function ProfilePage({
   const followerCount = followersResult?.data ?? 0;
   const followingCount = followingResult?.data ?? 0;
 
-  const { data: posts } = await getPostListAction(
-    tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id },
+  const postFilterOptions =
+    tab === "likes" ? { likedByUserId: user.id } : { authorId: user.id };
+
+  const { data: posts, error: postError, hasMore } = await getPostListPageAction(
+    {
+      ...postFilterOptions,
+      offset: 0,
+      limit: 10,
+    },
   );
+
+  if (postError || !posts) {
+    throw new Error(postError || "게시글을 불러오는데 실패했습니다.");
+  }
 
   const { data: contributions } = await userService.getUserContributions(
     user.id,
@@ -66,9 +77,20 @@ export async function ProfilePage({
       {currentUser && user.id === currentUser.id && tab === "posts" && (
         <CreatePostForm />
       )}
-      {posts?.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      <PostInfiniteList
+        initialPosts={posts}
+        initialHasMore={hasMore}
+        filterOptions={postFilterOptions}
+        emptyState={
+          <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+            <p>
+              {tab === "likes"
+                ? "좋아요한 게시글이 없습니다."
+                : "작성한 게시글이 없습니다."}
+            </p>
+          </div>
+        }
+      />
     </div>
   );
 }

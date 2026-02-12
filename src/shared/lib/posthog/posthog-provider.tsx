@@ -8,13 +8,14 @@ import { PostHogProvider as PostHogReactProvider } from "posthog-js/react";
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
   process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
+let isPostHogInitialized = false;
 
 interface PostHogProviderProps {
   children: React.ReactNode;
 }
 
 function initializePostHog() {
-  if (!POSTHOG_KEY || posthog.__loaded) {
+  if (!POSTHOG_KEY || isPostHogInitialized || typeof window === "undefined") {
     return;
   }
 
@@ -32,6 +33,7 @@ function initializePostHog() {
       },
     },
   });
+  isPostHogInitialized = true;
 }
 
 export function PostHogProvider({ children }: PostHogProviderProps) {

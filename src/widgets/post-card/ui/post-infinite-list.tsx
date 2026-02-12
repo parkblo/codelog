@@ -5,6 +5,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { Loader2 } from "lucide-react";
 
 import { getPostListPageAction } from "@/features/post-list";
+import { classifyErrorMessage } from "@/shared/lib/monitoring";
 import { captureEvent } from "@/shared/lib/posthog";
 import { Post } from "@/shared/types";
 import { Button } from "@/shared/ui/button";
@@ -71,7 +72,7 @@ export function PostInfiniteList({
       if (getPostsError || !data) {
         captureEvent("post_list_load_more_failed", {
           offset,
-          error_message: getPostsError || "unknown_error",
+          error_category: classifyErrorMessage(getPostsError),
         });
         setError(getPostsError || "게시글 불러오기에 실패했습니다.");
         return;

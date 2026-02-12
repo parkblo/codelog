@@ -3,6 +3,7 @@ export * from "./cn";
 export * from "./date";
 export * from "./featured-tags";
 export * from "./handle-action";
+export * from "./monitoring";
 export * from "./posthog";
 export * from "./search";
 export * from "./supabase/client";

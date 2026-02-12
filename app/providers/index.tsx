@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { AuthDialog } from "@/features/auth";
 import { AuthProvider } from "@/entities/user";
 import { PostHogPageViewTracker, PostHogProvider } from "@/shared/lib/posthog";
@@ -15,7 +17,9 @@ export function AppProvider({ children, initialUser }: AppProviderProps) {
   return (
     <PostHogProvider>
       <AuthProvider initialUser={initialUser}>
-        <PostHogPageViewTracker />
+        <Suspense fallback={null}>
+          <PostHogPageViewTracker />
+        </Suspense>
         <Toaster />
         <AuthDialog />
         {children}

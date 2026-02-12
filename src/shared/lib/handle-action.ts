@@ -13,6 +13,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { toast } from "sonner";
 
+import { classifyErrorMessage } from "./monitoring";
 import { captureEvent } from "./posthog";
 
 interface ActionResponse<T> {
@@ -43,7 +44,7 @@ export async function handleAction<T>(
       });
       captureEvent("api_action_failed", {
         action_name: actionName,
-        error_message: result.error,
+        error_category: classifyErrorMessage(result.error),
       });
 
       toast.error(result.error);

@@ -3,6 +3,7 @@
 import { Bookmark, Heart, MessageCircle, Share } from "lucide-react";
 
 import { cn } from "@/shared/lib";
+import { handleAction } from "@/shared/lib/handle-action";
 import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
 
@@ -18,6 +19,39 @@ interface PostActionsProps {
   onBookmarkClick: () => void;
 }
 
+async function copyPostUrlAction(postId: number) {
+  if (typeof window === "undefined") {
+    return { error: "링크 복사에 실패했습니다." };
+  }
+
+  const postUrl = `${window.location.origin}/post/${postId}`;
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(postUrl);
+      return { error: null, message: "게시글 링크가 복사되었습니다." };
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = postUrl;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const isCopied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    if (isCopied) {
+      return { error: null, message: "게시글 링크가 복사되었습니다." };
+    }
+
+    return { error: "링크 복사에 실패했습니다." };
+  } catch {
+    return { error: "링크 복사에 실패했습니다." };
+  }
+}
+
 export function PostActions({
   postId,
   likeCount,
@@ -29,6 +63,13 @@ export function PostActions({
   onCommentClick,
   onBookmarkClick,
 }: PostActionsProps) {
+  const handleShareClick = async () => {
+    captureEvent("post_share_clicked", { post_id: postId });
+    await handleAction(copyPostUrlAction(postId), {
+      actionName: "copy_post_url",
+    });
+  };
+
   return (
     <div className="flex gap-4 border-t pt-2 justify-between">
       <Button
@@ -79,9 +120,7 @@ export function PostActions({
       <Button
         variant="ghost"
         className="text-muted-foreground hover:text-foreground flex gap-2 items-center justify-center"
-        onClick={() => {
-          captureEvent("post_share_clicked", { post_id: postId });
-        }}
+        onClick={() => void handleShareClick()}
       >
         <Share className="w-4 h-4" />
       </Button>

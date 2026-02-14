@@ -8,9 +8,41 @@ import {
 } from "./comment.interface";
 
 export class CommentService implements ICommentService {
+  async isPostAvailable(
+    postId: number
+  ): Promise<{ data: boolean; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("posts")
+      .select(`id, author:users!posts_user_id_fkey!inner(id)`)
+      .eq("id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
+      .maybeSingle();
+
+    if (error) {
+      return { data: false, error };
+    }
+
+    return { data: !!data, error: null };
+  }
+
   async createComment(
     data: CreateCommentDTO
   ): Promise<{ data: Comment | null; error: Error | null }> {
+    const { data: isPostAvailable, error: postError } = await this.isPostAvailable(
+      data.postId
+    );
+
+    if (postError) {
+      return { data: null, error: postError };
+    }
+
+    if (!isPostAvailable) {
+      return { data: null, error: new Error("포스트를 찾을 수 없습니다.") };
+    }
+
     const supabase = await createClient();
 
     const { data: createdComment, error: createCommentError } = await supabase
@@ -48,6 +80,23 @@ export class CommentService implements ICommentService {
       .not("start_line", "is", null);
 
     return { count, error };
+  }
+
+  async getCommentLikesByUser(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("comment_likes")
+      .select("comment_id")
+      .eq("user_id", userId);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data: data.map((like) => like.comment_id), error: null };
   }
 
   async getCommentsByPostId(

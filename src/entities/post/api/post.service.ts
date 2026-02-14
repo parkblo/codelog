@@ -198,6 +198,25 @@ export class PostService implements IPostService {
     return { data: post, error: null };
   }
 
+  async getReviewCommentsCount(
+    postId: number
+  ): Promise<{ count: number | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { count, error } = await supabase
+      .from("comments")
+      .select(`id, author:users!comments_user_id_fkey!inner(id)`, {
+        count: "exact",
+        head: true,
+      })
+      .eq("post_id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
+      .not("start_line", "is", null);
+
+    return { count, error };
+  }
+
   async deletePost(id: number): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 

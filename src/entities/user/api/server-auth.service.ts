@@ -20,6 +20,7 @@ export class ServerAuthService implements IAuthService {
       .from("users")
       .select("id, username, nickname, avatar, bio")
       .eq("id", user.id)
+      .is("deleted_at", null)
       .single();
 
     if (profileError || !profile) {

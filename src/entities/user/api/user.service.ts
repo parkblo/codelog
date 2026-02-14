@@ -15,7 +15,8 @@ export class UserService implements IUserService {
         bio,
         avatar,
       })
-      .eq("id", id);
+      .eq("id", id)
+      .is("deleted_at", null);
 
     return { error };
   }
@@ -28,6 +29,7 @@ export class UserService implements IUserService {
       .from("users")
       .select("id, username, nickname, bio, avatar")
       .eq("username", username)
+      .is("deleted_at", null)
       .single();
 
     if (userError || !userData) {
@@ -78,7 +80,8 @@ export class UserService implements IUserService {
     const { error: dbError } = await supabase
       .from("users")
       .update({ avatar })
-      .eq("id", id);
+      .eq("id", id)
+      .is("deleted_at", null);
 
     if (dbError) {
       return { error: dbError };
@@ -121,7 +124,8 @@ export class UserService implements IUserService {
     const { data: usersData, error: usersError } = await supabase
       .from("users")
       .select("id, username, nickname, bio, avatar")
-      .in("id", ids);
+      .in("id", ids)
+      .is("deleted_at", null);
 
     if (usersError || !usersData) {
       return { data: null, error: usersError };

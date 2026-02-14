@@ -116,6 +116,7 @@ export default function AuthProvider({
         .from("users")
         .select("id, username, nickname, avatar, bio")
         .eq("id", userId)
+        .is("deleted_at", null)
         .single()
         .then(({ data: profile, error }) => {
           if (activeUserId.current === userId) {

@@ -64,4 +64,22 @@ export interface ICommentService {
     postId: number,
     options?: CommentListOptions
   ): Promise<{ data: Comment[] | null; error: Error | null }>;
+
+  /**
+   * 특정 유저가 좋아요한 댓글 ID 목록을 조회합니다.
+   * @param userId 유저 ID
+   * @returns 댓글 ID 목록과 에러 객체
+   */
+  getCommentLikesByUser(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }>;
+
+  /**
+   * 댓글 작성 대상 게시글이 활성 상태인지 확인합니다.
+   * @param postId 게시글 ID
+   * @returns 활성 여부와 에러 객체
+   */
+  isPostAvailable(
+    postId: number
+  ): Promise<{ data: boolean; error: Error | null }>;
 }

@@ -7,12 +7,7 @@ import {
   CreateCommentDTO,
 } from "@/entities/comment/api/comment.interface";
 import { CommentService } from "@/entities/comment/api/comment.service";
-// eslint-disable-next-line boundaries/element-types
-import { LikeService } from "@/entities/like/api/like.service";
-// eslint-disable-next-line boundaries/element-types
-import { PostService } from "@/entities/post/api/post.service";
-// eslint-disable-next-line boundaries/element-types
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 import { Comment } from "@/shared/types";
 
 const DEFAULT_COMMENT_PAGE_SIZE = 10;
@@ -35,8 +30,8 @@ function getSafeOffset(offset?: number) {
 }
 
 async function resolveCommentInteraction(comments: Comment[] | null) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
+  const commentService = new CommentService();
 
   if (!comments) {
     return { data: [], error: null };
@@ -52,9 +47,8 @@ async function resolveCommentInteraction(comments: Comment[] | null) {
     };
   }
 
-  const likeService = new LikeService();
   const { data: commentLikes, error: getCommentLikesError } =
-    await likeService.getCommentLikes(user.id);
+    await commentService.getCommentLikesByUser(user.id);
 
   if (getCommentLikesError) {
     console.error(getCommentLikesError);
@@ -76,20 +70,18 @@ async function resolveCommentInteraction(comments: Comment[] | null) {
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
-  const postService = new PostService();
-
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: post, error: postError } = await postService.getPostById(
+  const { data: isPostAvailable, error: postError } =
+    await commentService.isPostAvailable(
     data.postId,
-  );
+    );
 
-  if (postError || !post) {
+  if (postError || !isPostAvailable) {
     return { error: "포스트를 찾을 수 없습니다." };
   }
 
@@ -169,18 +161,16 @@ async function updateCommentAction(
   data: Partial<CreateCommentDTO>,
 ) {
   const commentService = new CommentService();
-  const postService = new PostService();
-
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: post, error: postError } = await postService.getPostById(postId);
+  const { data: isPostAvailable, error: postError } =
+    await commentService.isPostAvailable(postId);
 
-  if (postError || !post) {
+  if (postError || !isPostAvailable) {
     return { error: "포스트를 찾을 수 없습니다." };
   }
 
@@ -213,18 +203,16 @@ async function updateCommentAction(
 
 async function deleteCommentAction(commentId: number, postId: number) {
   const commentService = new CommentService();
-  const postService = new PostService();
-
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: post, error: postError } = await postService.getPostById(postId);
+  const { data: isPostAvailable, error: postError } =
+    await commentService.isPostAvailable(postId);
 
-  if (postError || !post) {
+  if (postError || !isPostAvailable) {
     return { error: "포스트를 찾을 수 없습니다." };
   }
 

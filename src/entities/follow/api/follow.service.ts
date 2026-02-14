@@ -16,6 +16,17 @@ export class FollowService implements IFollowService {
     }
 
     const supabase = await createClient();
+    const { data: targetUser, error: targetUserError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", followingId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (targetUserError || !targetUser) {
+      return { error: new Error("존재하지 않는 사용자입니다.") };
+    }
+
     const { error } = await supabase.from("follows").insert({
       follower_id: followerId,
       following_id: followingId,
@@ -53,7 +64,8 @@ export class FollowService implements IFollowService {
           username,
           nickname,
           avatar,
-          bio
+          bio,
+          deleted_at
         )
       `
       )
@@ -64,10 +76,25 @@ export class FollowService implements IFollowService {
 
     if (error) return { data: null, error };
 
+    const followerRows = (data as FollowersWithAuthor) ?? [];
+
     // 타입 가드를 통해 null 제외 및 안전한 캐스팅
-    const followers = (data as FollowersWithAuthor)
+    const followers = followerRows
       .map((item) => item.follower)
-      .filter((follower): follower is Author => follower !== null);
+      .filter(
+        (
+          follower
+        ): follower is Author & {
+          deleted_at: string | null;
+        } => follower !== null && follower.deleted_at === null
+      )
+      .map((follower) => ({
+        id: follower.id,
+        username: follower.username,
+        nickname: follower.nickname,
+        avatar: follower.avatar,
+        bio: follower.bio,
+      }));
 
     return {
       data: followers,
@@ -88,7 +115,8 @@ export class FollowService implements IFollowService {
           username,
           nickname,
           avatar,
-          bio
+          bio,
+          deleted_at
         )
       `
       )
@@ -99,10 +127,25 @@ export class FollowService implements IFollowService {
 
     if (error) return { data: null, error };
 
+    const followingRows = (data as FollowingWithAuthor) ?? [];
+
     // 타입 가드를 통해 null 제외 및 안전한 캐스팅
-    const following = (data as FollowingWithAuthor)
+    const following = followingRows
       .map((item) => item.following)
-      .filter((following): following is Author => following !== null);
+      .filter(
+        (
+          followingUser
+        ): followingUser is Author & {
+          deleted_at: string | null;
+        } => followingUser !== null && followingUser.deleted_at === null
+      )
+      .map((followingUser) => ({
+        id: followingUser.id,
+        username: followingUser.username,
+        nickname: followingUser.nickname,
+        avatar: followingUser.avatar,
+        bio: followingUser.bio,
+      }));
 
     return {
       data: following,
@@ -115,39 +158,87 @@ export class FollowService implements IFollowService {
     followingId: string
   ): Promise<{ data: boolean; error: Error | null }> {
     const supabase = await createClient();
-    const { count, error } = await supabase
+    const query = supabase
       .from("follows")
-      .select("*", { count: "exact", head: true })
+      .select(
+        `
+          following:users!follows_following_id_fkey (
+            id,
+            deleted_at
+          )
+        `
+      )
       .eq("follower_id", followerId)
       .eq("following_id", followingId);
 
+    type IsFollowingResult = QueryData<typeof query>;
+    const { data, error } = await query;
+
     if (error) return { data: false, error };
-    return { data: (count || 0) > 0, error: null };
+
+    const rows = (data as IsFollowingResult) ?? [];
+    const isActiveFollowing = rows.some(
+      (item) => item.following && item.following.deleted_at === null
+    );
+
+    return { data: isActiveFollowing, error: null };
   }
 
   async getFollowersCount(
     userId: string
   ): Promise<{ data: number; error: Error | null }> {
     const supabase = await createClient();
-    const { count, error } = await supabase
+    const query = supabase
       .from("follows")
-      .select("*", { count: "exact", head: true })
+      .select(
+        `
+          follower:users!follows_follower_id_fkey (
+            id,
+            deleted_at
+          )
+        `
+      )
       .eq("following_id", userId);
 
+    type FollowersCountResult = QueryData<typeof query>;
+    const { data, error } = await query;
+
     if (error) return { data: 0, error };
-    return { data: count || 0, error: null };
+
+    const rows = (data as FollowersCountResult) ?? [];
+    const count = rows.filter(
+      (item) => item.follower && item.follower.deleted_at === null
+    ).length;
+
+    return { data: count, error: null };
   }
 
   async getFollowingCount(
     userId: string
   ): Promise<{ data: number; error: Error | null }> {
     const supabase = await createClient();
-    const { count, error } = await supabase
+    const query = supabase
       .from("follows")
-      .select("*", { count: "exact", head: true })
+      .select(
+        `
+          following:users!follows_following_id_fkey (
+            id,
+            deleted_at
+          )
+        `
+      )
       .eq("follower_id", userId);
 
+    type FollowingCountResult = QueryData<typeof query>;
+    const { data, error } = await query;
+
     if (error) return { data: 0, error };
-    return { data: count || 0, error: null };
+
+    const rows = (data as FollowingCountResult) ?? [];
+    const count = rows.filter(
+      (item) => item.following && item.following.deleted_at === null
+    ).length;
+
+    return { data: count, error: null };
   }
 }

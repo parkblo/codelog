@@ -3,12 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { LikeService } from "@/entities/like/api/like.service";
-// eslint-disable-next-line boundaries/element-types
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 async function createPostLikeAction(postId: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -28,8 +26,7 @@ async function createPostLikeAction(postId: number) {
 }
 
 async function deletePostLikeAction(postId: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -49,8 +46,7 @@ async function deletePostLikeAction(postId: number) {
 }
 
 async function createCommentLikeAction(postId: number, commentId: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -70,8 +66,7 @@ async function createCommentLikeAction(postId: number, commentId: number) {
 }
 
 async function deleteCommentLikeAction(postId: number, commentId: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };

@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { FollowService } from "@/entities/follow/api/follow.service";
-// eslint-disable-next-line boundaries/element-types
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 /**
  * 사용자를 팔로우하는 서버 액션입니다.
@@ -19,9 +18,8 @@ export async function followUserAction(
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
     return { error: "유효하지 않은 유저네임입니다." };
   }
-  const authService = new ServerAuthService();
   const followService = new FollowService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -59,9 +57,8 @@ export async function unfollowUserAction(
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
     return { error: "유효하지 않은 유저네임입니다." };
   }
-  const authService = new ServerAuthService();
   const followService = new FollowService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -87,9 +84,8 @@ export async function unfollowUserAction(
  * @param followingId 확인 대상 사용자의 ID
  */
 export async function isFollowingAction(followingId: string) {
-  const authService = new ServerAuthService();
   const followService = new FollowService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { data: false, error: null };

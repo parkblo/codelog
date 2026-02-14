@@ -8,9 +8,41 @@ import {
 } from "./comment.interface";
 
 export class CommentService implements ICommentService {
+  async isPostAvailable(
+    postId: number
+  ): Promise<{ data: boolean; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("posts")
+      .select(`id, author:users!posts_user_id_fkey!inner(id)`)
+      .eq("id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
+      .maybeSingle();
+
+    if (error) {
+      return { data: false, error };
+    }
+
+    return { data: !!data, error: null };
+  }
+
   async createComment(
     data: CreateCommentDTO
   ): Promise<{ data: Comment | null; error: Error | null }> {
+    const { data: isPostAvailable, error: postError } = await this.isPostAvailable(
+      data.postId
+    );
+
+    if (postError) {
+      return { data: null, error: postError };
+    }
+
+    if (!isPostAvailable) {
+      return { data: null, error: new Error("포스트를 찾을 수 없습니다.") };
+    }
+
     const supabase = await createClient();
 
     const { data: createdComment, error: createCommentError } = await supabase
@@ -38,11 +70,33 @@ export class CommentService implements ICommentService {
 
     const { count, error } = await supabase
       .from("comments")
-      .select("*", { count: "exact", head: true })
+      .select(`id, author:users!comments_user_id_fkey!inner(id)`, {
+        count: "exact",
+        head: true,
+      })
       .eq("post_id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .not("start_line", "is", null);
 
     return { count, error };
+  }
+
+  async getCommentLikesByUser(
+    userId: string
+  ): Promise<{ data: number[] | null; error: Error | null }> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("comment_likes")
+      .select("comment_id")
+      .eq("user_id", userId);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data: data.map((like) => like.comment_id), error: null };
   }
 
   async getCommentsByPostId(
@@ -54,9 +108,11 @@ export class CommentService implements ICommentService {
     let query = supabase
       .from("comments")
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`,
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
       )
       .eq("post_id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .order("created_at", { ascending: true });
 
     if (type === "general") {
@@ -89,9 +145,11 @@ export class CommentService implements ICommentService {
     const { data, error } = await supabase
       .from("comments")
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
       )
       .eq("id", commentId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .single();
 
     if (error) {
@@ -111,9 +169,11 @@ export class CommentService implements ICommentService {
       .from("comments")
       .update({ content: data.content })
       .eq("id", id)
+      .is("deleted_at", null)
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
       )
+      .is("author.deleted_at", null)
       .single();
 
     if (updateCommentError) {
@@ -126,7 +186,11 @@ export class CommentService implements ICommentService {
   async deleteComment(id: number): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 
-    const { error } = await supabase.from("comments").delete().eq("id", id);
+    const { error } = await supabase
+      .from("comments")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("deleted_at", null);
 
     return { error };
   }

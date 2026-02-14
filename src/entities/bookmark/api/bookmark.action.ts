@@ -3,13 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
-// eslint-disable-next-line boundaries/element-types
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 async function createBookmarkAction(postId: number) {
   const bookmarkService = new BookmarkService();
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -28,8 +26,7 @@ async function createBookmarkAction(postId: number) {
 
 async function deleteBookmarkAction(postId: number) {
   const bookmarkService = new BookmarkService();
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -49,8 +46,7 @@ async function deleteBookmarkAction(postId: number) {
 
 async function getBookmarksAction() {
   const bookmarkService = new BookmarkService();
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };

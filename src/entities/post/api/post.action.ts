@@ -2,18 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 
-// eslint-disable-next-line boundaries/element-types
-import { CommentService } from "@/entities/comment/api/comment.service";
 import { CreatePostDTO } from "@/entities/post/api/post.interface";
 import { PostService } from "@/entities/post/api/post.service";
-// eslint-disable-next-line boundaries/element-types
-import { ServerAuthService } from "@/entities/user/api/server-auth.service";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 const postService = new PostService();
 
 async function createPostAction(data: CreatePostDTO) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -35,8 +31,7 @@ async function createPostAction(data: CreatePostDTO) {
 }
 
 async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
@@ -55,9 +50,8 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   }
 
   if (data.code !== undefined && data.code !== originalPost.code) {
-    const commentService = new CommentService();
     const { count, error: countError } =
-      await commentService.getReviewCommentsCount(id);
+      await postService.getReviewCommentsCount(id);
 
     if (countError) {
       return { error: "댓글 정보를 확인하는 중 오류가 발생했습니다." };
@@ -101,8 +95,7 @@ async function getPostByIdAction(id: number) {
 }
 
 async function deletePostAction(id: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };

@@ -45,6 +45,15 @@ export interface IPostService {
   getPostById(id: number): Promise<{ data: Post | null; error: Error | null }>;
 
   /**
+   * 코드 리뷰 댓글(라인 지정 댓글) 개수를 조회합니다.
+   * @param postId 게시글 ID
+   * @returns 댓글 개수와 에러 객체
+   */
+  getReviewCommentsCount(
+    postId: number
+  ): Promise<{ count: number | null; error: Error | null }>;
+
+  /**
    * 게시글을 삭제합니다.
    * @param id 게시글 ID
    * @returns 에러 객체 (성공 시 null)

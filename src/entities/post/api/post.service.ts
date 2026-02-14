@@ -94,7 +94,7 @@ export class PostService implements IPostService {
 
     let selectString = `
       *,
-      author:users!posts_user_id_fkey(*),
+      author:users!posts_user_id_fkey!inner(*),
       tags:posttags(tags(*))`;
 
     if (likedByUserId) {
@@ -109,7 +109,9 @@ export class PostService implements IPostService {
       selectString += `, filter_tags:posttags!inner(tags!inner(name))`;
     }
 
-    let query = supabase.from("posts").select(selectString);
+    let query = supabase.from("posts").select(selectString).is("deleted_at", null);
+
+    query = query.is("author.deleted_at", null);
 
     if (isReviewEnabled) {
       query = query.eq("is_review_enabled", true);
@@ -174,8 +176,10 @@ export class PostService implements IPostService {
 
     const { data, error } = await supabase
       .from("posts")
-      .select(`*, author:users!posts_user_id_fkey(*), tags:posttags(tags(*))`)
+      .select(`*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`)
       .eq("id", id)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .single();
 
     if (error || !data) {
@@ -197,7 +201,11 @@ export class PostService implements IPostService {
   async deletePost(id: number): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 
-    const { error } = await supabase.from("posts").delete().eq("id", id);
+    const { error } = await supabase
+      .from("posts")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("deleted_at", null);
 
     return { error };
   }

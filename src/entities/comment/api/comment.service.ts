@@ -38,8 +38,13 @@ export class CommentService implements ICommentService {
 
     const { count, error } = await supabase
       .from("comments")
-      .select("*", { count: "exact", head: true })
+      .select(`id, author:users!comments_user_id_fkey!inner(id)`, {
+        count: "exact",
+        head: true,
+      })
       .eq("post_id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .not("start_line", "is", null);
 
     return { count, error };
@@ -54,9 +59,11 @@ export class CommentService implements ICommentService {
     let query = supabase
       .from("comments")
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`,
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
       )
       .eq("post_id", postId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .order("created_at", { ascending: true });
 
     if (type === "general") {
@@ -89,9 +96,11 @@ export class CommentService implements ICommentService {
     const { data, error } = await supabase
       .from("comments")
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
       )
       .eq("id", commentId)
+      .is("deleted_at", null)
+      .is("author.deleted_at", null)
       .single();
 
     if (error) {
@@ -111,9 +120,11 @@ export class CommentService implements ICommentService {
       .from("comments")
       .update({ content: data.content })
       .eq("id", id)
+      .is("deleted_at", null)
       .select(
-        `*, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
+        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
       )
+      .is("author.deleted_at", null)
       .single();
 
     if (updateCommentError) {
@@ -126,7 +137,11 @@ export class CommentService implements ICommentService {
   async deleteComment(id: number): Promise<{ error: Error | null }> {
     const supabase = await createClient();
 
-    const { error } = await supabase.from("comments").delete().eq("id", id);
+    const { error } = await supabase
+      .from("comments")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("deleted_at", null);
 
     return { error };
   }

@@ -10,6 +10,8 @@ import { CommentService } from "@/entities/comment/api/comment.service";
 // eslint-disable-next-line boundaries/element-types
 import { LikeService } from "@/entities/like/api/like.service";
 // eslint-disable-next-line boundaries/element-types
+import { PostService } from "@/entities/post/api/post.service";
+// eslint-disable-next-line boundaries/element-types
 import { ServerAuthService } from "@/entities/user/api/server-auth.service";
 import { Comment } from "@/shared/types";
 
@@ -74,12 +76,21 @@ async function resolveCommentInteraction(comments: Comment[] | null) {
 
 async function createCommentAction(data: CreateCommentDTO) {
   const commentService = new CommentService();
+  const postService = new PostService();
 
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
+  }
+
+  const { data: post, error: postError } = await postService.getPostById(
+    data.postId,
+  );
+
+  if (postError || !post) {
+    return { error: "포스트를 찾을 수 없습니다." };
   }
 
   // userId를 신뢰할 수 있는 서버 세션 정보로 덮어씁니다.
@@ -158,12 +169,19 @@ async function updateCommentAction(
   data: Partial<CreateCommentDTO>,
 ) {
   const commentService = new CommentService();
+  const postService = new PostService();
 
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
+  }
+
+  const { data: post, error: postError } = await postService.getPostById(postId);
+
+  if (postError || !post) {
+    return { error: "포스트를 찾을 수 없습니다." };
   }
 
   // 소유권 확인
@@ -195,12 +213,19 @@ async function updateCommentAction(
 
 async function deleteCommentAction(commentId: number, postId: number) {
   const commentService = new CommentService();
+  const postService = new PostService();
 
   const authService = new ServerAuthService();
   const user = await authService.getCurrentUser();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
+  }
+
+  const { data: post, error: postError } = await postService.getPostById(postId);
+
+  if (postError || !post) {
+    return { error: "포스트를 찾을 수 없습니다." };
   }
 
   // 소유권 확인

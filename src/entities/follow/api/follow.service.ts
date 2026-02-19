@@ -59,17 +59,17 @@ export class FollowService implements IFollowService {
       .from("follows")
       .select(
         `
-        follower:users!follows_follower_id_fkey (
+        follower:users!follows_follower_id_fkey!inner (
           id,
           username,
           nickname,
           avatar,
-          bio,
-          deleted_at
+          bio
         )
       `
       )
-      .eq("following_id", userId);
+      .eq("following_id", userId)
+      .is("follower.deleted_at", null);
 
     type FollowersWithAuthor = QueryData<typeof query>;
     const { data, error } = await query;
@@ -78,16 +78,10 @@ export class FollowService implements IFollowService {
 
     const followerRows = (data as FollowersWithAuthor) ?? [];
 
-    // 타입 가드를 통해 null 제외 및 안전한 캐스팅
+    // inner join으로 사용자 존재를 보장하지만 타입상 nullable 가능성을 제거합니다.
     const followers = followerRows
       .map((item) => item.follower)
-      .filter(
-        (
-          follower
-        ): follower is Author & {
-          deleted_at: string | null;
-        } => follower !== null && follower.deleted_at === null
-      )
+      .filter((follower): follower is Author => follower !== null)
       .map((follower) => ({
         id: follower.id,
         username: follower.username,
@@ -110,17 +104,17 @@ export class FollowService implements IFollowService {
       .from("follows")
       .select(
         `
-        following:users!follows_following_id_fkey (
+        following:users!follows_following_id_fkey!inner (
           id,
           username,
           nickname,
           avatar,
-          bio,
-          deleted_at
+          bio
         )
       `
       )
-      .eq("follower_id", userId);
+      .eq("follower_id", userId)
+      .is("following.deleted_at", null);
 
     type FollowingWithAuthor = QueryData<typeof query>;
     const { data, error } = await query;
@@ -129,16 +123,10 @@ export class FollowService implements IFollowService {
 
     const followingRows = (data as FollowingWithAuthor) ?? [];
 
-    // 타입 가드를 통해 null 제외 및 안전한 캐스팅
+    // inner join으로 사용자 존재를 보장하지만 타입상 nullable 가능성을 제거합니다.
     const following = followingRows
       .map((item) => item.following)
-      .filter(
-        (
-          followingUser
-        ): followingUser is Author & {
-          deleted_at: string | null;
-        } => followingUser !== null && followingUser.deleted_at === null
-      )
+      .filter((followingUser): followingUser is Author => followingUser !== null)
       .map((followingUser) => ({
         id: followingUser.id,
         username: followingUser.username,

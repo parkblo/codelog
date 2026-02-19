@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import { Header, MobileNav } from "@/widgets/header";
 import { Sidebar } from "@/widgets/sidebar";
 import { ServerAuthService } from "@/entities/user/server";
-import { BackgroundMesh } from "@/shared/ui/background-mesh";
+import { BackgroundCanvas } from "@/shared/ui/background-canvas";
 
 import { AppProvider } from "./providers";
 
@@ -60,7 +60,7 @@ export default async function RootLayout({
     <html lang="ko" className="dark">
       <body className={`${pretendard.variable} antialiased`}>
         <AppProvider initialUser={user}>
-          <BackgroundMesh />
+          <BackgroundCanvas />
           <MobileNav />
 
           <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">

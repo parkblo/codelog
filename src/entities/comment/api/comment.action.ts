@@ -76,15 +76,6 @@ async function createCommentAction(data: CreateCommentDTO) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: isPostAvailable, error: postError } =
-    await commentService.isPostAvailable(
-    data.postId,
-    );
-
-  if (postError || !isPostAvailable) {
-    return { error: "포스트를 찾을 수 없습니다." };
-  }
-
   // userId를 신뢰할 수 있는 서버 세션 정보로 덮어씁니다.
   const secureData = { ...data, userId: user.id };
 

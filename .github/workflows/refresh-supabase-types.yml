@@ -30,7 +30,9 @@ jobs:
         run: npm ci
 
       - name: Generate types
-        run: npx supabase gen types typescript --project-id "$SUPABASE_PROJECT_REF" > src/types/database.types.ts
+        run: |
+          mkdir -p src/shared/types
+          npx supabase gen types typescript --project-id "$SUPABASE_PROJECT_REF" > src/shared/types/database.types.ts
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6

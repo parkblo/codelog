@@ -164,6 +164,33 @@ export type Database = {
           },
         ]
       }
+      mock_seed_batches: {
+        Row: {
+          batch_key: string
+          comment_ids: number[]
+          created_at: string
+          metadata: Json
+          post_ids: number[]
+          user_ids: string[]
+        }
+        Insert: {
+          batch_key: string
+          comment_ids?: number[]
+          created_at?: string
+          metadata?: Json
+          post_ids?: number[]
+          user_ids?: string[]
+        }
+        Update: {
+          batch_key?: string
+          comment_ids?: number[]
+          created_at?: string
+          metadata?: Json
+          post_ids?: number[]
+          user_ids?: string[]
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           post_id: number
@@ -371,6 +398,43 @@ export type Database = {
         Returns: {
           contribution_date: string
           post_count: number
+        }[]
+      }
+      list_mock_activity_batches: {
+        Args: never
+        Returns: {
+          batch_key: string
+          comment_count: number
+          created_at: string
+          metadata: Json
+          post_count: number
+          user_count: number
+        }[]
+      }
+      rollback_mock_activity: {
+        Args: { p_batch_key?: string }
+        Returns: {
+          batch_key: string
+          bookmarks_deleted: number
+          comment_likes_deleted: number
+          comments_deleted: number
+          follows_deleted: number
+          post_likes_deleted: number
+          posts_deleted: number
+          users_deleted: number
+        }[]
+      }
+      seed_mock_activity: {
+        Args: { p_user_count?: number }
+        Returns: {
+          batch_key: string
+          bookmarks_inserted: number
+          comment_likes_inserted: number
+          comments_inserted: number
+          follows_inserted: number
+          post_likes_inserted: number
+          posts_inserted: number
+          users_inserted: number
         }[]
       }
       update_post_with_tags: {

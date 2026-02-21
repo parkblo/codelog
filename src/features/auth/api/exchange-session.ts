@@ -1,7 +1,7 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 
 export async function exchangeAuthCode(code: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const db = getDatabaseAdapter();
+  const { error } = await db.exchangeCodeForSession(code);
   return { error };
 }

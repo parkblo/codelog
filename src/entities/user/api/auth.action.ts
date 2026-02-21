@@ -3,17 +3,20 @@
 import { revalidatePath } from "next/cache";
 
 import { AuthCredentials, SignUpProps } from "@/entities/user/api/auth.interface";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 
 export async function signInWithPasswordAction(credentials: AuthCredentials) {
   try {
-    const supabase = await createClient();
+    const db = getDatabaseAdapter();
 
     if (!credentials.email || !credentials.password) {
       return { error: "이메일과 비밀번호를 입력해주세요." };
     }
 
-    const { error } = await supabase.auth.signInWithPassword(credentials);
+    const { error } = await db.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password,
+    });
 
     if (error) {
       console.error(error);
@@ -34,7 +37,7 @@ export async function signInWithPasswordAction(credentials: AuthCredentials) {
 
 export async function signUpAction(credentials: SignUpProps) {
   try {
-    const supabase = await createClient();
+    const db = getDatabaseAdapter();
     const { email, password, data } = credentials;
 
     if (!email || !password || !data.user_name || !data.nick_name) {
@@ -45,7 +48,7 @@ export async function signUpAction(credentials: SignUpProps) {
       return { error: "비밀번호는 6자 이상이어야 합니다." };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await db.signUp({
       email,
       password,
       options: {
@@ -74,12 +77,9 @@ export async function signInWithOAuthAction(
   options?: { redirectTo: string }
 ) {
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: options?.redirectTo,
-      },
+    const db = getDatabaseAdapter();
+    const { data, error } = await db.signInWithOAuth(provider, {
+      redirectTo: options?.redirectTo,
     });
 
     if (error) {
@@ -87,7 +87,7 @@ export async function signInWithOAuthAction(
       return { error: error.message };
     }
 
-    if (data.url) {
+    if (data?.url) {
       return { data: { url: data.url }, error: null };
     }
 
@@ -100,8 +100,8 @@ export async function signInWithOAuthAction(
 
 export async function signOutAction() {
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signOut();
+    const db = getDatabaseAdapter();
+    const { error } = await db.signOut();
 
     if (error) {
       console.error(error);
@@ -118,8 +118,8 @@ export async function signOutAction() {
 
 export async function getCurrentUserAction() {
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.getUser();
+    const db = getDatabaseAdapter();
+    const { data, error } = await db.getCurrentAuthUser();
 
     if (error) {
       console.error(error);

@@ -5,9 +5,15 @@ import { PostInfiniteList } from "@/widgets/post-card";
 import { UserProfileCard } from "@/widgets/user-profile";
 import { getPostListPageAction } from "@/features/post-list";
 import { ContributionGraph, ProfileTabs } from "@/features/profile";
-import { FollowService } from "@/entities/follow/api/follow.service";
-import { UserService } from "@/entities/user/api/user.service";
-import { ServerAuthService } from "@/entities/user/server";
+import {
+  getFollowersCount,
+  getFollowingCount,
+} from "@/entities/follow/api/follow.service";
+import {
+  getUserByUsername,
+  getUserContributions,
+} from "@/entities/user/api/user.service";
+import { getCurrentUser } from "@/entities/user/server";
 
 interface ProfilePageProps {
   username: string;
@@ -18,15 +24,8 @@ export async function ProfilePage({
   username,
   tab = "posts",
 }: ProfilePageProps) {
-  const authService = new ServerAuthService();
-  const userService = new UserService();
-  const followService = new FollowService();
-
-  const currentUser = await authService.getCurrentUser();
-  const { data: user, error } = await userService.getUserByUsername(
-    username,
-    currentUser?.id,
-  );
+  const currentUser = await getCurrentUser();
+  const { data: user, error } = await getUserByUsername(username, currentUser?.id);
 
   if (error) {
     throw new Error(error.message || "사용자 정보를 불러오는데 실패했습니다.");
@@ -37,8 +36,8 @@ export async function ProfilePage({
   }
 
   const [followersResult, followingResult] = await Promise.all([
-    followService.getFollowersCount(user.id),
-    followService.getFollowingCount(user.id),
+    getFollowersCount(user.id),
+    getFollowingCount(user.id),
   ]);
 
   const followerCount = followersResult?.data ?? 0;
@@ -59,9 +58,7 @@ export async function ProfilePage({
     throw new Error(postError || "게시글을 불러오는데 실패했습니다.");
   }
 
-  const { data: contributions } = await userService.getUserContributions(
-    user.id,
-  );
+  const { data: contributions } = await getUserContributions(user.id);
 
   return (
     <div className="p-4 space-y-4">

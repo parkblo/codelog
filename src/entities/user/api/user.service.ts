@@ -1,161 +1,185 @@
-import { createClient } from "@/shared/lib/supabase/server";
-import { Author, UserAuth } from "@/shared/types/types";
+import { getDatabaseAdapter } from "@/shared/lib/database";
+import { Author, UserAuth, UserContribution } from "@/shared/types/types";
 
-import { IUserService } from "./user.interface";
+type UserProfileRow = Pick<UserAuth, "id" | "username" | "nickname" | "bio" | "avatar">;
+type FollowRow = { following_id: string };
+type FeaturedUserIdRow = { id: string };
 
-export class UserService implements IUserService {
-  async editUser(user: Pick<UserAuth, "id" | "nickname" | "bio" | "avatar">) {
-    const { id, nickname, bio, avatar } = user;
-    const supabase = await createClient();
+export async function editUser(
+  user: Pick<UserAuth, "id" | "nickname" | "bio" | "avatar">,
+) {
+  const { id, nickname, bio, avatar } = user;
+  const db = getDatabaseAdapter();
 
-    const { error } = await supabase
-      .from("users")
-      .update({
-        nickname,
-        bio,
-        avatar,
-      })
-      .eq("id", id)
-      .is("deleted_at", null);
+  return db.update(
+    "users",
+    {
+      nickname,
+      bio,
+      avatar,
+    },
+    [
+      { column: "id", value: id },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  );
+}
 
-    return { error };
+export async function getUserByUsername(username: string, currentUserId?: string) {
+  const db = getDatabaseAdapter();
+
+  const { data: userData, error: userError } = await db.query<UserProfileRow>(
+    {
+      table: "users",
+      select: "id, username, nickname, bio, avatar",
+      filters: [
+        { column: "username", value: username },
+        { column: "deleted_at", operator: "is", value: null },
+      ],
+    },
+    "single",
+  );
+
+  if (userError || !userData) {
+    return { data: null, error: userError };
   }
 
-  async getUserByUsername(username: string, currentUserId?: string) {
-    const supabase = await createClient();
+  let isFollowing = false;
 
-    // 1단계: 유저 정보 조회
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("id, username, nickname, bio, avatar")
-      .eq("username", username)
-      .is("deleted_at", null)
-      .single();
-
-    if (userError || !userData) {
-      return { data: null, error: userError };
-    }
-
-    // 2단계: 팔로우 여부 확인 (로그인한 경우)
-    let isFollowing = false;
-    if (currentUserId) {
-      const { data: followData, error: followError } = await supabase
-        .from("follows")
-        .select("follower_id")
-        .eq("following_id", userData.id)
-        .eq("follower_id", currentUserId)
-        .limit(1)
-        .maybeSingle();
-
-      if (!followError && followData) {
-        isFollowing = true;
-      }
-    }
-
-    return {
-      data: {
-        ...userData,
-        is_following: isFollowing,
-      } as UserAuth & { is_following?: boolean },
-      error: null,
-    };
-  }
-
-  async getUserContributions(id: string) {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase.rpc("get_user_contributions", {
-      target_user_id: id,
-    });
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data, error: null };
-  }
-
-  async updateAvatar(id: string, avatar: string) {
-    const supabase = await createClient();
-    const { error: dbError } = await supabase
-      .from("users")
-      .update({ avatar })
-      .eq("id", id)
-      .is("deleted_at", null);
-
-    if (dbError) {
-      return { error: dbError };
-    }
-
-    // Sync auth metadata to trigger onAuthStateChange
-    const { error: authError } = await supabase.auth.updateUser({
-      data: { avatar_url: avatar },
-    });
-
-    if (authError) {
-      return { error: authError };
-    }
-
-    return { error: null };
-  }
-
-  async getRandomFeaturedUsers(count: number, currentUserId?: string) {
-    const supabase = await createClient();
-
-    // 1단계: 랜덤 유저 ID 목록 가져오기 (본인 제외 처리를 위해 1명 더 넉넉하게 요청)
-    const fetchCount = currentUserId ? count + 1 : count;
-    const { data: featuredIds, error: rpcError } = await supabase.rpc(
-      "get_random_featured_users",
+  if (currentUserId) {
+    const { data: followData, error: followError } = await db.query<{
+      follower_id: string;
+    }>(
       {
-        p_count: fetchCount,
-      }
+        table: "follows",
+        select: "follower_id",
+        filters: [
+          { column: "following_id", value: userData.id },
+          { column: "follower_id", value: currentUserId },
+        ],
+        limit: 1,
+      },
+      "maybeSingle",
     );
 
-    if (rpcError || !featuredIds) {
-      return { data: null, error: rpcError };
+    if (!followError && followData) {
+      isFollowing = true;
     }
-
-    const ids = (featuredIds as { id: string }[])
-      .map((u) => u.id)
-      .filter((id) => id !== currentUserId)
-      .slice(0, count);
-
-    // 2단계: 유저 상세 정보 조회
-    const { data: usersData, error: usersError } = await supabase
-      .from("users")
-      .select("id, username, nickname, bio, avatar")
-      .in("id", ids)
-      .is("deleted_at", null);
-
-    if (usersError || !usersData) {
-      return { data: null, error: usersError };
-    }
-
-    // 3단계: 팔로우 여부 대량 조회 (로그인한 경우)
-    let followedIds: Set<string> = new Set();
-    if (currentUserId && usersData.length > 0) {
-      const { data: follows } = await supabase
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", currentUserId)
-        .in(
-          "following_id",
-          usersData.map((u) => u.id)
-        );
-
-      if (follows) {
-        followedIds = new Set(follows.map((f) => f.following_id));
-      }
-    }
-
-    const users = usersData.map((user) => ({
-      ...user,
-      is_following: followedIds.has(user.id),
-    }));
-
-    return {
-      data: users as Author[],
-      error: null,
-    };
   }
+
+  return {
+    data: {
+      ...userData,
+      is_following: isFollowing,
+    } as UserAuth & { is_following?: boolean },
+    error: null,
+  };
+}
+
+export async function getUserContributions(userId: string) {
+  const db = getDatabaseAdapter();
+
+  const { data, error } = await db.rpc<UserContribution[]>("get_user_contributions", {
+    target_user_id: userId,
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data: data ?? [], error: null };
+}
+
+export async function updateAvatar(id: string, avatar: string) {
+  const db = getDatabaseAdapter();
+
+  const { error: dbError } = await db.update(
+    "users",
+    { avatar },
+    [
+      { column: "id", value: id },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  );
+
+  if (dbError) {
+    return { error: dbError };
+  }
+
+  const { error: authError } = await db.updateCurrentAuthUserMetadata({
+    avatar_url: avatar,
+  });
+
+  if (authError) {
+    return { error: authError };
+  }
+
+  return { error: null };
+}
+
+export async function getRandomFeaturedUsers(count: number, currentUserId?: string) {
+  const db = getDatabaseAdapter();
+
+  const fetchCount = currentUserId ? count + 1 : count;
+  const { data: featuredIds, error: rpcError } = await db.rpc<FeaturedUserIdRow[]>(
+    "get_random_featured_users",
+    { p_count: fetchCount },
+  );
+
+  if (rpcError || !featuredIds) {
+    return { data: null, error: rpcError };
+  }
+
+  const ids = featuredIds
+    .map((user) => user.id)
+    .filter((id) => id !== currentUserId)
+    .slice(0, count);
+
+  if (ids.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const { data: usersData, error: usersError } = await db.query<UserProfileRow[]>({
+    table: "users",
+    select: "id, username, nickname, bio, avatar",
+    filters: [
+      { column: "id", operator: "in", value: ids },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  });
+
+  if (usersError || !usersData) {
+    return { data: null, error: usersError };
+  }
+
+  let followedIds = new Set<string>();
+
+  if (currentUserId && usersData.length > 0) {
+    const { data: follows } = await db.query<FollowRow[]>({
+      table: "follows",
+      select: "following_id",
+      filters: [
+        { column: "follower_id", value: currentUserId },
+        {
+          column: "following_id",
+          operator: "in",
+          value: usersData.map((user) => user.id),
+        },
+      ],
+    });
+
+    if (follows) {
+      followedIds = new Set(follows.map((follow) => follow.following_id));
+    }
+  }
+
+  const users = usersData.map((user) => ({
+    ...user,
+    is_following: followedIds.has(user.id),
+  }));
+
+  return {
+    data: users as Author[],
+    error: null,
+  };
 }

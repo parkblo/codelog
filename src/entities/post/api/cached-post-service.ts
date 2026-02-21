@@ -1,9 +1,7 @@
 import { cache } from "react";
 
-import { PostService } from "./post.service";
-
-const postService = new PostService();
+import { getPostById } from "./post.service";
 
 export const getPostByIdCached = cache(async (id: number) => {
-  return postService.getPostById(id);
+  return getPostById(id);
 });

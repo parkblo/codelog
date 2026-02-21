@@ -6,7 +6,15 @@ import {
   CommentListOptions,
   CreateCommentDTO,
 } from "@/entities/comment/api/comment.interface";
-import { CommentService } from "@/entities/comment/api/comment.service";
+import {
+  createComment,
+  deleteComment,
+  getCommentById,
+  getCommentLikesByUser,
+  getCommentsByPostId,
+  isPostAvailable,
+  updateComment,
+} from "@/entities/comment/api/comment.service";
 import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 import { Comment } from "@/shared/types";
 
@@ -31,7 +39,6 @@ function getSafeOffset(offset?: number) {
 
 async function resolveCommentInteraction(comments: Comment[] | null) {
   const user = await getCurrentUserAuth();
-  const commentService = new CommentService();
 
   if (!comments) {
     return { data: [], error: null };
@@ -48,7 +55,7 @@ async function resolveCommentInteraction(comments: Comment[] | null) {
   }
 
   const { data: commentLikes, error: getCommentLikesError } =
-    await commentService.getCommentLikesByUser(user.id);
+    await getCommentLikesByUser(user.id);
 
   if (getCommentLikesError) {
     console.error(getCommentLikesError);
@@ -69,7 +76,6 @@ async function resolveCommentInteraction(comments: Comment[] | null) {
 }
 
 async function createCommentAction(data: CreateCommentDTO) {
-  const commentService = new CommentService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
@@ -80,7 +86,7 @@ async function createCommentAction(data: CreateCommentDTO) {
   const secureData = { ...data, userId: user.id };
 
   const { data: createdComment, error: createCommentError } =
-    await commentService.createComment(secureData);
+    await createComment(secureData);
 
   if (createCommentError || !createdComment) {
     console.error(createCommentError);
@@ -98,10 +104,8 @@ async function getCommentsByPostIdAction(
   postId: number,
   options: CommentListOptions = {},
 ) {
-  const commentService = new CommentService();
-
   const { data: comments, error: getCommentsError } =
-    await commentService.getCommentsByPostId(postId, options);
+    await getCommentsByPostId(postId, options);
 
   if (getCommentsError) {
     console.error(getCommentsError);
@@ -151,23 +155,22 @@ async function updateCommentAction(
   postId: number,
   data: Partial<CreateCommentDTO>,
 ) {
-  const commentService = new CommentService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: isPostAvailable, error: postError } =
-    await commentService.isPostAvailable(postId);
+  const { data: postAvailable, error: postError } =
+    await isPostAvailable(postId);
 
-  if (postError || !isPostAvailable) {
+  if (postError || !postAvailable) {
     return { error: "포스트를 찾을 수 없습니다." };
   }
 
   // 소유권 확인
   const { data: originalComment, error: fetchError } =
-    await commentService.getCommentById(commentId);
+    await getCommentById(commentId);
 
   if (fetchError || !originalComment) {
     return { error: "댓글을 찾을 수 없습니다." };
@@ -178,7 +181,7 @@ async function updateCommentAction(
   }
 
   const { data: updatedComment, error: updateCommentError } =
-    await commentService.updateComment(commentId, data);
+    await updateComment(commentId, data);
 
   if (updateCommentError || !updatedComment) {
     console.error(updateCommentError);
@@ -193,23 +196,22 @@ async function updateCommentAction(
 }
 
 async function deleteCommentAction(commentId: number, postId: number) {
-  const commentService = new CommentService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { data: isPostAvailable, error: postError } =
-    await commentService.isPostAvailable(postId);
+  const { data: postAvailable, error: postError } =
+    await isPostAvailable(postId);
 
-  if (postError || !isPostAvailable) {
+  if (postError || !postAvailable) {
     return { error: "포스트를 찾을 수 없습니다." };
   }
 
   // 소유권 확인
   const { data: originalComment, error: fetchError } =
-    await commentService.getCommentById(commentId);
+    await getCommentById(commentId);
 
   if (fetchError || !originalComment) {
     return { error: "댓글을 찾을 수 없습니다." };
@@ -219,7 +221,7 @@ async function deleteCommentAction(commentId: number, postId: number) {
     return { error: "본인의 댓글만 삭제할 수 있습니다." };
   }
 
-  const { error: deleteError } = await commentService.deleteComment(commentId);
+  const { error: deleteError } = await deleteComment(commentId);
   if (deleteError) {
     console.error(deleteError);
     return { error: deleteError.message };

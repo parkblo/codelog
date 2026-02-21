@@ -1,197 +1,191 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 import { Comment } from "@/shared/types/types";
 
 import {
   CommentListOptions,
   CreateCommentDTO,
-  ICommentService,
 } from "./comment.interface";
 
-export class CommentService implements ICommentService {
-  async isPostAvailable(
-    postId: number
-  ): Promise<{ data: boolean; error: Error | null }> {
-    const supabase = await createClient();
+export async function isPostAvailable(
+  postId: number,
+): Promise<{ data: boolean; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const { data, error } = await db.query<{ id: number }>(
+    {
+      table: "posts",
+      select: `id, author:users!posts_user_id_fkey!inner(id)`,
+      filters: [
+        { column: "id", value: postId },
+        { column: "deleted_at", operator: "is", value: null },
+        { column: "author.deleted_at", operator: "is", value: null },
+      ],
+    },
+    "maybeSingle",
+  );
 
-    const { data, error } = await supabase
-      .from("posts")
-      .select(`id, author:users!posts_user_id_fkey!inner(id)`)
-      .eq("id", postId)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .maybeSingle();
-
-    if (error) {
-      return { data: false, error };
-    }
-
-    return { data: !!data, error: null };
+  if (error) {
+    return { data: false, error };
   }
 
-  async createComment(
-    data: CreateCommentDTO
-  ): Promise<{ data: Comment | null; error: Error | null }> {
-    const { data: isPostAvailable, error: postError } = await this.isPostAvailable(
-      data.postId
-    );
+  return { data: !!data, error: null };
+}
 
-    if (postError) {
-      return { data: null, error: postError };
-    }
+export async function createComment(
+  data: CreateCommentDTO,
+): Promise<{ data: Comment | null; error: Error | null }> {
+  const { data: postAvailable, error: postError } = await isPostAvailable(data.postId);
 
-    if (!isPostAvailable) {
-      return { data: null, error: new Error("포스트를 찾을 수 없습니다.") };
-    }
-
-    const supabase = await createClient();
-
-    const { data: createdComment, error: createCommentError } = await supabase
-      .from("comments")
-      .insert({
-        content: data.content,
-        post_id: data.postId,
-        user_id: data.userId,
-        start_line: data.startLine,
-        end_line: data.endLine,
-      })
-      .select(
-        `
-        *, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)`
-      )
-      .single();
-
-    return { data: createdComment, error: createCommentError };
+  if (postError) {
+    return { data: null, error: postError };
   }
 
-  async getReviewCommentsCount(
-    postId: number
-  ): Promise<{ count: number | null; error: Error | null }> {
-    const supabase = await createClient();
-
-    const { count, error } = await supabase
-      .from("comments")
-      .select(`id, author:users!comments_user_id_fkey!inner(id)`, {
-        count: "exact",
-        head: true,
-      })
-      .eq("post_id", postId)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .not("start_line", "is", null);
-
-    return { count, error };
+  if (!postAvailable) {
+    return { data: null, error: new Error("포스트를 찾을 수 없습니다.") };
   }
 
-  async getCommentLikesByUser(
-    userId: string
-  ): Promise<{ data: number[] | null; error: Error | null }> {
-    const supabase = await createClient();
+  const db = getDatabaseAdapter();
+  return db.insert<Comment>(
+    "comments",
+    {
+      content: data.content,
+      post_id: data.postId,
+      user_id: data.userId,
+      start_line: data.startLine,
+      end_line: data.endLine,
+    },
+    {
+      select: `
+        *, author:users!comments_user_id_fkey(id, username, nickname, avatar, bio)
+      `,
+      mode: "single",
+    },
+  );
+}
 
-    const { data, error } = await supabase
-      .from("comment_likes")
-      .select("comment_id")
-      .eq("user_id", userId);
+export async function getReviewCommentsCount(
+  postId: number,
+): Promise<{ count: number | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const { count, error } = await db.query<{ id: number }[]>({
+    table: "comments",
+    select: `id, author:users!comments_user_id_fkey!inner(id)`,
+    filters: [
+      { column: "post_id", value: postId },
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+    ],
+    notFilters: [{ column: "start_line", operator: "is", value: null }],
+    count: "exact",
+    head: true,
+  });
 
-    if (error) {
-      return { data: null, error };
-    }
+  return { count: count ?? null, error };
+}
 
-    return { data: data.map((like) => like.comment_id), error: null };
+export async function getCommentLikesByUser(
+  userId: string,
+): Promise<{ data: number[] | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const { data, error } = await db.query<{ comment_id: number }[]>({
+    table: "comment_likes",
+    select: "comment_id",
+    filters: [{ column: "user_id", value: userId }],
+  });
+
+  if (error) {
+    return { data: null, error };
   }
 
-  async getCommentsByPostId(
-    postId: number,
-    { offset, limit, type = "all" }: CommentListOptions = {},
-  ): Promise<{ data: Comment[] | null; error: Error | null }> {
-    const supabase = await createClient();
+  return { data: (data ?? []).map((like) => like.comment_id), error: null };
+}
 
-    let query = supabase
-      .from("comments")
-      .select(
-        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
-      )
-      .eq("post_id", postId)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .order("created_at", { ascending: true });
+export async function getCommentsByPostId(
+  postId: number,
+  { offset, limit, type = "all" }: CommentListOptions = {},
+): Promise<{ data: Comment[] | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const safeLimit = limit && limit > 0 ? limit : undefined;
+  const safeOffset = Math.max(0, offset ?? 0);
 
-    if (type === "general") {
-      query = query.or("start_line.is.null,end_line.is.null");
-    }
+  const { data, error } = await db.query<Comment[]>({
+    table: "comments",
+    select: `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
+    filters: [
+      { column: "post_id", value: postId },
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+    ],
+    or: type === "general" ? "start_line.is.null,end_line.is.null" : undefined,
+    notFilters:
+      type === "review"
+        ? [
+            { column: "start_line", operator: "is", value: null },
+            { column: "end_line", operator: "is", value: null },
+          ]
+        : undefined,
+    orderBy: { column: "created_at", ascending: true },
+    range:
+      typeof safeLimit === "number"
+        ? { from: safeOffset, to: safeOffset + safeLimit - 1 }
+        : undefined,
+  });
 
-    if (type === "review") {
-      query = query.not("start_line", "is", null).not("end_line", "is", null);
-    }
-
-    if (limit && limit > 0) {
-      const safeOffset = Math.max(0, offset ?? 0);
-      query = query.range(safeOffset, safeOffset + limit - 1);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data, error: null };
+  if (error) {
+    return { data: null, error };
   }
 
-  async getCommentById(
-    commentId: number
-  ): Promise<{ data: Comment | null; error: Error | null }> {
-    const supabase = await createClient();
+  return { data: data ?? [], error: null };
+}
 
-    const { data, error } = await supabase
-      .from("comments")
-      .select(
-        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
-      )
-      .eq("id", commentId)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .single();
+export async function getCommentById(
+  commentId: number,
+): Promise<{ data: Comment | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  return db.query<Comment>(
+    {
+      table: "comments",
+      select: `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
+      filters: [
+        { column: "id", value: commentId },
+        { column: "deleted_at", operator: "is", value: null },
+        { column: "author.deleted_at", operator: "is", value: null },
+      ],
+    },
+    "single",
+  );
+}
 
-    if (error) {
-      return { data: null, error };
-    }
+export async function updateComment(
+  id: number,
+  data: Partial<CreateCommentDTO>,
+): Promise<{ data: Comment | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const { error: updateError } = await db.update(
+    "comments",
+    { content: data.content },
+    [
+      { column: "id", value: id },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  );
 
-    return { data, error: null };
+  if (updateError) {
+    return { data: null, error: updateError };
   }
 
-  async updateComment(
-    id: number,
-    data: Partial<CreateCommentDTO>
-  ): Promise<{ data: Comment | null; error: Error | null }> {
-    const supabase = await createClient();
+  return getCommentById(id);
+}
 
-    const { data: updatedComment, error: updateCommentError } = await supabase
-      .from("comments")
-      .update({ content: data.content })
-      .eq("id", id)
-      .is("deleted_at", null)
-      .select(
-        `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`
-      )
-      .is("author.deleted_at", null)
-      .single();
-
-    if (updateCommentError) {
-      return { data: null, error: updateCommentError };
-    }
-
-    return { data: updatedComment, error: null };
-  }
-
-  async deleteComment(id: number): Promise<{ error: Error | null }> {
-    const supabase = await createClient();
-
-    const { error } = await supabase
-      .from("comments")
-      .update({ deleted_at: new Date().toISOString() })
-      .eq("id", id)
-      .is("deleted_at", null);
-
-    return { error };
-  }
+export async function deleteComment(
+  id: number,
+): Promise<{ error: Error | null }> {
+  const db = getDatabaseAdapter();
+  return db.update(
+    "comments",
+    { deleted_at: new Date().toISOString() },
+    [
+      { column: "id", value: id },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  );
 }

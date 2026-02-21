@@ -1,62 +1,68 @@
 import { createClient } from "@/shared/lib/supabase/client";
 import { UserAuth } from "@/shared/types/types";
 
-import { IAuthService, SignUpProps } from "./auth.interface";
-export class ClientAuthService implements IAuthService {
-  private supabase = createClient();
+import { AuthCredentials, OAuthOptions, SignUpProps } from "./auth.interface";
 
-  async getCurrentUser(): Promise<UserAuth | null> {
-    const {
-      data: { user },
-      error: authError,
-    } = await this.supabase.auth.getUser();
+export async function getCurrentUserFromClient(): Promise<UserAuth | null> {
+  const supabase = createClient();
 
-    if (authError || !user) {
-      return null;
-    }
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-    const { data: profile, error: profileError } = await this.supabase
-      .from("users")
-      .select("id, username, nickname, avatar, bio")
-      .eq("id", user.id)
-      .is("deleted_at", null)
-      .single();
-
-    if (profileError || !profile) {
-      return null;
-    }
-
-    return profile as UserAuth;
+  if (authError || !user) {
+    return null;
   }
 
-  async signInWithOAuth(provider: "github", options?: { redirectTo: string }) {
-    return await this.supabase.auth.signInWithOAuth({
-      provider,
-      options,
-    });
+  const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("id, username, nickname, avatar, bio")
+    .eq("id", user.id)
+    .is("deleted_at", null)
+    .single();
+
+  if (profileError || !profile) {
+    return null;
   }
 
-  async signInWithPassword(credentials: { email: string; password: string }) {
-    return await this.supabase.auth.signInWithPassword(credentials);
-  }
+  return profile as UserAuth;
+}
 
-  async signUp(credentials: SignUpProps) {
-    const { email, password, data } = credentials;
+export async function signInWithOAuth(
+  provider: "github",
+  options?: OAuthOptions,
+) {
+  const supabase = createClient();
+  return supabase.auth.signInWithOAuth({
+    provider,
+    options,
+  });
+}
 
-    return await this.supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          user_name: data.user_name,
-          full_name: data.nick_name,
-          avatar_url: data.avatar_url,
-        },
+export async function signInWithPassword(credentials: AuthCredentials) {
+  const supabase = createClient();
+  return supabase.auth.signInWithPassword(credentials);
+}
+
+export async function signUp(credentials: SignUpProps) {
+  const supabase = createClient();
+  const { email, password, data } = credentials;
+
+  return supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        user_name: data.user_name,
+        full_name: data.nick_name,
+        avatar_url: data.avatar_url,
       },
-    });
-  }
+    },
+  });
+}
 
-  async signOut(): Promise<{ error: Error | null }> {
-    return await this.supabase.auth.signOut();
-  }
+export async function signOut(): Promise<{ error: Error | null }> {
+  const supabase = createClient();
+  return supabase.auth.signOut();
 }

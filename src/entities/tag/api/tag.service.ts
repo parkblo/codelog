@@ -1,65 +1,65 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 import { Tables } from "@/shared/types/database.types";
 
-import { ITagService } from "./tag.interface";
+export async function createTagForPost(
+  tagName: string,
+  postId: number,
+): Promise<{ data: Tables<"posttags"> | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  let tagId: number;
 
-export class TagService implements ITagService {
-  async createTagForPost(
-    tagName: string,
-    postId: number
-  ): Promise<{ data: Tables<"posttags"> | null; error: Error | null }> {
-    const supabase = await createClient();
-    let tagId: number;
+  const { data: existingTag } = await db.query<Tables<"tags">>(
+    {
+      table: "tags",
+      select: "*",
+      filters: [{ column: "name", value: tagName }],
+    },
+    "maybeSingle",
+  );
 
-    const { data: existingTag } = await supabase
-      .from("tags")
-      .select()
-      .eq("name", tagName)
-      .maybeSingle();
+  if (existingTag) {
+    tagId = existingTag.id;
+  } else {
+    const { data: createdTag, error: createTagError } = await db.insert<Tables<"tags">>(
+      "tags",
+      { name: tagName },
+      { select: "*", mode: "single" },
+    );
 
-    if (existingTag) {
-      tagId = existingTag.id;
-    } else {
-      const { data: createdTag, error: createTagError } = await supabase
-        .from("tags")
-        .insert({ name: tagName })
-        .select()
-        .single();
-
-      if (!createdTag || createTagError) {
-        return { data: null, error: createTagError };
-      }
-
-      tagId = createdTag.id;
+    if (!createdTag || createTagError) {
+      return { data: null, error: createTagError };
     }
 
-    const { data: createdPostTag, error: createPostTagError } = await supabase
-      .from("posttags")
-      .insert({
+    tagId = createdTag.id;
+  }
+
+  const { data: createdPostTag, error: createPostTagError } =
+    await db.insert<Tables<"posttags">>(
+      "posttags",
+      {
         post_id: postId,
         tag_id: tagId,
-      })
-      .select()
-      .single();
+      },
+      { select: "*", mode: "single" },
+    );
 
-    if (createPostTagError) {
-      return { data: null, error: createPostTagError };
-    }
-
-    return { data: createdPostTag, error: null };
+  if (createPostTagError) {
+    return { data: null, error: createPostTagError };
   }
 
-  async getTrendingTags(limit: number) {
-    const supabase = await createClient();
+  return { data: createdPostTag, error: null };
+}
 
-    const { data, error } = await supabase.rpc("get_trending_tags", {
-      p_limit: limit,
-    });
+export async function getTrendingTags(limit: number) {
+  const db = getDatabaseAdapter();
+  const { data, error } = await db.rpc<{ name: string; post_count: number }[]>(
+    "get_trending_tags",
+    { p_limit: limit },
+  );
 
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data, error: null };
+  if (error) {
+    return { data: null, error };
   }
+
+  return { data: data ?? [], error: null };
 }

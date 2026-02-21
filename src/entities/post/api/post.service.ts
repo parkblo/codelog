@@ -1,263 +1,226 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 import { Database, Tables } from "@/shared/types/database.types";
 import { Post } from "@/shared/types/types";
 
-import { CreatePostDTO, IPostService } from "./post.interface";
+import { CreatePostDTO } from "./post.interface";
 
-type RpcDatabase = Database & {
-  public: {
-    Functions: {
-      create_post_with_tags: {
-        Args: {
-          post_data: {
-            content: string;
-            code: string | null;
-            language: string | null;
-            user_id: string;
-            is_review_enabled: boolean;
-          };
-          tags: string[];
-        };
-        Returns: Tables<"posts">;
-      };
-      update_post_with_tags: {
-        Args: {
-          p_post_id: number;
-          post_data: {
-            content?: string;
-            code?: string | null;
-            language?: string | null;
-            is_review_enabled?: boolean;
-          };
-          tags: string[] | null;
-        };
-        Returns: Tables<"posts">;
-      };
-    };
-  };
+type PostQueryResult = Tables<"posts"> & {
+  author: Tables<"users">;
+  tags: { tags: { name: string } | null }[] | null;
 };
 
-export class PostService implements IPostService {
-  async createPost(
-    data: CreatePostDTO
-  ): Promise<{ data: Post | null; error: Error | null }> {
-    const supabase = await createClient();
+export async function createPost(
+  data: CreatePostDTO,
+): Promise<{ data: Post | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
 
-    const { data: insertedPost, error } = await (
-      supabase as SupabaseClient<RpcDatabase>
-    ).rpc("create_post_with_tags", {
+  const { data: insertedPost, error } = await db.rpc<Tables<"posts">>(
+    "create_post_with_tags",
+    {
       post_data: {
         content: data.content,
         code: data.code,
         language: data.language,
         user_id: data.author.id,
         is_review_enabled: data.is_review_enabled,
-      },
+      } as unknown as Database["public"]["Functions"]["create_post_with_tags"]["Args"]["post_data"],
       tags: data.tags,
-    });
+    },
+  );
 
-    if (error || !insertedPost) {
-      return { data: null, error };
-    }
-
-    const newPost: Post = {
-      ...(insertedPost as Tables<"posts">),
-      author: data.author,
-      tags: data.tags,
-    };
-
-    return { data: newPost, error: null };
+  if (error || !insertedPost) {
+    return { data: null, error };
   }
 
-  async getPosts({
-    isReviewEnabled = false,
-    authorId,
-    likedByUserId,
-    bookmarkedByUserId,
-    keyword,
-    tag,
-    offset,
-    limit,
-  }: {
-    isReviewEnabled?: boolean;
-    authorId?: string;
-    likedByUserId?: string;
-    bookmarkedByUserId?: string;
-    keyword?: string;
-    tag?: string;
-    offset?: number;
-    limit?: number;
-  } = {}): Promise<{ data: Post[] | null; error: Error | null }> {
-    const supabase = await createClient();
+  const newPost: Post = {
+    ...insertedPost,
+    author: data.author,
+    tags: data.tags,
+  };
 
-    let selectString = `
+  return { data: newPost, error: null };
+}
+
+export async function getPosts({
+  isReviewEnabled = false,
+  authorId,
+  likedByUserId,
+  bookmarkedByUserId,
+  keyword,
+  tag,
+  offset,
+  limit,
+}: {
+  isReviewEnabled?: boolean;
+  authorId?: string;
+  likedByUserId?: string;
+  bookmarkedByUserId?: string;
+  keyword?: string;
+  tag?: string;
+  offset?: number;
+  limit?: number;
+} = {}): Promise<{ data: Post[] | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+
+  let selectString = `
       *,
       author:users!posts_user_id_fkey!inner(*),
       tags:posttags(tags(*))`;
 
-    if (likedByUserId) {
-      selectString += `, post_likes!inner(user_id)`;
-    }
+  const filters: {
+    column: string;
+    value: unknown;
+    operator?: "eq" | "is";
+  }[] = [
+    { column: "deleted_at", operator: "is", value: null },
+    { column: "author.deleted_at", operator: "is", value: null },
+  ];
 
-    if (bookmarkedByUserId) {
-      selectString += `, bookmarks!inner(user_id)`;
-    }
-
-    if (tag) {
-      selectString += `, filter_tags:posttags!inner(tags!inner(name))`;
-    }
-
-    let query = supabase.from("posts").select(selectString).is("deleted_at", null);
-
-    query = query.is("author.deleted_at", null);
-
-    if (isReviewEnabled) {
-      query = query.eq("is_review_enabled", true);
-    }
-
-    if (authorId) {
-      query = query.eq("user_id", authorId);
-    }
-
-    if (likedByUserId) {
-      query = query.eq("post_likes.user_id", likedByUserId);
-    }
-
-    if (bookmarkedByUserId) {
-      query = query.eq("bookmarks.user_id", bookmarkedByUserId);
-    }
-
-    if (keyword) {
-      const escapedKeyword = keyword.replace(/[%_]/g, "\\$&");
-      query = query.or(
-        `content.ilike.%${escapedKeyword}%,code.ilike.%${escapedKeyword}%`
-      );
-    }
-
-    if (tag) {
-      query = query.eq("filter_tags.tags.name", tag);
-    }
-
-    query = query.order("created_at", { ascending: false });
-
-    if (limit && limit > 0) {
-      const safeOffset = Math.max(0, offset ?? 0);
-      query = query.range(safeOffset, safeOffset + limit - 1);
-    }
-
-    interface PostQueryResult extends Tables<"posts"> {
-      author: Tables<"users">;
-      tags: { tags: { name: string } | null }[] | null;
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    const posts = (data as unknown as PostQueryResult[]).map((post) => ({
-      ...post,
-      tags:
-        post.tags
-          ?.map((t) => t.tags?.name)
-          .filter((name): name is string => !!name) ?? [],
-    }));
-
-    return { data: posts, error: null };
+  if (likedByUserId) {
+    selectString += `, post_likes!inner(user_id)`;
+    filters.push({ column: "post_likes.user_id", value: likedByUserId });
   }
 
-  async getPostById(
-    id: number
-  ): Promise<{ data: Post | null; error: Error | null }> {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
-      .from("posts")
-      .select(`*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`)
-      .eq("id", id)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .single();
-
-    if (error || !data) {
-      return { data: null, error };
-    }
-
-    const post = {
-      ...data,
-      author: data.author as Tables<"users">,
-      tags:
-        (data.tags as { tags: { name: string } | null }[])
-          ?.map((t) => t.tags?.name)
-          .filter((name): name is string => !!name) ?? [],
-    };
-
-    return { data: post, error: null };
+  if (bookmarkedByUserId) {
+    selectString += `, bookmarks!inner(user_id)`;
+    filters.push({ column: "bookmarks.user_id", value: bookmarkedByUserId });
   }
 
-  async getReviewCommentsCount(
-    postId: number
-  ): Promise<{ count: number | null; error: Error | null }> {
-    const supabase = await createClient();
-
-    const { count, error } = await supabase
-      .from("comments")
-      .select(`id, author:users!comments_user_id_fkey!inner(id)`, {
-        count: "exact",
-        head: true,
-      })
-      .eq("post_id", postId)
-      .is("deleted_at", null)
-      .is("author.deleted_at", null)
-      .not("start_line", "is", null);
-
-    return { count, error };
+  if (tag) {
+    selectString += `, filter_tags:posttags!inner(tags!inner(name))`;
+    filters.push({ column: "filter_tags.tags.name", value: tag });
   }
 
-  async deletePost(id: number): Promise<{ error: Error | null }> {
-    const supabase = await createClient();
-
-    const { error } = await supabase
-      .from("posts")
-      .update({ deleted_at: new Date().toISOString() })
-      .eq("id", id)
-      .is("deleted_at", null);
-
-    return { error };
+  if (isReviewEnabled) {
+    filters.push({ column: "is_review_enabled", value: true });
   }
 
-  async updatePost(
-    id: number,
-    data: Partial<CreatePostDTO>
-  ): Promise<{ data: Post | null; error: Error | null }> {
-    const supabase = await createClient();
-
-    const { tags, ...postFields } = data;
-
-    // 글 내용 업데이트
-    const { error } = await (supabase as SupabaseClient<RpcDatabase>).rpc(
-      "update_post_with_tags",
-      {
-        p_post_id: id,
-        post_data: {
-          content: postFields.content,
-          code: postFields.code,
-          language: postFields.language,
-          is_review_enabled: postFields.is_review_enabled,
-        },
-        tags: tags ?? [],
-      }
-    );
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    // RPC는 업데이트된 post row를 반환하지만, author와 tags가 포함된 전체 Post 객체를 반환해야하기 때문에, 재조회합니다.
-
-    return this.getPostById(id);
+  if (authorId) {
+    filters.push({ column: "user_id", value: authorId });
   }
+
+  const safeLimit = limit && limit > 0 ? limit : undefined;
+  const safeOffset = Math.max(0, offset ?? 0);
+  const escapedKeyword = keyword ? keyword.replace(/[%_]/g, "\\$&") : null;
+
+  const { data, error } = await db.query<PostQueryResult[]>({
+    table: "posts",
+    select: selectString,
+    filters,
+    or: escapedKeyword
+      ? `content.ilike.%${escapedKeyword}%,code.ilike.%${escapedKeyword}%`
+      : undefined,
+    orderBy: { column: "created_at", ascending: false },
+    range:
+      typeof safeLimit === "number"
+        ? { from: safeOffset, to: safeOffset + safeLimit - 1 }
+        : undefined,
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  const posts = (data ?? []).map((post) => ({
+    ...post,
+    tags:
+      post.tags
+        ?.map((postTag) => postTag.tags?.name)
+        .filter((name): name is string => !!name) ?? [],
+  }));
+
+  return { data: posts, error: null };
+}
+
+export async function getPostById(
+  id: number,
+): Promise<{ data: Post | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+
+  const { data, error } = await db.query<PostQueryResult>(
+    {
+      table: "posts",
+      select: `*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`,
+      filters: [
+        { column: "id", value: id },
+        { column: "deleted_at", operator: "is", value: null },
+        { column: "author.deleted_at", operator: "is", value: null },
+      ],
+    },
+    "single",
+  );
+
+  if (error || !data) {
+    return { data: null, error };
+  }
+
+  const post = {
+    ...data,
+    author: data.author as Tables<"users">,
+    tags:
+      (data.tags as { tags: { name: string } | null }[])
+        ?.map((postTag) => postTag.tags?.name)
+        .filter((name): name is string => !!name) ?? [],
+  };
+
+  return { data: post, error: null };
+}
+
+export async function getReviewCommentsCount(
+  postId: number,
+): Promise<{ count: number | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+
+  const { count, error } = await db.query<{ id: number }[]>({
+    table: "comments",
+    select: `id, author:users!comments_user_id_fkey!inner(id)`,
+    filters: [
+      { column: "post_id", value: postId },
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+    ],
+    notFilters: [{ column: "start_line", operator: "is", value: null }],
+    count: "exact",
+    head: true,
+  });
+
+  return { count: count ?? null, error };
+}
+
+export async function deletePost(id: number): Promise<{ error: Error | null }> {
+  const db = getDatabaseAdapter();
+
+  return db.update(
+    "posts",
+    { deleted_at: new Date().toISOString() },
+    [
+      { column: "id", value: id },
+      { column: "deleted_at", operator: "is", value: null },
+    ],
+  );
+}
+
+export async function updatePost(
+  id: number,
+  data: Partial<CreatePostDTO>,
+): Promise<{ data: Post | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+  const { tags, ...postFields } = data;
+
+  const { error } = await db.rpc<unknown>("update_post_with_tags", {
+    p_post_id: id,
+    post_data: {
+      content: postFields.content,
+      code: postFields.code,
+      language: postFields.language,
+      is_review_enabled: postFields.is_review_enabled,
+    } as unknown as Database["public"]["Functions"]["update_post_with_tags"]["Args"]["post_data"],
+    tags: tags ?? [],
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return getPostById(id);
 }

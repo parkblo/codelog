@@ -10,7 +10,7 @@ import { useAuth } from "@/entities/user";
 import {
   editUserAction,
   updateAvatarAction,
-  UserServiceBrowser,
+  uploadAvatar,
 } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
 import { UserAuth } from "@/shared/types/types";
@@ -65,8 +65,7 @@ export default function ProfileEditDialog({
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const userService = new UserServiceBrowser();
-      const { data: publicUrl, error } = await userService.uploadAvatar(
+      const { data: publicUrl, error } = await uploadAvatar(
         initialUser.id,
         file,
       );

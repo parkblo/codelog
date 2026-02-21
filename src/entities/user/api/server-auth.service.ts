@@ -1,32 +1,5 @@
-import { createClient } from "@/shared/lib/supabase/server";
-import { UserAuth } from "@/shared/types/types";
+import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
-import { IAuthService } from "./auth.interface";
-
-export class ServerAuthService implements IAuthService {
-  async getCurrentUser(): Promise<UserAuth | null> {
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return null;
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .select("id, username, nickname, avatar, bio")
-      .eq("id", user.id)
-      .is("deleted_at", null)
-      .single();
-
-    if (profileError || !profile) {
-      return null;
-    }
-
-    return profile as UserAuth;
-  }
+export async function getCurrentUser() {
+  return getCurrentUserAuth();
 }

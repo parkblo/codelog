@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 
 import { Header, MobileNav } from "@/widgets/header";
 import { Sidebar } from "@/widgets/sidebar";
-import { ServerAuthService } from "@/entities/user/server";
+import { getCurrentUser } from "@/entities/user/server";
 import { BackgroundCanvas } from "@/shared/ui/background-canvas";
 
 import { AppProvider } from "./providers";
@@ -53,8 +53,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUser();
 
   return (
     <html lang="ko" className="dark">

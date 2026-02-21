@@ -6,14 +6,12 @@ import { FollowButton } from "@/features/follow";
 import { SearchInput } from "@/features/search";
 import { getTrendingTagsAction } from "@/entities/tag";
 import { getRandomFeaturedUsersAction, UserAvatar } from "@/entities/user";
-import { ServerAuthService } from "@/entities/user/server";
+import { getCurrentUser } from "@/entities/user/server";
 import { Card, CardContent } from "@/shared/ui/card";
 import { TagList } from "@/shared/ui/tag-list";
 
 export default async function Sidebar() {
-  const authService = new ServerAuthService();
-
-  const currentUser = await authService.getCurrentUser();
+  const currentUser = await getCurrentUser();
   const [{ data: featuredUsers }, { data: trendingTags }] = await Promise.all([
     getRandomFeaturedUsersAction(2),
     getTrendingTagsAction(10),

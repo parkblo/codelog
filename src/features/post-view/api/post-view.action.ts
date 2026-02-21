@@ -1,19 +1,14 @@
 "use server";
 
-import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
-import { LikeService } from "@/entities/like/api/like.service";
-import { PostService } from "@/entities/post/api/post.service";
-import { ServerAuthService } from "@/entities/user/server";
-
-const postService = new PostService();
-const likeService = new LikeService();
-const bookmarkService = new BookmarkService();
+import { getBookmarks } from "@/entities/bookmark/api/bookmark.service";
+import { getPostLikes } from "@/entities/like/api/like.service";
+import { getPostById } from "@/entities/post/api/post.service";
+import { getCurrentUser } from "@/entities/user/server";
 
 export async function getPostDetailAction(postId: number) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUser();
 
-  const { data: post, error } = await postService.getPostById(postId);
+  const { data: post, error } = await getPostById(postId);
 
   if (error || !post) {
     return {
@@ -36,8 +31,8 @@ export async function getPostDetailAction(postId: number) {
 
   // 로그인 시 interaction 정보 조회 (좋아요, 북마크)
   const [{ data: postLikes }, { data: postBookmarks }] = await Promise.all([
-    likeService.getPostLikes(user.id),
-    bookmarkService.getBookmarks(user.id),
+    getPostLikes(user.id),
+    getBookmarks(user.id),
   ]);
 
   return {

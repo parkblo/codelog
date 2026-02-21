@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 
-import { LikeService } from "@/entities/like/api/like.service";
+import {
+  createCommentLike,
+  createPostLike,
+  deleteCommentLike,
+  deletePostLike,
+} from "@/entities/like/api/like.service";
 import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 async function createPostLikeAction(postId: number) {
@@ -12,8 +17,7 @@ async function createPostLikeAction(postId: number) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const likeService = new LikeService();
-  const { error } = await likeService.createPostLike(postId, user.id);
+  const { error } = await createPostLike(postId, user.id);
 
   if (error) {
     console.error(error);
@@ -32,8 +36,7 @@ async function deletePostLikeAction(postId: number) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const likeService = new LikeService();
-  const { error } = await likeService.deletePostLike(postId, user.id);
+  const { error } = await deletePostLike(postId, user.id);
 
   if (error) {
     console.error(error);
@@ -52,8 +55,7 @@ async function createCommentLikeAction(postId: number, commentId: number) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const likeService = new LikeService();
-  const { error } = await likeService.createCommentLike(commentId, user.id);
+  const { error } = await createCommentLike(commentId, user.id);
 
   if (error) {
     console.error(error);
@@ -72,8 +74,7 @@ async function deleteCommentLikeAction(postId: number, commentId: number) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const likeService = new LikeService();
-  const { error } = await likeService.deleteCommentLike(commentId, user.id);
+  const { error } = await deleteCommentLike(commentId, user.id);
 
   if (error) {
     console.error(error);

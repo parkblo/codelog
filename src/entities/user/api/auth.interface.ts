@@ -36,46 +36,4 @@ export interface SignUpProps extends AuthCredentials {
   };
 }
 
-/**
- * 인증(Authentication) 관련 비즈니스 로직을 처리하는 서비스 인터페이스입니다.
- */
-export interface IAuthService {
-  /**
-   * 현재 로그인된 사용자 세션을 확인하고 사용자 정보를 가져옵니다.
-   * @returns 사용자 정보 또는 null (비로그인 시)
-   */
-  getCurrentUser(): Promise<UserAuth | null>;
-
-  /**
-   * 소셜 로그인(OAuth)을 수행합니다.
-   * @param provider OAuth 제공자 (예: 'github')
-   * @param options 추가 옵션 (리다이렉트 URL 등)
-   * @returns 에러 객체 (성공 시 null)
-   */
-  signInWithOAuth?(
-    provider: string,
-    options?: OAuthOptions
-  ): Promise<{ error: Error | null }>;
-
-  /**
-   * 이메일과 비밀번호로 로그인을 수행합니다.
-   * @param credentials 이메일과 비밀번호
-   * @returns 에러 객체 (성공 시 null)
-   */
-  signInWithPassword?(
-    credentials: AuthCredentials
-  ): Promise<{ error: Error | null }>;
-
-  /**
-   * 새로운 사용자로 회원가입을 수행합니다.
-   * @param credentials 회원가입에 필요한 정보
-   * @returns 에러 객체 (성공 시 null)
-   */
-  signUp?(credentials: SignUpProps): Promise<{ error: Error | null }>;
-
-  /**
-   * 현재 사용자의 세션을 종료하고 로그아웃합니다.
-   * @returns 에러 객체 (성공 시 null)
-   */
-  signOut?(): Promise<{ error: Error | null }>;
-}
+export type GetCurrentUserFn = () => Promise<UserAuth | null>;

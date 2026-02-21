@@ -2,7 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { FollowService } from "@/entities/follow/api/follow.service";
+import {
+  follow,
+  getFollowers,
+  getFollowing,
+  isFollowing,
+  unfollow,
+} from "@/entities/follow/api/follow.service";
 import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
 /**
@@ -18,7 +24,6 @@ export async function followUserAction(
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
     return { error: "유효하지 않은 유저네임입니다." };
   }
-  const followService = new FollowService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
@@ -29,7 +34,7 @@ export async function followUserAction(
     return { error: "자기 자신을 팔로우할 수 없습니다." };
   }
 
-  const { error } = await followService.follow(user.id, followingId);
+  const { error } = await follow(user.id, followingId);
 
   if (error) {
     return { error: error.message };
@@ -57,14 +62,13 @@ export async function unfollowUserAction(
   if (followingUsername && !/^[a-zA-Z0-9_]+$/.test(followingUsername)) {
     return { error: "유효하지 않은 유저네임입니다." };
   }
-  const followService = new FollowService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
-  const { error } = await followService.unfollow(user.id, followingId);
+  const { error } = await unfollow(user.id, followingId);
 
   if (error) {
     return { error: error.message };
@@ -84,14 +88,13 @@ export async function unfollowUserAction(
  * @param followingId 확인 대상 사용자의 ID
  */
 export async function isFollowingAction(followingId: string) {
-  const followService = new FollowService();
   const user = await getCurrentUserAuth();
 
   if (!user) {
     return { data: false, error: null };
   }
 
-  const { data, error } = await followService.isFollowing(user.id, followingId);
+  const { data, error } = await isFollowing(user.id, followingId);
 
   if (error) {
     return { data: false, error: error.message };
@@ -104,8 +107,7 @@ export async function isFollowingAction(followingId: string) {
  * 특정 사용자의 팔로워 목록을 가져오는 서버 액션입니다.
  */
 export async function getFollowersAction(userId: string) {
-  const followService = new FollowService();
-  const { data, error } = await followService.getFollowers(userId);
+  const { data, error } = await getFollowers(userId);
 
   if (error) {
     return { data: null, error: error.message };
@@ -118,8 +120,7 @@ export async function getFollowersAction(userId: string) {
  * 특정 사용자의 팔로잉 목록을 가져오는 서버 액션입니다.
  */
 export async function getFollowingAction(userId: string) {
-  const followService = new FollowService();
-  const { data, error } = await followService.getFollowing(userId);
+  const { data, error } = await getFollowing(userId);
 
   if (error) {
     return { data: null, error: error.message };

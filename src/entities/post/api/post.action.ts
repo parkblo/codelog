@@ -3,10 +3,14 @@
 import { revalidatePath } from "next/cache";
 
 import { CreatePostDTO } from "@/entities/post/api/post.interface";
-import { PostService } from "@/entities/post/api/post.service";
+import {
+  createPost,
+  deletePost,
+  getPostById,
+  getReviewCommentsCount,
+  updatePost,
+} from "@/entities/post/api/post.service";
 import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
-
-const postService = new PostService();
 
 async function createPostAction(data: CreatePostDTO) {
   const user = await getCurrentUserAuth();
@@ -18,7 +22,7 @@ async function createPostAction(data: CreatePostDTO) {
   // 데이터의 author는 클라이언트에서 오므로, 서버의 신뢰할 수 있는 user 정보로 덮어씌웁니다.
   const secureData = { ...data, author: user };
 
-  const { data: newPost, error } = await postService.createPost(secureData);
+  const { data: newPost, error } = await createPost(secureData);
 
   if (error || !newPost) {
     console.error(error);
@@ -38,8 +42,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   }
 
   // 소유권 확인
-  const { data: originalPost, error: fetchError } =
-    await postService.getPostById(id);
+  const { data: originalPost, error: fetchError } = await getPostById(id);
 
   if (fetchError || !originalPost) {
     return { error: "포스트를 찾을 수 없습니다." };
@@ -50,8 +53,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
   }
 
   if (data.code !== undefined && data.code !== originalPost.code) {
-    const { count, error: countError } =
-      await postService.getReviewCommentsCount(id);
+    const { count, error: countError } = await getReviewCommentsCount(id);
 
     if (countError) {
       return { error: "댓글 정보를 확인하는 중 오류가 발생했습니다." };
@@ -64,7 +66,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
     }
   }
 
-  const { data: updatedPost, error } = await postService.updatePost(id, data);
+  const { data: updatedPost, error } = await updatePost(id, data);
 
   if (error || !updatedPost) {
     console.error(error);
@@ -79,7 +81,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 // getPostsAction removed. Use getPostListAction from @/features/post-list instead.
 
 async function getPostByIdAction(id: number) {
-  const { data: post, error: getPostError } = await postService.getPostById(id);
+  const { data: post, error: getPostError } = await getPostById(id);
 
   if (getPostError || !post) {
     console.error(getPostError);
@@ -102,8 +104,7 @@ async function deletePostAction(id: number) {
   }
 
   // 소유권 확인
-  const { data: originalPost, error: fetchError } =
-    await postService.getPostById(id);
+  const { data: originalPost, error: fetchError } = await getPostById(id);
 
   if (fetchError || !originalPost) {
     return { error: "포스트를 찾을 수 없습니다." };
@@ -113,7 +114,7 @@ async function deletePostAction(id: number) {
     return { error: "본인의 포스트만 삭제할 수 있습니다." };
   }
 
-  const { error } = await postService.deletePost(id);
+  const { error } = await deletePost(id);
 
   if (error) {
     console.error(error);

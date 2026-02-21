@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { ServerAuthService } from "@/entities/user/server";
+import { getCurrentUser } from "@/entities/user/server";
 import { getAuthRedirectUrl } from "@/shared/lib/auth";
 import type { UserAuth } from "@/shared/types/types";
 
@@ -14,8 +14,7 @@ import "server-only";
  * @returns 인증된 사용자 정보
  */
 export async function requireAuth(redirectPath: string): Promise<UserAuth> {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect(getAuthRedirectUrl(redirectPath));

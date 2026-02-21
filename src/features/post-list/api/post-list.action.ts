@@ -1,12 +1,11 @@
 "use server";
 
-import { BookmarkService } from "@/entities/bookmark/api/bookmark.service";
-import { LikeService } from "@/entities/like/api/like.service";
-import { PostService } from "@/entities/post/api/post.service";
-import { ServerAuthService } from "@/entities/user/server";
+import { getBookmarks } from "@/entities/bookmark/api/bookmark.service";
+import { getPostLikes } from "@/entities/like/api/like.service";
+import { getPosts } from "@/entities/post/api/post.service";
+import { getCurrentUser } from "@/entities/user/server";
 import { Post } from "@/shared/types";
 
-const postService = new PostService();
 const DEFAULT_POST_LIST_PAGE_SIZE = 10;
 const MAX_POST_LIST_PAGE_SIZE = 50;
 
@@ -41,8 +40,7 @@ function getSafeOffset(offset?: number) {
 }
 
 async function resolvePostInteraction(posts: Post[] | null) {
-  const authService = new ServerAuthService();
-  const user = await authService.getCurrentUser();
+  const user = await getCurrentUser();
 
   if (!posts) {
     return { data: [], error: null };
@@ -59,13 +57,13 @@ async function resolvePostInteraction(posts: Post[] | null) {
     };
   }
 
-  const likeService = new LikeService();
-  const bookmarkService = new BookmarkService();
-
-  const [{ data: postLikes, error: postLikesError }, { data: postBookmarks, error: postBookmarksError }] =
+  const [
+    { data: postLikes, error: postLikesError },
+    { data: postBookmarks, error: postBookmarksError },
+  ] =
     await Promise.all([
-      likeService.getPostLikes(user.id),
-      bookmarkService.getBookmarks(user.id),
+      getPostLikes(user.id),
+      getBookmarks(user.id),
     ]);
 
   if (postLikesError) {
@@ -95,8 +93,7 @@ async function resolvePostInteraction(posts: Post[] | null) {
 export async function getPostListAction(
   options: PostListFilterOptions = {},
 ) {
-  const { data: posts, error: getPostsError } =
-    await postService.getPosts(options);
+  const { data: posts, error: getPostsError } = await getPosts(options);
 
   if (getPostsError) {
     console.error(getPostsError);
@@ -115,7 +112,7 @@ export async function getPostListPageAction(
   const safeLimit = getSafePageSize(options.limit);
   const safeOffset = getSafeOffset(options.offset);
 
-  const { data: posts, error: getPostsError } = await postService.getPosts({
+  const { data: posts, error: getPostsError } = await getPosts({
     ...options,
     offset: safeOffset,
     limit: safeLimit + 1,

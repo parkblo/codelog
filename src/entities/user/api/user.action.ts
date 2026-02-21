@@ -2,14 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UserService } from "@/entities/user/api/user.service";
+import {
+  editUser,
+  getRandomFeaturedUsers,
+  updateAvatar,
+} from "@/entities/user/api/user.service";
 import { UserAuth } from "@/shared/types/types";
 
-import { ServerAuthService } from "./server-auth.service";
+import { getCurrentUser } from "./server-auth.service";
 
 export async function editUserAction(user: UserAuth) {
-  const authService = new ServerAuthService();
-  const currentUser = await authService.getCurrentUser();
+  const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     return { error: "로그인이 필요합니다." };
@@ -19,8 +22,7 @@ export async function editUserAction(user: UserAuth) {
     return { error: "본인의 정보만 수정할 수 있습니다." };
   }
 
-  const userService = new UserService();
-  const { error } = await userService.editUser(user);
+  const { error } = await editUser(user);
 
   if (error) {
     return { error: error.message };
@@ -36,15 +38,13 @@ export async function updateAvatarAction(
   username: string,
   avatarUrl: string,
 ) {
-  const authService = new ServerAuthService();
-  const currentUser = await authService.getCurrentUser();
+  const currentUser = await getCurrentUser();
 
   if (!currentUser || currentUser.id !== userId) {
     return { error: "권한이 없습니다." };
   }
 
-  const userService = new UserService();
-  const { error } = await userService.updateAvatar(userId, avatarUrl);
+  const { error } = await updateAvatar(userId, avatarUrl);
 
   if (error) {
     return { error: error.message };
@@ -56,11 +56,9 @@ export async function updateAvatarAction(
 }
 
 export async function getRandomFeaturedUsersAction(count: number) {
-  const authService = new ServerAuthService();
-  const currentUser = await authService.getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-  const userService = new UserService();
-  const { data, error } = await userService.getRandomFeaturedUsers(
+  const { data, error } = await getRandomFeaturedUsers(
     count,
     currentUser?.id,
   );

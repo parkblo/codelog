@@ -1,26 +1,27 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getDatabaseAdapter } from "@/shared/lib/database";
 import { UserAuth } from "@/shared/types";
 
 import "server-only";
 
 export async function getCurrentUserAuth(): Promise<UserAuth | null> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const db = getDatabaseAdapter();
+  const { data: user, error: authError } = await db.getCurrentAuthUser();
 
   if (authError || !user) {
     return null;
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("users")
-    .select("id, username, nickname, avatar, bio")
-    .eq("id", user.id)
-    .is("deleted_at", null)
-    .single();
+  const { data: profile, error: profileError } = await db.query<UserAuth>(
+    {
+      table: "users",
+      select: "id, username, nickname, avatar, bio",
+      filters: [
+        { column: "id", value: user.id },
+        { column: "deleted_at", operator: "is", value: null },
+      ],
+    },
+    "single",
+  );
 
   if (profileError || !profile) {
     return null;

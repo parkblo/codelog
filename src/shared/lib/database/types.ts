@@ -80,5 +80,7 @@ export interface OAuthSignInOptions {
   redirectTo?: string;
 }
 
+export type OAuthProvider = "github";
+
 export type InsertValues = Record<string, unknown> | Record<string, unknown>[];
 export type UpdateValues = Record<string, unknown>;

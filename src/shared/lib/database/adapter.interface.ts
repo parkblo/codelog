@@ -1,5 +1,3 @@
-import { Provider } from "@supabase/supabase-js";
-
 import {
   AuthSignUpPayload,
   AuthUser,
@@ -8,6 +6,7 @@ import {
   FunctionName,
   InsertValues,
   MutationResult,
+  OAuthProvider,
   OAuthSignInOptions,
   QueryMode,
   QueryOptions,
@@ -46,7 +45,7 @@ export interface DatabaseAdapter {
   }): Promise<MutationResult>;
   signUp(payload: AuthSignUpPayload): Promise<MutationResult>;
   signInWithOAuth(
-    provider: Provider,
+    provider: OAuthProvider,
     options?: OAuthSignInOptions,
   ): Promise<QueryResult<{ url: string | null }>>;
   signOut(): Promise<MutationResult>;

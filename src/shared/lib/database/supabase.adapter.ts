@@ -11,6 +11,7 @@ import {
   FunctionName,
   InsertValues,
   MutationResult,
+  OAuthProvider,
   OAuthSignInOptions,
   QueryMode,
   QueryOptions,
@@ -333,13 +334,13 @@ class SupabaseAdapter implements DatabaseAdapter {
   }
 
   async signInWithOAuth(
-    provider: Provider,
+    provider: OAuthProvider,
     options?: OAuthSignInOptions,
   ): Promise<QueryResult<{ url: string | null }>> {
     try {
       const supabase = await createClient();
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: provider as Provider,
         options,
       });
 

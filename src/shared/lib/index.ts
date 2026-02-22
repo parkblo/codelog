@@ -1,6 +1,5 @@
 export * from "./auth";
 export * from "./cn";
-export * from "./database";
 export * from "./date";
 export * from "./featured-tags";
 export * from "./handle-action";

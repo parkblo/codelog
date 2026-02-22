@@ -2,18 +2,20 @@
 
 import {
   createContext,
-  Suspense,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import * as Sentry from "@sentry/nextjs";
 
-import { createClient } from "@/shared/lib";
+import {
+  getUserProfileById,
+  subscribeToAuthStateChanges,
+} from "@/shared/lib/database/client";
 import {
   captureEvent,
   identifyPostHogUser,
@@ -94,46 +96,33 @@ export default function AuthProvider({
   }, [user]);
 
   useEffect(() => {
-    const supabase = createClient();
+    const unsubscribe = subscribeToAuthStateChanges((currentUserId) => {
+      activeUserId.current = currentUserId;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      const currentId = session?.user?.id ?? null;
-      activeUserId.current = currentId;
-
-      if (!session) {
+      if (!currentUserId) {
         setUser(null);
         setLoading(false);
         setIsAuthModalOpen(false);
         return;
       }
 
-      const userId = session.user.id;
-
       setLoading(true);
-      supabase
-        .from("users")
-        .select("id, username, nickname, avatar, bio")
-        .eq("id", userId)
-        .is("deleted_at", null)
-        .single()
-        .then(({ data: profile, error }) => {
-          if (activeUserId.current === userId) {
-            if (profile && !error) {
-              setUser(profile as UserAuth);
-            } else {
-              setUser(null);
-            }
-            setLoading(false);
+      getUserProfileById(currentUserId).then(({ data: profile, error }) => {
+        if (activeUserId.current === currentUserId) {
+          if (profile && !error) {
+            setUser(profile);
+          } else {
+            setUser(null);
           }
-        });
+          setLoading(false);
+        }
+      });
 
       setIsAuthModalOpen(false);
     });
 
     return () => {
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 
@@ -149,30 +138,33 @@ export default function AuthProvider({
         closeAuthModal,
       }}
     >
-      <Suspense fallback={null}>
-        <AuthModalTrigger />
-      </Suspense>
+      <AuthModalTrigger />
       {children}
     </AuthContext.Provider>
   );
 }
 
 /**
- * URL 검색 파라미터를 기반으로 인증 모달을 여는 하위 컴포넌트입니다.
- * 전체 레이아웃이 서버 사이드 렌더링에서 제외되는 것을 방지하기 위해 Suspense로 감싸서 사용합니다.
+ * URL 쿼리 문자열(auth=required)을 감지해 인증 모달을 여는 하위 컴포넌트입니다.
+ * 라우트 이동 시점(pathname 변경)마다 현재 location.search를 다시 확인합니다.
  */
 function AuthModalTrigger() {
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { user, openAuthModal } = useAuth();
 
   useEffect(() => {
-    if (searchParams?.get("auth") === "required" && !user) {
+    if (typeof window === "undefined" || user) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get("auth") === "required") {
       const timer = setTimeout(() => {
         openAuthModal("login");
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [searchParams, user, openAuthModal]);
+  }, [pathname, user, openAuthModal]);
 
   return null;
 }

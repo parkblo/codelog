@@ -21,7 +21,9 @@ export function AppProvider({ children, initialUser }: AppProviderProps) {
           <PostHogPageViewTracker />
         </Suspense>
         <Toaster />
-        <AuthDialog />
+        <Suspense fallback={null}>
+          <AuthDialog />
+        </Suspense>
         {children}
       </AuthProvider>
     </PostHogProvider>

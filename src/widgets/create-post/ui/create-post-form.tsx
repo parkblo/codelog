@@ -42,7 +42,7 @@ export default function PostCard() {
       {isDialogOpen && (
         <PostDialog isOpen={isDialogOpen} handleClose={handleCloseDialog} />
       )}
-      <div className="bg-background border-background p-2">
+      <div className="bg-transparent border-background p-2">
         <div className="flex gap-2 items-center">
           <UserAvatar user={user} />
           <Textarea

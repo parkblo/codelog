@@ -61,7 +61,7 @@ export default function AuthProvider({
     "login",
   );
 
-  const activeUserId = useRef<string | null>(null);
+  const activeUserId = useRef<string | null>(initialUser?.id ?? null);
 
   const updateUser = (newUser: UserAuth | null) => {
     setUser(newUser);
@@ -97,11 +97,17 @@ export default function AuthProvider({
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthStateChanges((currentUserId) => {
+      const previousUserId = activeUserId.current;
       activeUserId.current = currentUserId;
 
       if (!currentUserId) {
         setUser(null);
         setLoading(false);
+        setIsAuthModalOpen(false);
+        return;
+      }
+
+      if (previousUserId === currentUserId) {
         setIsAuthModalOpen(false);
         return;
       }

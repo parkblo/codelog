@@ -15,6 +15,7 @@ export function SignOutButton() {
     await handleAction(signOutAction(), {
       actionName: "sign_out",
       onSuccess: () => {
+        router.refresh();
         router.push("/");
       },
     });

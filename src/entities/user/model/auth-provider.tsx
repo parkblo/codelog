@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import * as Sentry from "@sentry/nextjs";
 
@@ -64,7 +64,9 @@ export default function AuthProvider({
   const activeUserId = useRef<string | null>(initialUser?.id ?? null);
 
   const updateUser = (newUser: UserAuth | null) => {
+    activeUserId.current = newUser?.id ?? null;
     setUser(newUser);
+    setLoading(false);
   };
 
   const openAuthModal = useCallback((view: "login" | "signup" = "login") => {
@@ -152,25 +154,22 @@ export default function AuthProvider({
 
 /**
  * URL 쿼리 문자열(auth=required)을 감지해 인증 모달을 여는 하위 컴포넌트입니다.
- * 라우트 이동 시점(pathname 변경)마다 현재 location.search를 다시 확인합니다.
  */
 function AuthModalTrigger() {
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, openAuthModal } = useAuth();
+  const isAuthRequired = searchParams.get("auth") === "required";
 
   useEffect(() => {
-    if (typeof window === "undefined" || user) {
+    if (user || !isAuthRequired) {
       return;
     }
 
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get("auth") === "required") {
-      const timer = setTimeout(() => {
-        openAuthModal("login");
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, user, openAuthModal]);
+    const timer = setTimeout(() => {
+      openAuthModal("login");
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [isAuthRequired, user, openAuthModal]);
 
   return null;
 }

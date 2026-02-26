@@ -21,7 +21,7 @@ export default function UserProfileCard({
   isFollowing = false,
 }: UserProfileCardProps) {
   return (
-    <Card className="bg-background">
+    <Card className="bg-transparent">
       <CardContent>
         <div className="relative flex flex-col items-center justify-center gap-4">
           <div className="absolute top-2 right-2 flex gap-2">

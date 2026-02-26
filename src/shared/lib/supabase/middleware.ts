@@ -42,8 +42,26 @@ export async function updateSession(
     }
   );
 
-  // refreshing the auth token
-  await supabase.auth.getUser();
+  // Refreshing the auth token can fail for stale/invalid refresh cookies.
+  // In that case, force sign-out once so middleware clears auth cookies.
+  try {
+    const {
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error && "code" in error && error.code === "refresh_token_not_found") {
+      await supabase.auth.signOut();
+    }
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "refresh_token_not_found"
+    ) {
+      await supabase.auth.signOut();
+    }
+  }
 
   return supabaseResponse;
 }

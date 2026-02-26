@@ -1,0 +1,74 @@
+INFO  2026-02-14 17:32:33,489 serena.cli:health_check:761 - Starting health check for project: /home/parkblo/repo/codelog
+INFO  2026-02-14 17:32:33,489 serena.cli:health_check:765 - Creating SerenaAgent with disabled dashboard...
+INFO  2026-02-14 17:32:33,490 serena.config.serena_config:from_config_file:587 - Loading Serena configuration from /home/parkblo/.serena/serena_config.yml
+INFO  2026-02-14 17:32:33,520 serena.config.serena_config:from_config_file:652 - Legacy configuration was migrated; re-saving configuration file
+INFO  2026-02-14 17:32:33,526 serena.util.file_system:stop:367 - Loading of .gitignore files completed in 0.042 seconds
+INFO  2026-02-14 17:32:33,526 serena.project:stop:367 - Gathering ignore spec for project codelog completed in 0.043 seconds
+INFO  2026-02-14 17:32:33,540 serena.agent:__init__:289 - Will record tool usage statistics with token count estimator: CHAR_COUNT.
+INFO  2026-02-14 17:32:33,556 serena.agent:__init__:293 - Starting Serena server (version=0.1.4-a44ff6b4-dirty, process id=2740, parent process id=2710; language backend=LSP)
+INFO  2026-02-14 17:32:33,557 serena.agent:__init__:297 - Configuration file: /home/parkblo/.serena/serena_config.yml
+INFO  2026-02-14 17:32:33,557 serena.agent:__init__:298 - Available projects: codelog
+INFO  2026-02-14 17:32:33,557 serena.agent:__init__:299 - Loaded tools (40): read_file, create_text_file, list_dir, find_file, replace_content, delete_lines, replace_lines, insert_at_line, search_for_pattern, restart_language_server, get_symbols_overview, find_symbol, find_referencing_symbols, replace_symbol_body, insert_after_symbol, insert_before_symbol, rename_symbol, write_memory, read_memory, list_memories, delete_memory, edit_memory, execute_shell_command, open_dashboard, activate_project, remove_project, switch_modes, get_current_config, check_onboarding_performed, onboarding, think_about_collected_information, think_about_task_adherence, think_about_whether_you_are_done, summarize_changes, prepare_for_new_conversation, initial_instructions, jet_brains_find_symbol, jet_brains_find_referencing_symbols, jet_brains_get_symbols_overview, jet_brains_type_hierarchy
+INFO  2026-02-14 17:32:33,557 serena.agent:apply:142 - SerenaAgentContext[name='desktop-app'] included 1 tools: switch_modes
+INFO  2026-02-14 17:32:33,559 serena.agent:__init__:325 - Number of exposed tools: 29
+INFO  2026-02-14 17:32:33,576 serena.config.serena_config:start:360 - Loading project instance for RegisteredProject[project_root=/home/parkblo/repo/codelog, project_config=ProjectConfig[project_name=codelog]] starting ...
+INFO  2026-02-14 17:32:33,576 serena.project:start:360 - Gathering ignore spec for project codelog starting ...
+INFO  2026-02-14 17:32:33,576 serena.config.serena_config:stop:367 - Loading project instance for RegisteredProject[project_root=/home/parkblo/repo/codelog, project_config=ProjectConfig[project_name=codelog]] completed in 0.001 seconds
+INFO  2026-02-14 17:32:33,576 serena.util.file_system:start:360 - Loading of .gitignore files starting ...
+INFO  2026-02-14 17:32:33,577 serena.agent:load_project_from_path_or_name:650 - Found registered project 'codelog' at path /home/parkblo/repo/codelog
+INFO  2026-02-14 17:32:33,577 serena.agent:_activate_project:621 - Activating codelog at /home/parkblo/repo/codelog
+INFO  2026-02-14 17:32:33,577 serena.util.file_system:_load_gitignore_files:152 - Processing .gitignore file: /home/parkblo/repo/codelog/.gitignore
+INFO  2026-02-14 17:32:33,577 serena.task_executor:issue_task:192 - Scheduling Task-1:init_language_server_manager
+INFO  2026-02-14 17:32:33,578 serena.agent:get_mode_names:199 - Active modes: ['editing', 'interactive']
+INFO  2026-02-14 17:32:33,583 serena.agent:_update_active_modes_and_tools:584 - Active tools (29): activate_project, check_onboarding_performed, create_text_file, delete_memory, edit_memory, execute_shell_command, find_file, find_referencing_symbols, find_symbol, get_current_config, get_symbols_overview, initial_instructions, insert_after_symbol, insert_before_symbol, list_dir, list_memories, onboarding, prepare_for_new_conversation, read_file, read_memory, rename_symbol, replace_content, replace_symbol_body, search_for_pattern, switch_modes, think_about_collected_information, think_about_task_adherence, think_about_whether_you_are_done, write_memory
+INFO  2026-02-14 17:32:33,583 serena.cli:health_check:770 - SerenaAgent created successfully
+INFO  2026-02-14 17:32:33,583 serena.cli:health_check:773 - Searching for analyzable files...
+INFO  2026-02-14 17:32:33,622 serena.util.file_system:stop:367 - Loading of .gitignore files completed in 0.045 seconds
+INFO  2026-02-14 17:32:33,623 serena.project:stop:367 - Gathering ignore spec for project codelog completed in 0.046 seconds
+INFO  2026-02-14 17:32:33,634 serena.cli:health_check:782 - Found analyzable file: next.config.ts
+INFO  2026-02-14 17:32:33,634 serena.cli:health_check:800 - Testing GetSymbolsOverviewTool on file: next.config.ts
+INFO  2026-02-14 17:32:33,634 serena.task_executor:issue_task:192 - Scheduling Task-2:<lambda>
+INFO  2026-02-14 17:32:33,660 serena.task_executor:_process_task_queue:123 - Starting execution of Task-1:init_language_server_manager
+INFO  2026-02-14 17:32:33,660 serena.task_executor:start:360 - Task-1:init_language_server_manager starting ...
+INFO  2026-02-14 17:32:33,660 serena.agent:start:360 - Language server initialization starting ...
+INFO  2026-02-14 17:32:33,660 serena.project:create_language_server_manager:414 - Creating language server manager for /home/parkblo/repo/codelog
+INFO  2026-02-14 17:32:33,661 sensai.util.logging:start:360 - Language server startup (language=typescript) starting ...
+INFO  2026-02-14 17:32:33,661 serena.ls_manager:create_language_server:41 - Creating language server instance for /home/parkblo/repo/codelog, language=typescript.
+INFO  2026-02-14 17:32:33,731 solidlsp.ls:start:2168 - Starting language server with language typescript for /home/parkblo/repo/codelog
+INFO  2026-02-14 17:32:33,731 solidlsp.language_servers.typescript_language_server:_start_server:280 - Starting TypeScript server process
+INFO  2026-02-14 17:32:33,731 solidlsp.ls_process:start:192 - Starting language server process via command: ['/home/parkblo/.serena/language_servers/static/TypeScriptLanguageServer/ts-lsp/node_modules/.bin/typescript-language-server', '--stdio']
+INFO  2026-02-14 17:32:33,732 solidlsp.language_servers.typescript_language_server:_start_server:284 - Sending initialize request from LSP client to LSP server and awaiting response
+INFO  2026-02-14 17:32:33,838 solidlsp.language_servers.typescript_language_server:window_log_message:264 - LSP: window/logMessage: {'type': 3, 'message': 'Using Typescript version (workspace) 5.9.3 from path "/home/parkblo/repo/codelog/node_modules/typescript/lib/tsserver.js"'}
+WARNING 2026-02-14 17:32:33,839 solidlsp.ls_process:_notification_handler:566 - Unhandled method '$/typescriptVersion'
+INFO  2026-02-14 17:32:34,838 solidlsp.language_servers.typescript_language_server:_start_server:301 - Timeout waiting for TypeScript server to become ready, proceeding anyway
+INFO  2026-02-14 17:32:34,838 sensai.util.logging:stop:367 - Language server startup (language=typescript) completed in 1.178 seconds
+INFO  2026-02-14 17:32:34,839 serena.agent:stop:367 - Language server initialization completed in 1.179 seconds
+INFO  2026-02-14 17:32:34,839 serena.task_executor:stop:367 - Task-1:init_language_server_manager completed in 1.179 seconds
+INFO  2026-02-14 17:32:34,839 serena.task_executor:_process_task_queue:123 - Starting execution of Task-2:<lambda>
+INFO  2026-02-14 17:32:34,840 serena.task_executor:start:360 - Task-2:<lambda> starting ...
+INFO  2026-02-14 17:32:35,274 serena.task_executor:stop:367 - Task-2:<lambda> completed in 0.435 seconds
+INFO  2026-02-14 17:32:35,274 serena.cli:health_check:802 - GetSymbolsOverviewTool returned 2 symbols
+INFO  2026-02-14 17:32:35,275 serena.cli:health_check:823 - No class or function found, using first available symbol
+INFO  2026-02-14 17:32:35,275 serena.cli:health_check:827 - Using symbol for testing: nextConfig (kind: Constant)
+INFO  2026-02-14 17:32:35,275 serena.cli:health_check:830 - Testing FindSymbolTool for symbol: nextConfig
+INFO  2026-02-14 17:32:35,275 serena.task_executor:issue_task:192 - Scheduling Task-3:<lambda>
+INFO  2026-02-14 17:32:35,375 serena.task_executor:_process_task_queue:123 - Starting execution of Task-3:<lambda>
+INFO  2026-02-14 17:32:35,375 serena.task_executor:start:360 - Task-3:<lambda> starting ...
+INFO  2026-02-14 17:32:35,376 serena.task_executor:stop:367 - Task-3:<lambda> completed in 0.001 seconds
+INFO  2026-02-14 17:32:35,376 serena.cli:health_check:835 - FindSymbolTool found 1 matches for symbol nextConfig
+INFO  2026-02-14 17:32:35,376 serena.cli:health_check:838 - Testing FindReferencingSymbolsTool for symbol: nextConfig
+INFO  2026-02-14 17:32:35,376 serena.task_executor:issue_task:192 - Scheduling Task-4:<lambda>
+INFO  2026-02-14 17:32:35,476 serena.task_executor:_process_task_queue:123 - Starting execution of Task-4:<lambda>
+INFO  2026-02-14 17:32:35,477 serena.task_executor:start:360 - Task-4:<lambda> starting ...
+WARNING 2026-02-14 17:32:37,502 solidlsp.ls:request_referencing_symbols:1704 - Could not find containing symbol for next.config.ts:6:15. Returning file symbol instead
+INFO  2026-02-14 17:32:37,502 serena.task_executor:stop:367 - Task-4:<lambda> completed in 2.026 seconds
+INFO  2026-02-14 17:32:37,502 serena.cli:health_check:842 - FindReferencingSymbolsTool found 1 references for symbol nextConfig
+INFO  2026-02-14 17:32:37,503 serena.cli:health_check:848 - Testing SearchForPatternTool for pattern: nextConfig
+INFO  2026-02-14 17:32:37,503 serena.task_executor:issue_task:192 - Scheduling Task-5:<lambda>
+INFO  2026-02-14 17:32:37,603 serena.task_executor:_process_task_queue:123 - Starting execution of Task-5:<lambda>
+INFO  2026-02-14 17:32:37,603 serena.task_executor:start:360 - Task-5:<lambda> starting ...
+INFO  2026-02-14 17:32:37,622 serena.text_utils:search_files:366 - Processing 156 files.
+INFO  2026-02-14 17:32:37,685 serena.text_utils:search_files:407 - Found 2 total matches across 156 files
+INFO  2026-02-14 17:32:37,685 serena.task_executor:stop:367 - Task-5:<lambda> completed in 0.082 seconds
+INFO  2026-02-14 17:32:37,685 serena.cli:health_check:855 - SearchForPatternTool found 2 pattern matches for nextConfig
+INFO  2026-02-14 17:32:37,686 serena.cli:health_check:869 - Health check completed successfully

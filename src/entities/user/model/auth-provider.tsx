@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Suspense,
   createContext,
   useCallback,
   useContext,
@@ -146,7 +147,9 @@ export default function AuthProvider({
         closeAuthModal,
       }}
     >
-      <AuthModalTrigger />
+      <Suspense fallback={null}>
+        <AuthModalTrigger />
+      </Suspense>
       {children}
     </AuthContext.Provider>
   );
@@ -158,7 +161,7 @@ export default function AuthProvider({
 function AuthModalTrigger() {
   const searchParams = useSearchParams();
   const { user, openAuthModal } = useAuth();
-  const isAuthRequired = searchParams.get("auth") === "required";
+  const isAuthRequired = searchParams?.get("auth") === "required";
 
   useEffect(() => {
     if (user || !isAuthRequired) {

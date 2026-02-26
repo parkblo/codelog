@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import dynamic from "next/dynamic";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,7 +48,7 @@ export default function PostDialog({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     reset,
     formState: { errors, isSubmitting },
@@ -66,9 +66,12 @@ export default function PostDialog({
   const [tags, setTags] = useState<string[]>(post?.tags || []);
   const [tagInput, setTagInput] = useState("");
 
-  const codeValue = watch("code");
-  const languageValue = watch("language");
-  const isReviewEnabledValue = watch("isReviewEnabled");
+  const codeValue = useWatch({ control, name: "code" });
+  const languageValue = useWatch({ control, name: "language" });
+  const isReviewEnabledValue = useWatch({
+    control,
+    name: "isReviewEnabled",
+  });
 
   const toggleSnippetMode = () => {
     captureEvent("post_snippet_mode_toggled", {
@@ -185,7 +188,7 @@ export default function PostDialog({
                   <div className="flex items-center gap-2">
                     <Checkbox
                       id="is_review_enabled"
-                      checked={isReviewEnabledValue}
+                      checked={isReviewEnabledValue ?? false}
                       onCheckedChange={(checked) =>
                         setValue("isReviewEnabled", checked === true)
                       }

@@ -21,15 +21,6 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch (err) {
-            console.warn("Failed to set cookies in server context:", err);
-          }
-        },
       },
     }
   );

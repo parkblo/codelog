@@ -1,0 +1,4 @@
+interface:
+  display_name: "Action/Service Governance"
+  short_description: "Define and maintain API-layer Action/Service boundaries"
+  default_prompt: "When handling entity API layer functions or Server Action/Service methods, apply governance context: keep actions orchestration-focused and services reusable domain/data-focused."

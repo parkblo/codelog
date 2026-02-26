@@ -23,8 +23,10 @@ export function usePostInteraction({
   initialIsBookmarked = false,
 }: UsePostInteractionProps) {
   const { user, openAuthModal } = useAuth();
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+  const [likedState, setLikedState] = useState(initialIsLiked);
+  const [bookmarkedState, setBookmarkedState] = useState(initialIsBookmarked);
+  const isLiked = user ? likedState : false;
+  const isBookmarked = user ? bookmarkedState : false;
 
   const handleLikeClick = async () => {
     if (!user) {
@@ -33,16 +35,16 @@ export function usePostInteraction({
       return;
     }
 
-    const previousState = isLiked;
-    setIsLiked(!isLiked);
+    const previousState = likedState;
+    setLikedState(!likedState);
 
-    const action = isLiked
+    const action = likedState
       ? deletePostLikeAction(postId)
       : createPostLikeAction(postId);
 
     await handleAction(action, {
-      actionName: isLiked ? "delete_post_like" : "create_post_like",
-      onError: () => setIsLiked(previousState),
+      actionName: likedState ? "delete_post_like" : "create_post_like",
+      onError: () => setLikedState(previousState),
     });
   };
 
@@ -53,16 +55,16 @@ export function usePostInteraction({
       return;
     }
 
-    const previousState = isBookmarked;
-    setIsBookmarked(!isBookmarked);
+    const previousState = bookmarkedState;
+    setBookmarkedState(!bookmarkedState);
 
-    const action = isBookmarked
+    const action = bookmarkedState
       ? deleteBookmarkAction(postId)
       : createBookmarkAction(postId);
 
     await handleAction(action, {
-      actionName: isBookmarked ? "delete_bookmark" : "create_bookmark",
-      onError: () => setIsBookmarked(previousState),
+      actionName: bookmarkedState ? "delete_bookmark" : "create_bookmark",
+      onError: () => setBookmarkedState(previousState),
     });
   };
 

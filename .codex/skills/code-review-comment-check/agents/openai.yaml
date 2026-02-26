@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review Comment Check"
+  short_description: "Validate PR review comments against the actual codebase"
+  default_prompt: "Use $code-review-comment-check to analyze gemini-code-assist comments on the PR for my current branch and propose fixes without editing code yet."

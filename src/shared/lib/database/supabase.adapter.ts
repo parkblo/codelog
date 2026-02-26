@@ -206,20 +206,64 @@ class SupabaseAdapter implements DatabaseAdapter {
     }
   }
 
+  async update<T, TTable extends TableName>(
+    table: TTable,
+    values: UpdateValues,
+    filters: Filter[] | undefined,
+    options: {
+      select?: string;
+      mode?: Exclude<QueryMode, "many">;
+    },
+  ): Promise<QueryResult<T>>;
+  async update<TTable extends TableName>(
+    table: TTable,
+    values: UpdateValues,
+    filters?: Filter[],
+  ): Promise<MutationResult>;
   async update<TTable extends TableName>(
     table: TTable,
     values: UpdateValues,
     filters: Filter[] = [],
-  ): Promise<MutationResult> {
+    options?: {
+      select?: string;
+      mode?: Exclude<QueryMode, "many">;
+    },
+  ): Promise<MutationResult | QueryResult<unknown>> {
     try {
       const supabase = await createClient();
       let query = supabase.from(table).update(values as never) as unknown as QueryBuilder;
       query = applyFilters(query, filters);
 
+      if (options?.select) {
+        query = query.select(options.select);
+
+        if (options.mode === "single") {
+          query = query.single();
+        } else if (options.mode === "maybeSingle") {
+          query = query.maybeSingle();
+        }
+
+        const { data, error } = await query;
+
+        return {
+          data: data ?? null,
+          count: null,
+          error: toError(error),
+        };
+      }
+
       const { error } = await query;
 
       return { error: toError(error) };
     } catch (error) {
+      if (options?.select) {
+        return {
+          data: null,
+          count: null,
+          error: toError(error),
+        };
+      }
+
       return { error: toError(error) };
     }
   }

@@ -160,20 +160,19 @@ export async function updateComment(
   data: Partial<CreateCommentDTO>,
 ): Promise<{ data: Comment | null; error: Error | null }> {
   const db = getDatabaseAdapter();
-  const { error: updateError } = await db.update(
+  return db.update<Comment>(
     "comments",
     { content: data.content },
     [
       { column: "id", value: id },
       { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
     ],
+    {
+      select: `*, author:users!comments_user_id_fkey!inner(id, username, nickname, avatar, bio)`,
+      mode: "single",
+    },
   );
-
-  if (updateError) {
-    return { data: null, error: updateError };
-  }
-
-  return getCommentById(id);
 }
 
 export async function deleteComment(

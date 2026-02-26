@@ -17,18 +17,6 @@ type IsFollowingRow = {
     deleted_at: string | null;
   } | null;
 };
-type FollowersCountRow = {
-  follower: {
-    id: string;
-    deleted_at: string | null;
-  } | null;
-};
-type FollowingCountRow = {
-  following: {
-    id: string;
-    deleted_at: string | null;
-  } | null;
-};
 
 export async function follow(
   followerId: string,
@@ -202,27 +190,22 @@ export async function getFollowersCount(
 ): Promise<{ data: number; error: Error | null }> {
   const db = getDatabaseAdapter();
 
-  const { data, error } = await db.query<FollowersCountRow[]>({
+  const { count, error } = await db.query<{ id: string }[]>({
     table: "follows",
-    select: `
-          follower:users!follows_follower_id_fkey (
-            id,
-            deleted_at
-          )
-        `,
-    filters: [{ column: "following_id", value: userId }],
+    select: "follower:users!follows_follower_id_fkey!inner(id)",
+    filters: [
+      { column: "following_id", value: userId },
+      { column: "follower.deleted_at", operator: "is", value: null },
+    ],
+    count: "exact",
+    head: true,
   });
 
   if (error) {
     return { data: 0, error };
   }
 
-  const rows = data ?? [];
-  const count = rows.filter(
-    (item) => item.follower && item.follower.deleted_at === null,
-  ).length;
-
-  return { data: count, error: null };
+  return { data: count ?? 0, error: null };
 }
 
 export async function getFollowingCount(
@@ -230,25 +213,20 @@ export async function getFollowingCount(
 ): Promise<{ data: number; error: Error | null }> {
   const db = getDatabaseAdapter();
 
-  const { data, error } = await db.query<FollowingCountRow[]>({
+  const { count, error } = await db.query<{ id: string }[]>({
     table: "follows",
-    select: `
-          following:users!follows_following_id_fkey (
-            id,
-            deleted_at
-          )
-        `,
-    filters: [{ column: "follower_id", value: userId }],
+    select: "following:users!follows_following_id_fkey!inner(id)",
+    filters: [
+      { column: "follower_id", value: userId },
+      { column: "following.deleted_at", operator: "is", value: null },
+    ],
+    count: "exact",
+    head: true,
   });
 
   if (error) {
     return { data: 0, error };
   }
 
-  const rows = data ?? [];
-  const count = rows.filter(
-    (item) => item.following && item.following.deleted_at === null,
-  ).length;
-
-  return { data: count, error: null };
+  return { data: count ?? 0, error: null };
 }

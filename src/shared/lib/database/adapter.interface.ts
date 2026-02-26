@@ -25,6 +25,15 @@ export interface DatabaseAdapter {
       mode?: Exclude<QueryMode, "many">;
     },
   ): Promise<QueryResult<T>>;
+  update<T, TTable extends TableName = TableName>(
+    table: TTable,
+    values: UpdateValues,
+    filters: Filter[] | undefined,
+    options: {
+      select?: string;
+      mode?: Exclude<QueryMode, "many">;
+    },
+  ): Promise<QueryResult<T>>;
   update<TTable extends TableName = TableName>(
     table: TTable,
     values: UpdateValues,

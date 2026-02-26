@@ -9,21 +9,27 @@ type PostQueryResult = Tables<"posts"> & {
   tags: { tags: { name: string } | null }[] | null;
 };
 
+function sanitizeKeywordForOrFilter(rawKeyword: string): string {
+  return rawKeyword.replace(/[(),]/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export async function createPost(
   data: CreatePostDTO,
 ): Promise<{ data: Post | null; error: Error | null }> {
   const db = getDatabaseAdapter();
+  const postData: Database["public"]["Functions"]["create_post_with_tags"]["Args"]["post_data"] =
+    {
+      content: data.content,
+      code: data.code,
+      language: data.language,
+      user_id: data.author.id,
+      is_review_enabled: data.is_review_enabled,
+    };
 
   const { data: insertedPost, error } = await db.rpc<Tables<"posts">>(
     "create_post_with_tags",
     {
-      post_data: {
-        content: data.content,
-        code: data.code,
-        language: data.language,
-        user_id: data.author.id,
-        is_review_enabled: data.is_review_enabled,
-      } as unknown as Database["public"]["Functions"]["create_post_with_tags"]["Args"]["post_data"],
+      post_data: postData,
       tags: data.tags,
     },
   );
@@ -101,7 +107,10 @@ export async function getPosts({
 
   const safeLimit = limit && limit > 0 ? limit : undefined;
   const safeOffset = Math.max(0, offset ?? 0);
-  const escapedKeyword = keyword ? keyword.replace(/[%_]/g, "\\$&") : null;
+  const sanitizedKeyword = keyword ? sanitizeKeywordForOrFilter(keyword) : "";
+  const escapedKeyword = sanitizedKeyword
+    ? sanitizedKeyword.replace(/[\\%_]/g, "\\$&")
+    : null;
 
   const { data, error } = await db.query<PostQueryResult[]>({
     table: "posts",
@@ -206,15 +215,17 @@ export async function updatePost(
 ): Promise<{ data: Post | null; error: Error | null }> {
   const db = getDatabaseAdapter();
   const { tags, ...postFields } = data;
-
-  const { error } = await db.rpc<unknown>("update_post_with_tags", {
-    p_post_id: id,
-    post_data: {
+  const postData: Database["public"]["Functions"]["update_post_with_tags"]["Args"]["post_data"] =
+    {
       content: postFields.content,
       code: postFields.code,
       language: postFields.language,
       is_review_enabled: postFields.is_review_enabled,
-    } as unknown as Database["public"]["Functions"]["update_post_with_tags"]["Args"]["post_data"],
+    };
+
+  const { error } = await db.rpc<unknown>("update_post_with_tags", {
+    p_post_id: id,
+    post_data: postData,
     tags: tags ?? [],
   });
 

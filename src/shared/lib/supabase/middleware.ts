@@ -42,6 +42,24 @@ export async function updateSession(
     }
   );
 
+  const signOutIfRefreshTokenNotFound = async (
+    error: unknown
+  ): Promise<boolean> => {
+    if (
+      !(
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "refresh_token_not_found"
+      )
+    ) {
+      return false;
+    }
+
+    await supabase.auth.signOut();
+    return true;
+  };
+
   // Refreshing the auth token can fail for stale/invalid refresh cookies.
   // In that case, force sign-out once so middleware clears auth cookies.
   try {
@@ -49,17 +67,12 @@ export async function updateSession(
       error,
     } = await supabase.auth.getUser();
 
-    if (error && "code" in error && error.code === "refresh_token_not_found") {
-      await supabase.auth.signOut();
-    }
+    await signOutIfRefreshTokenNotFound(error);
   } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "refresh_token_not_found"
-    ) {
-      await supabase.auth.signOut();
+    const handled = await signOutIfRefreshTokenNotFound(error);
+
+    if (!handled) {
+      throw error;
     }
   }
 

@@ -7,7 +7,7 @@ import { HomeFeedInfiniteList } from "./home-feed-infinite-list";
 export async function HomePage() {
   const { data, error, hasMore } = await getPostListPageAction({
     offset: 0,
-    limit: 10,
+    limit: 6,
   });
 
   if (!data || error) {

@@ -53,13 +53,14 @@ export default async function Sidebar() {
               key={user.username}
               className="group flex p-2 hover:bg-accent rounded-md transition-colors gap-3"
             >
-              <Link href={`/profile/${user.username}`}>
+              <Link href={`/profile/${user.username}`} prefetch={false}>
                 <UserAvatar user={user} />
               </Link>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <Link
                     href={`/profile/${user.username}`}
+                    prefetch={false}
                     className="flex flex-col min-w-0 flex-1"
                   >
                     <span className="text-sm font-medium text-foreground truncate">

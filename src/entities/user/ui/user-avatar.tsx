@@ -8,6 +8,35 @@ const sizeClasses = {
   xl: "w-24 h-24",
 } as const;
 
+const sizePixels = {
+  sm: 32,
+  md: 40,
+  lg: 64,
+  xl: 96,
+} as const;
+
+function getOptimizedAvatarSrc(src: string, size: number) {
+  try {
+    const url = new URL(src);
+    const targetSize = size * 2;
+
+    if (url.hostname === "avatars.githubusercontent.com") {
+      url.searchParams.set("s", String(targetSize));
+      return url.toString();
+    }
+
+    if (url.hostname.endsWith(".supabase.co")) {
+      url.searchParams.set("width", String(targetSize));
+      url.searchParams.set("height", String(targetSize));
+      url.searchParams.set("quality", "70");
+    }
+
+    return url.toString();
+  } catch {
+    return src;
+  }
+}
+
 interface UserAvatarProps {
   user: {
     avatar?: string | null;
@@ -24,6 +53,10 @@ export function UserAvatar({
   className,
   onClick,
 }: UserAvatarProps) {
+  const optimizedAvatarSrc = user.avatar
+    ? getOptimizedAvatarSrc(user.avatar, sizePixels[size])
+    : "";
+
   return (
     <Avatar
       className={cn(
@@ -34,7 +67,7 @@ export function UserAvatar({
       )}
       onClick={onClick}
     >
-      <AvatarImage src={user.avatar || ""} alt={user.nickname} />
+      <AvatarImage src={optimizedAvatarSrc} alt={user.nickname} />
       <AvatarFallback>
         {user.nickname?.charAt(0)?.toUpperCase() || "U"}
       </AvatarFallback>

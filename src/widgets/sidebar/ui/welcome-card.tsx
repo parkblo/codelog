@@ -7,9 +7,9 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 
 export default function WelcomeCard() {
-  const { user, loading, openAuthModal } = useAuth();
+  const { user, openAuthModal } = useAuth();
 
-  if (loading || user) {
+  if (user) {
     return null;
   }
 

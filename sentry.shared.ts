@@ -33,7 +33,7 @@ export function getSentryTraceSampleRate() {
 export function getSentryReplaySessionSampleRate() {
   return parseSampleRate(
     process.env.NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE,
-    0.05,
+    0.01,
   );
 }
 

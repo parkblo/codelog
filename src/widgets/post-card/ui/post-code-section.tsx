@@ -62,30 +62,6 @@ export function PostCodeSection({
 
   if (!post.code) return null;
 
-  if (!fullPage) {
-    const previewLineLimit = 8;
-    const codeLines = post.code.split("\n");
-    const previewCode = codeLines.slice(0, previewLineLimit).join("\n");
-    const hasMoreLines = codeLines.length > previewLineLimit;
-
-    return (
-      <div
-        onClick={onPostClick}
-        className="rounded-md border bg-[#1e1e1e] overflow-hidden"
-      >
-        <div className="flex justify-between items-center px-4 py-2 bg-white/5 border-b border-white/10">
-          <span className="text-xs font-medium text-muted-foreground uppercase">
-            {post.language || "text"}
-          </span>
-        </div>
-        <pre className='py-2 px-4 text-sm overflow-x-hidden font-["Fira_Code",monospace] whitespace-pre-wrap break-all'>
-          {previewCode}
-          {hasMoreLines && "\n..."}
-        </pre>
-      </div>
-    );
-  }
-
   return (
     <div onClick={onPostClick}>
       <CodeViewer

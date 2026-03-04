@@ -26,12 +26,20 @@ export default function PostCard({
   comments,
 }: PostCardProps) {
   const router = useRouter();
-  const { isLiked, isBookmarked, handleLikeClick, handleBookmarkClick } =
-    usePostInteraction({
-      postId: post.id,
-      initialIsLiked: post.is_liked,
-      initialIsBookmarked: post.is_bookmarked,
-    });
+  const {
+    isLiked,
+    isBookmarked,
+    likeCount,
+    bookmarkCount,
+    handleLikeClick,
+    handleBookmarkClick,
+  } = usePostInteraction({
+    postId: post.id,
+    initialIsLiked: post.is_liked,
+    initialIsBookmarked: post.is_bookmarked,
+    initialLikeCount: post.like_count,
+    initialBookmarkCount: post.bookmark_count,
+  });
 
   const handlePostClick = () => {
     if (!fullPage) {
@@ -76,9 +84,9 @@ export default function PostCard({
 
           <PostActions
             postId={post.id}
-            likeCount={post.like_count}
+            likeCount={likeCount}
             commentCount={post.comment_count}
-            bookmarkCount={post.bookmark_count}
+            bookmarkCount={bookmarkCount}
             isLiked={isLiked}
             isBookmarked={isBookmarked}
             onLikeClick={handleLikeClick}

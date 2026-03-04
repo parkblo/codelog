@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useMemo, useOptimistic } from "react";
 import { useRouter } from "next/navigation";
 
 import { Heart } from "lucide-react";
@@ -28,23 +28,45 @@ interface ReviewCommentProps {
 export default function ReviewComment({ lineComments }: ReviewCommentProps) {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
-  const [isLiked, setIsLiked] = useState<(boolean | undefined)[]>(
-    lineComments.map((comment) => comment.is_liked),
+  const initialState = useMemo(
+    () => ({
+      isLiked: lineComments.map((comment) => Boolean(comment.is_liked)),
+      likeCounts: lineComments.map((comment) => comment.like_count),
+    }),
+    [lineComments],
   );
+  const [optimisticReviewComments, setOptimisticReviewComments] = useOptimistic(
+    initialState,
+    (
+      _,
+      next: {
+        isLiked: boolean[];
+        likeCounts: number[];
+      },
+    ) => next,
+  );
+  const { isLiked, likeCounts } = optimisticReviewComments;
 
-  const handleLikeClick = async (idx: number) => {
+  const handleLikeClick = (idx: number) => {
     if (!user) {
       captureEvent("auth_required_modal_opened", { source: "review_comment_like" });
       openAuthModal("login");
       return;
     }
 
-    const previousState = isLiked;
-    setIsLiked((prev) => {
-      const newState = [...prev];
-      newState[idx] = !newState[idx];
-      return newState;
-    });
+    const willLike = !isLiked[idx];
+    const previousState = {
+      isLiked: [...isLiked],
+      likeCounts: [...likeCounts],
+    };
+    const nextState = {
+      isLiked: [...isLiked],
+      likeCounts: [...likeCounts],
+    };
+    nextState.isLiked[idx] = willLike;
+    nextState.likeCounts[idx] = willLike
+      ? nextState.likeCounts[idx] + 1
+      : Math.max(0, nextState.likeCounts[idx] - 1);
 
     const action = isLiked[idx]
       ? deleteCommentLikeAction(lineComments[idx].post_id, lineComments[idx].id)
@@ -56,12 +78,17 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
     captureEvent("review_comment_like_clicked", {
       post_id: lineComments[idx].post_id,
       comment_id: lineComments[idx].id,
-      will_like: !isLiked[idx],
+      will_like: willLike,
     });
 
-    await handleAction(action, {
-      actionName: isLiked[idx] ? "delete_comment_like" : "create_comment_like",
-      onError: () => setIsLiked(previousState),
+    startTransition(async () => {
+      setOptimisticReviewComments(nextState);
+      await handleAction(action, {
+        actionName: isLiked[idx] ? "delete_comment_like" : "create_comment_like",
+        onError: () => {
+          setOptimisticReviewComments(previousState);
+        },
+      });
     });
   };
 
@@ -114,7 +141,7 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
                       className={cn("w-3 h-3", isLiked[idx] && "text-red-500")}
                       fill={isLiked[idx] ? "red" : "none"}
                     />
-                    <span>{comment.like_count}</span>
+                    <span>{likeCounts[idx]}</span>
                   </span>
                 </div>
                 <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">

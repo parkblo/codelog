@@ -5,12 +5,14 @@ import { useForm, useWatch } from "react-hook-form";
 import dynamic from "next/dynamic";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Code2, Info, Loader, Plus, Send } from "lucide-react";
 
 import { createPostAction, updatePostAction } from "@/entities/post";
 import { useAuth, UserAvatar } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
 import { captureEvent } from "@/shared/lib/posthog";
+import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -44,6 +46,7 @@ export default function PostDialog({
   post,
 }: PostDialogProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -51,7 +54,7 @@ export default function PostDialog({
     control,
     setValue,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<PostFormData>({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -114,6 +117,46 @@ export default function PostDialog({
     setTags((prev) => prev.filter((t) => t !== tag));
   };
 
+  const savePostMutation = useMutation({
+    mutationFn: async (commonData: {
+      content: string;
+      code: string | null;
+      language: string | null;
+      tags: string[];
+      is_review_enabled: boolean;
+    }) => {
+      const action = post
+        ? updatePostAction(post.id, commonData)
+        : createPostAction({
+            author: user!,
+            ...commonData,
+          });
+
+      return handleAction(action, {
+        actionName: post ? "update_post" : "create_post",
+        successMessage: post
+          ? "게시글이 성공적으로 수정되었습니다."
+          : "게시글이 성공적으로 작성되었습니다.",
+      });
+    },
+    onSuccess: async (result, commonData) => {
+      if (result === null) {
+        return;
+      }
+
+      captureEvent(post ? "post_updated" : "post_created", {
+        has_code: Boolean(commonData.code),
+        tag_count: commonData.tags.length,
+      });
+
+      handleClose();
+      reset();
+      setTags([]);
+
+      await queryClient.invalidateQueries({ queryKey: POST_LIST_QUERY_KEY });
+    },
+  });
+
   const onSubmit = async (data: PostFormData) => {
     if (!user) return;
 
@@ -125,34 +168,13 @@ export default function PostDialog({
       is_review_enabled: data.isReviewEnabled,
     };
 
-    const action = post
-      ? updatePostAction(post.id, commonData)
-      : createPostAction({
-          author: user,
-          ...commonData,
-        });
-
     captureEvent(post ? "post_update_submitted" : "post_create_submitted", {
       has_code: Boolean(commonData.code),
       tag_count: tags.length,
       review_enabled: commonData.is_review_enabled,
     });
 
-    await handleAction(action, {
-      actionName: post ? "update_post" : "create_post",
-      onSuccess: () => {
-        captureEvent(post ? "post_updated" : "post_created", {
-          has_code: Boolean(commonData.code),
-          tag_count: tags.length,
-        });
-        handleClose();
-        reset();
-        setTags([]);
-      },
-      successMessage: post
-        ? "게시글이 성공적으로 수정되었습니다."
-        : "게시글이 성공적으로 작성되었습니다.",
-    });
+    await savePostMutation.mutateAsync(commonData);
   };
 
   return (
@@ -233,9 +255,9 @@ export default function PostDialog({
                 <Button
                   className="w-auto"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={savePostMutation.isPending}
                 >
-                  {isSubmitting ? (
+                  {savePostMutation.isPending ? (
                     <span className="flex items-center gap-2">
                       <Loader className="w-4 h-4" />
                       게시 중...

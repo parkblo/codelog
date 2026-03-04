@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 
 import { PostDialog } from "@/features/post-interaction";
@@ -10,6 +11,7 @@ import { deletePostAction } from "@/entities/post";
 import { useAuth } from "@/entities/user";
 import { handleAction } from "@/shared/lib/handle-action";
 import { captureEvent } from "@/shared/lib/posthog";
+import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
 import {
@@ -24,7 +26,22 @@ interface PostMenuProps {
 
 export default function PostMenu({ post }: PostMenuProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const deletePostMutation = useMutation({
+    mutationFn: () =>
+      handleAction(deletePostAction(post.id), {
+        actionName: "delete_post",
+        successMessage: "게시글이 삭제되었습니다.",
+      }),
+    onSuccess: async (result) => {
+      if (result === null) {
+        return;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: POST_LIST_QUERY_KEY });
+    },
+  });
 
   if (!user) {
     return null;
@@ -57,12 +74,9 @@ export default function PostMenu({ post }: PostMenuProps) {
         <DropdownMenuItem
           onSelect={async () => {
             captureEvent("post_delete_clicked", { post_id: post.id });
-            await handleAction(deletePostAction(post.id), {
-              actionName: "delete_post",
-              successMessage: "게시글이 삭제되었습니다.",
-            });
+            await deletePostMutation.mutateAsync();
           }}
-          disabled={!isOwner}
+          disabled={!isOwner || deletePostMutation.isPending}
         >
           삭제
         </DropdownMenuItem>

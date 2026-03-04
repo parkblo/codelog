@@ -71,6 +71,7 @@ const eslintConfig = defineConfig([
             "lucide-react",
             "posthog-js/**",
             "prismjs/**",
+            "vitest/**",
             "**/styles/**",
             "**/pages/**",
             "eslint/**",

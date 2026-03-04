@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   createBookmarkAction,
@@ -15,18 +15,40 @@ interface UsePostInteractionProps {
   postId: number;
   initialIsLiked?: boolean;
   initialIsBookmarked?: boolean;
+  initialLikeCount?: number;
+  initialBookmarkCount?: number;
 }
 
 export function usePostInteraction({
   postId,
   initialIsLiked = false,
   initialIsBookmarked = false,
+  initialLikeCount = 0,
+  initialBookmarkCount = 0,
 }: UsePostInteractionProps) {
   const { user, openAuthModal } = useAuth();
   const [likedState, setLikedState] = useState(initialIsLiked);
   const [bookmarkedState, setBookmarkedState] = useState(initialIsBookmarked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [bookmarkCount, setBookmarkCount] = useState(initialBookmarkCount);
   const isLiked = user ? likedState : false;
   const isBookmarked = user ? bookmarkedState : false;
+
+  useEffect(() => {
+    setLikedState(initialIsLiked);
+  }, [initialIsLiked]);
+
+  useEffect(() => {
+    setBookmarkedState(initialIsBookmarked);
+  }, [initialIsBookmarked]);
+
+  useEffect(() => {
+    setLikeCount(initialLikeCount);
+  }, [initialLikeCount]);
+
+  useEffect(() => {
+    setBookmarkCount(initialBookmarkCount);
+  }, [initialBookmarkCount]);
 
   const handleLikeClick = async () => {
     if (!user) {
@@ -35,8 +57,11 @@ export function usePostInteraction({
       return;
     }
 
+    const willLike = !likedState;
     const previousState = likedState;
-    setLikedState(!likedState);
+    const previousCount = likeCount;
+    setLikedState(willLike);
+    setLikeCount((prev) => (willLike ? prev + 1 : Math.max(0, prev - 1)));
 
     const action = likedState
       ? deletePostLikeAction(postId)
@@ -44,7 +69,10 @@ export function usePostInteraction({
 
     await handleAction(action, {
       actionName: likedState ? "delete_post_like" : "create_post_like",
-      onError: () => setLikedState(previousState),
+      onError: () => {
+        setLikedState(previousState);
+        setLikeCount(previousCount);
+      },
     });
   };
 
@@ -55,8 +83,13 @@ export function usePostInteraction({
       return;
     }
 
+    const willBookmark = !bookmarkedState;
     const previousState = bookmarkedState;
-    setBookmarkedState(!bookmarkedState);
+    const previousCount = bookmarkCount;
+    setBookmarkedState(willBookmark);
+    setBookmarkCount((prev) =>
+      willBookmark ? prev + 1 : Math.max(0, prev - 1),
+    );
 
     const action = bookmarkedState
       ? deleteBookmarkAction(postId)
@@ -64,13 +97,18 @@ export function usePostInteraction({
 
     await handleAction(action, {
       actionName: bookmarkedState ? "delete_bookmark" : "create_bookmark",
-      onError: () => setBookmarkedState(previousState),
+      onError: () => {
+        setBookmarkedState(previousState);
+        setBookmarkCount(previousCount);
+      },
     });
   };
 
   return {
     isLiked,
     isBookmarked,
+    likeCount,
+    bookmarkCount,
     handleLikeClick,
     handleBookmarkClick,
   };

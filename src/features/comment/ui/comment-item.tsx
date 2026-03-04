@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useMemo, useOptimistic } from "react";
 import { useRouter } from "next/navigation";
 
 import { Heart } from "lucide-react";
@@ -26,19 +26,38 @@ interface commentProps {
 
 export default function Comment({ comment }: commentProps) {
   const router = useRouter();
-  const [isLiked, setIsLiked] = useState(comment.is_liked);
+  const initialState = useMemo(
+    () => ({
+      isLiked: Boolean(comment.is_liked),
+      likeCount: comment.like_count,
+    }),
+    [comment.id, comment.is_liked, comment.like_count],
+  );
+  const [optimisticComment, setOptimisticComment] = useOptimistic(
+    initialState,
+    (_, next: { isLiked: boolean; likeCount: number }) => next,
+  );
+  const { isLiked, likeCount } = optimisticComment;
 
-  const handleLikeClick = async () => {
-    const previousState = isLiked;
-    setIsLiked(!isLiked);
-
+  const handleLikeClick = () => {
+    const willLike = !isLiked;
+    const previousState = { isLiked, likeCount };
+    const nextState = {
+      isLiked: willLike,
+      likeCount: willLike ? likeCount + 1 : Math.max(0, likeCount - 1),
+    };
     const action = isLiked
       ? deleteCommentLikeAction(comment.post_id, comment.id)
       : createCommentLikeAction(comment.post_id, comment.id);
 
-    await handleAction(action, {
-      actionName: isLiked ? "delete_comment_like" : "create_comment_like",
-      onError: () => setIsLiked(previousState),
+    startTransition(async () => {
+      setOptimisticComment(nextState);
+      await handleAction(action, {
+        actionName: isLiked ? "delete_comment_like" : "create_comment_like",
+        onError: () => {
+          setOptimisticComment(previousState);
+        },
+      });
     });
   };
 
@@ -101,7 +120,7 @@ export default function Comment({ comment }: commentProps) {
                     className={cn("w-4 h-4", isLiked && "text-red-500")}
                     fill={isLiked ? "red" : "none"}
                   />
-                  <span>{comment.like_count}</span>
+                  <span>{likeCount}</span>
                 </Button>
               </div>
             </div>

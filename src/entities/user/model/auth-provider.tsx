@@ -56,7 +56,7 @@ export default function AuthProvider({
   initialUser: UserAuth | null;
 }) {
   const [user, setUser] = useState<UserAuth | null>(initialUser);
-  const [loading, setLoading] = useState(!initialUser);
+  const [loading, setLoading] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">(
     "login",

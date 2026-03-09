@@ -40,7 +40,11 @@ export function TagList({ tags, className, onDelete }: TagListProps) {
         }
 
         return (
-          <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`}>
+          <Link
+            key={tag}
+            href={`/search?tag=${encodeURIComponent(tag)}`}
+            prefetch={false}
+          >
             {badge}
           </Link>
         );

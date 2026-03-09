@@ -1,12 +1,14 @@
 "use client";
 
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { getPostListPageAction } from "@/features/post-list";
 import { classifyErrorMessage } from "@/shared/lib/monitoring";
 import { captureEvent } from "@/shared/lib/posthog";
+import { createPostListInfiniteQueryKey } from "@/shared/lib/query/post-list-query";
 import { Post } from "@/shared/types";
 import { Button } from "@/shared/ui/button";
 
@@ -34,74 +36,98 @@ export function PostInfiniteList({
   pageSize = DEFAULT_POST_PAGE_SIZE,
   emptyState,
 }: PostInfiniteListProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [offset, setOffset] = useState(initialPosts.length);
-  const [hasMore, setHasMore] = useState(initialHasMore);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const isFetchingRef = useRef(false);
+  const queryKey = useMemo(
+    () => createPostListInfiniteQueryKey({ filterOptions, pageSize }),
+    [filterOptions, pageSize],
+  );
 
-  useEffect(() => {
-    setPosts(initialPosts);
-    setOffset(initialPosts.length);
-    setHasMore(initialHasMore);
-    setError(null);
-    setIsLoading(false);
-    isFetchingRef.current = false;
-  }, [initialHasMore, initialPosts]);
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam }) => {
+      const offset = pageParam as number;
+      const {
+        data: pageData,
+        error: getPostsError,
+        hasMore,
+      } = await getPostListPageAction({
+        ...filterOptions,
+        offset,
+        limit: pageSize,
+      });
 
-  const loadMorePosts = useCallback(async () => {
-    if (isFetchingRef.current || !hasMore) {
-      return;
-    }
-
-    isFetchingRef.current = true;
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { data, error: getPostsError, hasMore: nextHasMore } =
-        await getPostListPageAction({
-          ...filterOptions,
-          offset,
-          limit: pageSize,
-        });
-
-      if (getPostsError || !data) {
+      if (getPostsError || !pageData) {
         captureEvent("post_list_load_more_failed", {
           offset,
           error_category: classifyErrorMessage(getPostsError),
         });
-        setError(getPostsError || "게시글 불러오기에 실패했습니다.");
-        return;
+        throw new Error(getPostsError || "게시글 불러오기에 실패했습니다.");
       }
 
       captureEvent("post_list_load_more_succeeded", {
         offset,
-        loaded_count: data.length,
-        has_more: nextHasMore,
+        loaded_count: pageData.length,
+        has_more: hasMore,
       });
 
-      setPosts((prevPosts) => {
-        const existingPostIds = new Set(prevPosts.map((post) => post.id));
-        const nextPosts = data.filter((post) => !existingPostIds.has(post.id));
+      return {
+        data: pageData,
+        hasMore,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) {
+        return undefined;
+      }
 
-        return [...prevPosts, ...nextPosts];
-      });
-      setOffset((prevOffset) => prevOffset + data.length);
-      setHasMore(nextHasMore);
-    } finally {
-      isFetchingRef.current = false;
-      setIsLoading(false);
+      return allPages.reduce(
+        (loadedCount, page) => loadedCount + page.data.length,
+        0,
+      );
+    },
+    initialData: {
+      pages: [
+        {
+          data: initialPosts,
+          hasMore: initialHasMore,
+        },
+      ],
+      pageParams: [0],
+    },
+  });
+
+  const posts = useMemo(() => {
+    const allPosts = data?.pages.flatMap((page) => page.data) ?? [];
+    const uniquePosts = new Map<number, Post>();
+
+    for (const post of allPosts) {
+      uniquePosts.set(post.id, post);
     }
-  }, [filterOptions, hasMore, offset, pageSize]);
+
+    return Array.from(uniquePosts.values());
+  }, [data]);
+
+  const errorMessage = error instanceof Error ? error.message : null;
+
+  const loadMorePosts = useCallback(async () => {
+    if (isFetchingNextPage || !hasNextPage) {
+      return;
+    }
+
+    await fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
 
-    if (!sentinel || !hasMore || error) {
+    if (!sentinel || !hasNextPage || errorMessage) {
       return;
     }
 
@@ -119,7 +145,7 @@ export function PostInfiniteList({
     return () => {
       observer.disconnect();
     };
-  }, [error, hasMore, loadMorePosts]);
+  }, [errorMessage, hasNextPage, isFetchingNextPage, loadMorePosts]);
 
   if (posts.length === 0) {
     return (
@@ -137,9 +163,9 @@ export function PostInfiniteList({
         <PostCard key={post.id} post={post} fullPage={false} />
       ))}
 
-      {error && (
+      {errorMessage && (
         <div className="flex flex-col items-center gap-3 py-4">
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive">{errorMessage}</p>
           <Button
             variant="outline"
             onClick={() => {
@@ -152,14 +178,16 @@ export function PostInfiniteList({
         </div>
       )}
 
-      {isLoading && (
+      {isFetchingNextPage && (
         <div className="flex items-center justify-center py-4 gap-2 text-muted-foreground">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>게시글을 불러오는 중...</span>
         </div>
       )}
 
-      {!isLoading && hasMore && <div ref={sentinelRef} className="h-2 w-full" />}
+      {!isFetchingNextPage && hasNextPage && (
+        <div ref={sentinelRef} className="h-2 w-full" />
+      )}
     </div>
   );
 }

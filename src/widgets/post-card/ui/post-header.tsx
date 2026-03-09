@@ -17,12 +17,13 @@ export function PostHeader({ post }: PostHeaderProps) {
   return (
     <div className="flex flex-1 min-w-0 gap-2 justify-between">
       <div className="flex gap-2 items-center">
-        <Link href={`/profile/${post.author.username}`}>
+        <Link href={`/profile/${post.author.username}`} prefetch={false}>
           <UserAvatar user={post.author} />
         </Link>
         <div className="flex flex-col justify-start">
           <Link
             href={`/profile/${post.author.username}`}
+            prefetch={false}
             className="flex gap-1 items-center hover:cursor-pointer"
           >
             <span className="font-medium text-sm text-foreground">

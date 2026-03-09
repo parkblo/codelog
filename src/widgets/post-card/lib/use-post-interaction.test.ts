@@ -153,4 +153,50 @@ describe("usePostInteraction", () => {
       expect(result.current.bookmarkCount).toBe(6);
     });
   });
+
+  it("resets local state when postId changes with the same initial props", async () => {
+    const { result, rerender } = renderHook(
+      (props: {
+        postId: number;
+        initialIsLiked: boolean;
+        initialLikeCount: number;
+        initialIsBookmarked: boolean;
+        initialBookmarkCount: number;
+      }) => usePostInteraction(props),
+      {
+        initialProps: {
+          postId: 30,
+          initialIsLiked: false,
+          initialLikeCount: 1,
+          initialIsBookmarked: false,
+          initialBookmarkCount: 4,
+        },
+      },
+    );
+
+    await act(async () => {
+      await result.current.handleLikeClick();
+      await result.current.handleBookmarkClick();
+    });
+
+    expect(result.current.isLiked).toBe(true);
+    expect(result.current.likeCount).toBe(2);
+    expect(result.current.isBookmarked).toBe(true);
+    expect(result.current.bookmarkCount).toBe(5);
+
+    rerender({
+      postId: 31,
+      initialIsLiked: false,
+      initialLikeCount: 1,
+      initialIsBookmarked: false,
+      initialBookmarkCount: 4,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLiked).toBe(false);
+      expect(result.current.likeCount).toBe(1);
+      expect(result.current.isBookmarked).toBe(false);
+      expect(result.current.bookmarkCount).toBe(4);
+    });
+  });
 });

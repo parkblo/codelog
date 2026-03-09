@@ -36,19 +36,16 @@ export function usePostInteraction({
 
   useEffect(() => {
     setLikedState(initialIsLiked);
-  }, [initialIsLiked]);
-
-  useEffect(() => {
     setBookmarkedState(initialIsBookmarked);
-  }, [initialIsBookmarked]);
-
-  useEffect(() => {
     setLikeCount(initialLikeCount);
-  }, [initialLikeCount]);
-
-  useEffect(() => {
     setBookmarkCount(initialBookmarkCount);
-  }, [initialBookmarkCount]);
+  }, [
+    postId,
+    initialIsLiked,
+    initialIsBookmarked,
+    initialLikeCount,
+    initialBookmarkCount,
+  ]);
 
   const handleLikeClick = async () => {
     if (!user) {

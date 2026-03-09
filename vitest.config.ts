@@ -8,12 +8,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "server-only": path.resolve(__dirname, "./test/mocks/empty.ts"),
     },
   },
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
-    setupFiles: ["./test/setup.ts"],
+    setupFiles: ["./test/setup.ts", "./vitest.setup.ts"],
+    globals: true,
     clearMocks: true,
     restoreMocks: true,
     coverage: {

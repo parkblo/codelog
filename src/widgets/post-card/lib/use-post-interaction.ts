@@ -60,12 +60,12 @@ export function usePostInteraction({
     setLikedState(willLike);
     setLikeCount((prev) => (willLike ? prev + 1 : Math.max(0, prev - 1)));
 
-    const action = likedState
-      ? deletePostLikeAction(postId)
-      : createPostLikeAction(postId);
+    const action = willLike
+      ? createPostLikeAction(postId)
+      : deletePostLikeAction(postId);
 
     await handleAction(action, {
-      actionName: likedState ? "delete_post_like" : "create_post_like",
+      actionName: willLike ? "create_post_like" : "delete_post_like",
       onError: () => {
         setLikedState(previousState);
         setLikeCount(previousCount);
@@ -88,12 +88,12 @@ export function usePostInteraction({
       willBookmark ? prev + 1 : Math.max(0, prev - 1),
     );
 
-    const action = bookmarkedState
-      ? deleteBookmarkAction(postId)
-      : createBookmarkAction(postId);
+    const action = willBookmark
+      ? createBookmarkAction(postId)
+      : deleteBookmarkAction(postId);
 
     await handleAction(action, {
-      actionName: bookmarkedState ? "delete_bookmark" : "create_bookmark",
+      actionName: willBookmark ? "create_bookmark" : "delete_bookmark",
       onError: () => {
         setBookmarkedState(previousState);
         setBookmarkCount(previousCount);

@@ -2,122 +2,62 @@
 
 <img width="1920" height="1080" alt="CodeLog 메인 이미지" src="https://github.com/user-attachments/assets/c7032e17-4cb7-41a0-9226-37819bf71a9b" />
 
-코드 기반으로 소통하는 SNS, **CodeLog**입니다.
+코드 스니펫과 짧은 글을 함께 올리고, 코드 리뷰용 라인 댓글로 대화할 수 있는 개발자 커뮤니티입니다.
 
-🔗 배포 주소: [codelog-delta.vercel.app](https://codelog-delta.vercel.app/)
+- 현재 서비스: [loghub.vercel.app](https://loghub.vercel.app/)
+- 레거시 도메인: [codelog.vercel.app](https://codelog.vercel.app/) -> 현재 `loghub.vercel.app`로 리다이렉트됩니다.
 
-## 목차
+## 서비스 개요
 
-1. [주요 기능 소개](#1-주요-기능-소개)
-2. [기술 스택 및 선정 이유](#2-기술-스택-및-선정-이유)
-3. [아키텍처 및 데이터베이스](#3-아키텍처-및-데이터베이스)
-4. [트러블 슈팅](#4-트러블-슈팅)
-5. [시작하기](#5-시작하기)
-6. [라이선스](#6-라이선스)
+CodeLog는 피드, 코드 리뷰, 프로필, 검색을 하나의 흐름으로 묶은 개발자용 소셜 제품입니다. 사용자는 텍스트만 올릴 수도 있고, 코드 스니펫과 태그를 포함한 게시글을 작성한 뒤 리뷰 허용 여부를 켜서 라인 단위 피드백까지 받을 수 있습니다.
 
-## 1. 주요 기능 소개
+## 핵심 경험
 
-**CodeLog**는 개발자들이 지식을 기록하고 공유하는 데 최적화된 경험을 제공합니다.
+- 홈 피드에서 최신 게시글을 무한 스크롤로 탐색하고, 로그인한 사용자는 바로 게시글 작성을 시작할 수 있습니다.
+- 게시글은 본문, 코드 스니펫, 언어, 태그, 코드 리뷰 허용 여부를 함께 관리합니다.
+- 코드 리뷰 피드에서는 리뷰 허용 게시글만 모아 보고, 코드 라인 범위를 기준으로 리뷰 댓글을 남길 수 있습니다.
+- 검색과 탐색 화면에서 키워드 검색, 태그 탐색, 인기 태그 발견 흐름을 제공합니다.
+- 프로필 화면에서 기여 그래프, 게시글/좋아요 탭, 팔로워/팔로잉 목록, 프로필 편집을 지원합니다.
+- 인증은 GitHub OAuth와 이메일/비밀번호를 모두 지원하며, 북마크와 설정 같은 보호된 화면은 로그인 상태를 요구합니다.
 
-### 1-1. 📝 코드 포스팅 & 아카이빙
+## 라우트 개요
 
-개발 일지, 기술 아티클, 코드 스니펫을 손쉽게 작성하고 체계적으로 관리할 수 있습니다.
+| 경로 | 역할 | 인증 |
+| --- | --- | --- |
+| `/` | 기본 진입점. `/home`으로 리다이렉트됩니다. | 불필요 |
+| `/home` | 메인 피드, 새 게시글 작성, 게시글 무한 스크롤 | 불필요 |
+| `/code-review` | 코드 리뷰 허용 게시글 전용 피드 | 불필요 |
+| `/explore` | 인기 태그 탐색과 검색 진입 | 불필요 |
+| `/search?q=...&tag=...` | 키워드 또는 태그 기준 검색 결과 | 불필요 |
+| `/post/[postId]` | 게시글 상세, 일반 댓글, 라인 리뷰 댓글 | 불필요 |
+| `/profile/[username]` | 공개 프로필, 기여 그래프, 팔로우, 게시글/좋아요 탭 | 불필요 |
+| `/profile` | 로그인 사용자를 자신의 프로필 URL로 리다이렉트 | 필요 |
+| `/bookmarks` | 저장한 게시글 목록 | 필요 |
+| `/settings` | 계정 설정과 로그아웃 | 필요 |
+| `/auth/callback` | GitHub OAuth 콜백 처리 | 불필요 |
 
-### 1-2. 🎨 강력한 코드 에디터
+## 기술 스택
 
-`react-simple-code-editor`와 `prism-react-renderer`를 활용하여 실시간 구문 강조(Syntax Highlighting)가 적용된 쾌적한 에디팅 환경을 제공합니다.
+| 영역 | 기술 | 용도 |
+| --- | --- | --- |
+| Framework | Next.js 16, React 19, TypeScript | App Router 기반 SSR/RSC와 타입 안정성 |
+| UI | Tailwind CSS v4, Radix UI, shadcn/ui 스타일 컴포넌트 | 일관된 UI 시스템과 빠른 화면 구현 |
+| Data/Auth | Supabase SSR, `@supabase/supabase-js` | 인증, 데이터베이스, 스토리지 연동 |
+| Client State | TanStack Query | 클라이언트 측 캐시와 갱신 |
+| Forms/Validation | React Hook Form, Zod | 인증, 게시글, 프로필, 댓글 입력 검증 |
+| Analytics/Monitoring | PostHog, Sentry | 제품 이벤트 추적과 오류 관측 |
+| Quality | Vitest, Testing Library, ESLint | 단위 테스트, UI 테스트, 정적 검사 |
 
-## 2. 기술 스택 및 선정 이유
+## 아키텍처 개요
 
-### 2-1. Framework & Language
+- 라우트 엔트리는 `app/`에 두고, 실제 페이지 조합은 `src/pages`에서 담당합니다.
+- UI와 도메인 코드는 `src/pages`, `src/widgets`, `src/features`, `src/entities`, `src/shared` 계층으로 분리합니다.
+- 서버 진입점은 `src/**/api/*.action.ts`, 도메인 로직은 `src/**/api/*.service.ts`로 나눠 유지합니다.
+- 데이터 접근은 `src/shared/lib/database`의 어댑터 계층을 통해 Supabase 구현에 연결됩니다.
+- 전역 클라이언트 런타임은 `QueryClientProvider`, 인증 상태, PostHog, Sonner 토스트를 `app/providers`에서 조합합니다.
+- 인증/SSR용 Supabase 유틸리티는 `src/shared/lib/supabase/` 아래에서 공통 관리합니다.
 
-- **Next.js 16 (App Router)**: 최신 리액트 기능인 RSC(React Server Components)를 적극 활용하고, 직관적인 라우팅 구조와 뛰어난 퍼포먼스를 위해 채택했습니다.
-- **TypeScript**: 컴파일 타임에 오류를 잡고, 코드의 안정성과 유지보수성을 높이기 위해 사용합니다.
-
-### 2-2. Styling & UI
-
-- **Tailwind CSS v4 & shadcn/ui**: 디자인 시스템의 일관성을 유지하면서도 높은 개발 생산성을 위해 `shadcn/ui`를 도입했습니다.
-
-### 2-3. Backend & Database
-
-- **Supabase**: 확장 가능한 PostgreSQL 데이터베이스와 즉시 사용 가능한 인증, 실시간 기능을 제공하여 빠른 개발 사이클을 가능하게 합니다.
-
-## 3. 아키텍처 및 데이터베이스
-
-### 3-1. 시스템 구조도
-
-```mermaid
-graph TD
-    User[사용자 / 웹 브라우저]
-
-    subgraph "웹 애플리케이션 (Next.js / Vercel)"
-        Client[Next.js 클라이언트 컴포넌트]
-        Server["Next.js 서버 컴포넌트 (BFF / SSR)"]
-    end
-
-    subgraph "Supabase"
-        Auth["인증 (Auth)"]
-        DB[("PostgreSQL 데이터베이스")]
-        Storage[파일 스토리지]
-    end
-
-    User -->|페이지 접속| Server
-    User -->|상호작용| Client
-
-    Server -->|데이터 요청| DB
-    Client -->|인증 요청| Auth
-    Client -->|실시간 데이터 조회| DB
-    Client -->|파일 업로드 / 다운로드| Storage
-```
-
-### 3-2. ERD
-
-```mermaid
-erDiagram
-    users ||--o{ posts : writes
-    users ||--o{ comments : writes
-    users ||--o{ post_likes : likes
-    users ||--o{ comment_likes : likes
-    users ||--o{ bookmarks : saves
-    users ||--o{ follows : follows
-
-    posts ||--o{ comments : has
-    posts ||--o{ post_likes : has
-    posts ||--o{ bookmarks : has
-    posts ||--o{ posttags : has
-
-    tags ||--o{ posttags : labeled_in
-
-    users {
-        uuid id PK
-        string username
-        string nickname
-        string avatar
-    }
-
-    posts {
-        bigint id PK
-        text content
-        text code
-        string language
-        bigint like_count
-        boolean is_review_enabled
-    }
-
-    comments {
-        bigint id PK
-        text content
-        integer start_line
-        integer end_line
-    }
-
-    tags {
-        bigint id PK
-        string name
-    }
-```
-
-### 3-3. 디렉토리 구조
+## 디렉토리 구조
 
 <!-- readme-sync:structure:start -->
 ```text
@@ -137,72 +77,80 @@ codelog/
 ```
 <!-- readme-sync:structure:end -->
 
-## 4. 시작하기
+## 개발 시작하기
 
-직접 Supabase 프로젝트를 생성하고 연결하여, 나만의 CodeLog 서비스를 즉시 배포하고 운영할 수 있습니다.
+### 요구 사항
 
-### 4-1. 준비사항
+- Node.js 20.9.0 이상
+- npm
+- Supabase 프로젝트
+- 선택 사항: Vercel CLI (`npm run env:pull` 사용 시)
 
-- **Node.js**: v20.9.0 이상 (Next.js 16 공식 요구사항)
-- **npm**
-- **Supabase Account**: 백엔드 및 DB 구성을 위해 필요
-
-### 4-2. 설치 및 실행
-
-1. **저장소 클론 (Clone Repository)**
+### 설치
 
 ```bash
 git clone https://github.com/parkblo/codelog.git
 cd codelog
+npm ci
 ```
 
-2. **의존성 설치 (Install Dependencies)**
+### 환경 변수
 
-```bash
-npm install
-```
+앱 실행에 직접 필요한 값입니다.
 
-3. **환경 변수 설정 (Environment Setup)**
+| 변수 | 필수 | 설명 |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | 예 | Supabase 프로젝트 URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 예 | Supabase 퍼블릭 anon key |
 
-루트 경로에 `.env.local` 파일을 생성하고 Supabase 키를 입력하세요.
+운영/관측 기능에 쓰이는 선택 값입니다.
+
+| 변수 | 필수 | 설명 |
+| --- | --- | --- |
+| `NEXT_PUBLIC_POSTHOG_KEY` | 아니오 | PostHog 프로젝트 키. 없으면 분석 기능을 비활성화합니다. |
+| `NEXT_PUBLIC_POSTHOG_HOST` | 아니오 | PostHog API 호스트. 기본값은 `https://us.i.posthog.com`입니다. |
+| `NEXT_PUBLIC_SENTRY_DSN` | 아니오 | Sentry DSN |
+| `NEXT_PUBLIC_SENTRY_ENABLED` | 아니오 | Sentry 강제 on/off. 없으면 프로덕션 환경에서만 활성화됩니다. |
+| `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | 아니오 | 트레이싱 샘플링 비율. 기본값 `0.2` |
+| `NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE` | 아니오 | 세션 리플레이 샘플링 비율. 기본값 `0.01` |
+| `NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE` | 아니오 | 에러 발생 시 리플레이 샘플링 비율. 기본값 `1` |
+| `SENTRY_AUTH_TOKEN` | 아니오 | 소스맵 업로드용 Sentry 인증 토큰 |
+| `SENTRY_ORG` | 아니오 | Sentry organization slug |
+| `SENTRY_PROJECT` | 아니오 | Sentry project slug |
+
+예시:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# PostHog
 NEXT_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key
 NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 
-# Sentry (Client/Server 공통)
 NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 NEXT_PUBLIC_SENTRY_ENABLED=true
 NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
 NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE=0.05
 NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE=1
 
-# Sentry Source Map Upload (배포 환경 권장)
 SENTRY_AUTH_TOKEN=your_sentry_auth_token
 SENTRY_ORG=your_sentry_org_slug
 SENTRY_PROJECT=your_sentry_project_slug
 ```
 
-> **Tip**: Vercel CLI를 사용하면 다음 명령어로 환경 변수를 한 번에 가져올 수 있습니다.
-> (최초 실행 시 `npx vercel link`로 프로젝트 연결이 필요할 수 있습니다.)
->
-> ```bash
-> npm run env:pull
-> ```
+Vercel 프로젝트와 연결돼 있다면 아래 명령으로 `.env.local`을 가져올 수 있습니다.
 
-4. **로컬 서버 실행 (Run Local Server)**
+```bash
+npm run env:pull
+```
+
+### 실행
 
 ```bash
 npm run dev
 ```
 
-### 4-3. 주요 스크립트
-
-아래 표는 `package.json`의 `scripts`를 기준으로 자동 동기화됩니다.
+### 스크립트
 
 <!-- readme-sync:commands:start -->
 | 스크립트 | 실제 명령 |
@@ -219,11 +167,22 @@ npm run dev
 | `npm run test:coverage` | `vitest run --coverage` |
 <!-- readme-sync:commands:end -->
 
-## 5. 라이선스
+## 품질 및 자동화
 
-이 프로젝트는 **CC BY-NC 4.0** (Creative Commons Attribution-NonCommercial 4.0 International License) 라이선스를 따릅니다.
+- `npm run check:readme`는 README의 디렉토리 구조 블록과 스크립트 표가 실제 코드와 `package.json`에 맞는지 검사합니다.
+- `npm run sync:readme`는 위 두 관리 블록을 현재 저장소 상태로 다시 생성합니다.
+- `npm test`와 `npm run test:coverage`로 Vitest 기반 테스트를 실행합니다.
+- `npm run lint`로 ESLint 검사를 실행합니다.
+- `.github/workflows/validate-readme-sync.yml`은 PR 열림, 업데이트, `ready_for_review`, 본문 수정 시 README 정합성을 검사합니다.
+- 현재 GitHub Actions는 `readme-sync` 검증과 Supabase 타입 갱신만 관리하며, `lint`나 `test`를 자동 실행하는 워크플로는 아직 없습니다.
+- `.github/workflows/refresh-supabase-types.yml`은 매일 08:00 KST에 Supabase 타입을 갱신하는 PR을 생성하며, `SUPABASE_ACCESS_TOKEN`과 `SUPABASE_PROJECT_REF` GitHub secrets가 필요합니다.
+- 데이터베이스 마이그레이션은 `supabase/migrations/`에 두고, 생성된 타입은 `src/shared/types/database.types.ts`에 반영합니다.
 
-- ✅ **저작자 표시 (Attribution)**: 코드를 사용·수정·배포할 때는 원저작자(프로젝트명, 저장소 링크 등)를 명확히 표시해야 합니다.
-- 🚫 **상업적 이용 금지**: 저작권자의 사전 허락 없이 이 코드를 기반으로 한 서비스를 유료로 배포하거나 수익을 창출하는 행위는 금지됩니다.
+## 라이선스
 
-위 bullet들은 이해를 돕기 위한 요약이며, 법적 효력이 있는 전체 라이선스 전문은 저장소의 `LICENSE` 파일을 참고하세요.
+이 프로젝트는 **CC BY-NC 4.0** 라이선스를 따릅니다.
+
+- 저작자 표시 없이 사용·수정·배포할 수 없습니다.
+- 저작권자의 사전 허락 없이 상업적으로 사용할 수 없습니다.
+
+자세한 내용은 [LICENSE](./LICENSE)를 확인하세요.

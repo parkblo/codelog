@@ -369,7 +369,7 @@ function printFailure(io, failure) {
   }
 }
 
-export async function runCli(args = process.argv.slice(2), io = console, repoRoot = DEFAULT_REPO_ROOT) {
+export function runCli(args = process.argv.slice(2), io = console, repoRoot = DEFAULT_REPO_ROOT) {
   const mode = args[0] ?? "check";
 
   if (mode === "sync") {
@@ -402,13 +402,10 @@ export async function runCli(args = process.argv.slice(2), io = console, repoRoo
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  runCli().then(
-    (exitCode) => {
-      process.exitCode = exitCode;
-    },
-    (error) => {
-      console.error(error instanceof Error ? error.message : String(error));
-      process.exitCode = 1;
-    },
-  );
+  try {
+    process.exitCode = runCli();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }

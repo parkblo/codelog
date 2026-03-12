@@ -134,7 +134,7 @@ describe("readme sync", () => {
     );
   });
 
-  it("runs the CLI in both check and sync modes", async () => {
+  it("runs the CLI in both check and sync modes", () => {
     const repoRoot = createFixtureRepo();
     const output = [];
     const io = {
@@ -146,9 +146,9 @@ describe("readme sync", () => {
       },
     };
 
-    await expect(runCli(["check"], io, repoRoot)).resolves.toBe(1);
-    await expect(runCli(["sync"], io, repoRoot)).resolves.toBe(0);
-    await expect(runCli(["check"], io, repoRoot)).resolves.toBe(0);
+    expect(runCli(["check"], io, repoRoot)).toBe(1);
+    expect(runCli(["sync"], io, repoRoot)).toBe(0);
+    expect(runCli(["check"], io, repoRoot)).toBe(0);
 
     expect(output).toContain("error:README sync check failed.");
     expect(output).toContain("log:README managed sections synchronized.");

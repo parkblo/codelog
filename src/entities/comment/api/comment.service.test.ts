@@ -1,8 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { type DatabaseAdapter, setDatabaseAdapter } from "@/shared/lib/database";
+import {
+  type DatabaseAdapter,
+  getDatabaseAdapter,
+  setDatabaseAdapter,
+} from "@/shared/lib/database";
+import {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/shared/types/database.types";
+import { Comment } from "@/shared/types/types";
 
-import { createComment, getCommentsByPostId } from "./comment.service";
+import { createComment, deleteComment, getCommentsByPostId } from "./comment.service";
 
 function createMockAdapter(
   overrides: Partial<DatabaseAdapter> = {},
@@ -23,6 +33,186 @@ function createMockAdapter(
     ...overrides,
   } as unknown as DatabaseAdapter;
 }
+
+class FakeCommentDatabaseAdapter {
+  private nextCommentId = 1;
+
+  constructor(
+    readonly users: Tables<"users">[],
+    readonly posts: Tables<"posts">[],
+    readonly comments: Tables<"comments">[] = [],
+  ) {}
+
+  async query<T>(options: {
+    table: string;
+    filters?: { column: string; value: unknown; operator?: string }[];
+  }) {
+    if (options.table !== "posts") {
+      return { data: null, count: null, error: null };
+    }
+
+    const post = this.posts.find((candidate) => {
+      const author = this.users.find((user) => user.id === candidate.user_id);
+
+      return (options.filters ?? []).every((filter) => {
+        if (filter.column === "id") {
+          return candidate.id === filter.value;
+        }
+
+        if (filter.column === "deleted_at" && filter.operator === "is") {
+          return candidate.deleted_at === filter.value;
+        }
+
+        if (
+          filter.column === "author.deleted_at" &&
+          filter.operator === "is"
+        ) {
+          return author?.deleted_at === filter.value;
+        }
+
+        return true;
+      });
+    });
+
+    return { data: (post ?? null) as T | null, count: null, error: null };
+  }
+
+  async insert<T>(table: string, values: TablesInsert<"comments">) {
+    if (table !== "comments") {
+      throw new Error(`Unexpected insert table: ${table}`);
+    }
+
+    const author = this.users.find((user) => user.id === values.user_id);
+    const post = this.posts.find((candidate) => candidate.id === values.post_id);
+
+    if (!author || !post) {
+      return { data: null, count: null, error: new Error("Missing relation") };
+    }
+
+    const commentRow: Tables<"comments"> = {
+      id: this.nextCommentId++,
+      created_at: new Date().toISOString(),
+      updated_at: null,
+      deleted_at: values.deleted_at ?? null,
+      content: values.content,
+      post_id: values.post_id,
+      user_id: values.user_id,
+      like_count: values.like_count ?? 0,
+      start_line: values.start_line ?? null,
+      end_line: values.end_line ?? null,
+    };
+
+    this.comments.push(commentRow);
+
+    // Simulate the DB trigger contract enforced by the migration.
+    if (commentRow.deleted_at === null) {
+      post.comment_count += 1;
+    }
+
+    const createdComment: Comment = {
+      ...commentRow,
+      author: {
+        id: author.id,
+        username: author.username,
+        nickname: author.nickname,
+        avatar: author.avatar,
+        bio: author.bio,
+      },
+    };
+
+    return { data: createdComment as T, count: null, error: null };
+  }
+
+  async update<T>(
+    table: string,
+    values: TablesUpdate<"comments">,
+    filters: { column: string; value: unknown; operator?: string }[] = [],
+  ) {
+    if (table !== "comments") {
+      throw new Error(`Unexpected update table: ${table}`);
+    }
+
+    const comment = this.comments.find((candidate) =>
+      filters.every((filter) => {
+        if (filter.column === "id") {
+          return candidate.id === filter.value;
+        }
+
+        if (filter.column === "deleted_at" && filter.operator === "is") {
+          return candidate.deleted_at === filter.value;
+        }
+
+        return true;
+      }),
+    );
+
+    if (!comment) {
+      return { data: null as T | null, count: null, error: null };
+    }
+
+    const previousDeletedAt = comment.deleted_at;
+    Object.assign(comment, values);
+
+    if (previousDeletedAt === null && comment.deleted_at !== null) {
+      const post = this.posts.find((candidate) => candidate.id === comment.post_id);
+
+      if (post) {
+        post.comment_count = Math.max(post.comment_count - 1, 0);
+      }
+    }
+
+    if (previousDeletedAt !== null && comment.deleted_at === null) {
+      const post = this.posts.find((candidate) => candidate.id === comment.post_id);
+
+      if (post) {
+        post.comment_count += 1;
+      }
+    }
+
+    return { data: null as T | null, count: null, error: null };
+  }
+}
+
+const originalAdapter = getDatabaseAdapter();
+
+function createFakeAdapter() {
+  return new FakeCommentDatabaseAdapter(
+    [
+      {
+        id: "user-1",
+        username: "parkblo",
+        nickname: "Park",
+        avatar: null,
+        bio: null,
+        password: null,
+        created_at: "2026-03-12T00:00:00.000Z",
+        updated_at: null,
+        deleted_at: null,
+      },
+    ],
+    [
+      {
+        id: 10,
+        user_id: "user-1",
+        content: "post",
+        code: null,
+        language: null,
+        created_at: "2026-03-12T00:00:00.000Z",
+        updated_at: null,
+        deleted_at: null,
+        comment_count: 0,
+        like_count: 0,
+        bookmark_count: 0,
+        view_count: 0,
+        is_review_enabled: true,
+      },
+    ],
+  );
+}
+
+afterEach(() => {
+  setDatabaseAdapter(originalAdapter);
+});
 
 describe("comment.service", () => {
   let adapter: DatabaseAdapter;
@@ -143,5 +333,61 @@ describe("comment.service", () => {
         range: { from: 5, to: 6 },
       }),
     );
+  });
+});
+
+describe("comment service count sync", () => {
+  it("increments post comment_count when creating a comment", async () => {
+    const adapter = createFakeAdapter();
+    setDatabaseAdapter(adapter as unknown as DatabaseAdapter);
+
+    const { data, error } = await createComment({
+      content: "first comment",
+      postId: 10,
+      userId: "user-1",
+      startLine: null,
+      endLine: null,
+    });
+
+    expect(error).toBeNull();
+    expect(data?.id).toBe(1);
+    expect(adapter.posts[0]?.comment_count).toBe(1);
+  });
+
+  it("decrements post comment_count when soft deleting a comment", async () => {
+    const adapter = createFakeAdapter();
+    setDatabaseAdapter(adapter as unknown as DatabaseAdapter);
+
+    const { data: createdComment } = await createComment({
+      content: "first comment",
+      postId: 10,
+      userId: "user-1",
+      startLine: null,
+      endLine: null,
+    });
+
+    const result = await deleteComment(createdComment!.id);
+
+    expect(result.error).toBeNull();
+    expect(adapter.posts[0]?.comment_count).toBe(0);
+    expect(adapter.comments[0]?.deleted_at).not.toBeNull();
+  });
+
+  it("does not decrement below zero on duplicate soft delete", async () => {
+    const adapter = createFakeAdapter();
+    setDatabaseAdapter(adapter as unknown as DatabaseAdapter);
+
+    const { data: createdComment } = await createComment({
+      content: "first comment",
+      postId: 10,
+      userId: "user-1",
+      startLine: null,
+      endLine: null,
+    });
+
+    await deleteComment(createdComment!.id);
+    await deleteComment(createdComment!.id);
+
+    expect(adapter.posts[0]?.comment_count).toBe(0);
   });
 });

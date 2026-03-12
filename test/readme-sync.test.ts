@@ -42,12 +42,6 @@ function createFixtureRepo() {
 stale structure
 <!-- readme-sync:structure:end -->
 
-## Architecture
-
-<!-- readme-sync:architecture:start -->
-stale architecture
-<!-- readme-sync:architecture:end -->
-
 ## Commands
 
 <!-- readme-sync:commands:start -->
@@ -103,12 +97,8 @@ describe("readme sync", () => {
     const result = checkReadme(repoRoot);
 
     expect(result.ok).toBe(false);
-    expect(result.failures).toHaveLength(3);
-    expect(result.failures.map((failure) => failure.section)).toEqual([
-      "structure",
-      "architecture",
-      "commands",
-    ]);
+    expect(result.failures).toHaveLength(2);
+    expect(result.failures.map((failure) => failure.section)).toEqual(["structure", "commands"]);
   });
 
   it("synchronizes managed blocks from the repository snapshot", () => {
@@ -119,7 +109,6 @@ describe("readme sync", () => {
 
     expect(changed.changed).toBe(true);
     expect(readmeContent).toContain(sections.structure);
-    expect(readmeContent).toContain(sections.architecture);
     expect(readmeContent).toContain(sections.commands);
     expect(checkReadme(repoRoot).ok).toBe(true);
   });

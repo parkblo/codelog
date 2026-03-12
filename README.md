@@ -119,8 +119,6 @@ erDiagram
 
 ### 3-3. 디렉토리 구조
 
-프로젝트의 주요 디렉토리 구조는 다음과 같습니다. 아래 블록은 `npm run sync:readme`로 자동 동기화됩니다.
-
 <!-- readme-sync:structure:start -->
 ```text
 codelog/
@@ -138,19 +136,6 @@ codelog/
 └── package.json       # NPM scripts and dependency manifest
 ```
 <!-- readme-sync:structure:end -->
-
-### 3-4. 코드베이스 체크포인트
-
-아래 체크포인트는 현재 코드베이스 구조에서 자동 생성됩니다.
-
-<!-- readme-sync:architecture:start -->
-- `app/` 아래 `page.tsx`와 `layout.tsx`를 기준으로 App Router 라우팅과 공통 레이아웃을 구성합니다.
-- UI와 도메인 코드는 `src/pages`, `src/widgets`, `src/features`, `src/entities`, `src/shared` 계층으로 분리합니다.
-- 서버 변경과 도메인 로직은 `src/**/api/*.action.ts`와 `src/**/api/*.service.ts` 패턴으로 분리합니다.
-- Supabase 인증 및 클라이언트 유틸리티는 `src/shared/lib/supabase/` 아래에서 공통 관리합니다.
-- 요청 프록시 진입점은 `src/proxy.ts`에 두고 있습니다.
-- 루트 `pages/README.md`를 유지해 Next.js가 `src/pages`를 Pages Router로 오인하지 않도록 방지합니다.
-<!-- readme-sync:architecture:end -->
 
 ## 4. 시작하기
 

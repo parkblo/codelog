@@ -7,16 +7,12 @@ const __dirname = path.dirname(__filename);
 
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, "..");
 
-const SECTION_NAMES = ["structure", "architecture", "commands"];
+const SECTION_NAMES = ["structure", "commands"];
 
 const SECTION_MARKERS = {
   structure: {
     start: "<!-- readme-sync:structure:start -->",
     end: "<!-- readme-sync:structure:end -->",
-  },
-  architecture: {
-    start: "<!-- readme-sync:architecture:start -->",
-    end: "<!-- readme-sync:architecture:end -->",
   },
   commands: {
     start: "<!-- readme-sync:commands:start -->",
@@ -163,36 +159,6 @@ function formatStructureBlock(repoRoot) {
   return ["```text", "codelog/", ...renderTree(entries), "```"].join("\n");
 }
 
-function formatArchitectureBlock(snapshot) {
-  const lines = [];
-
-  if (snapshot.appPageCount > 0 && snapshot.hasAppLayout) {
-    lines.push("- `app/` 아래 `page.tsx`와 `layout.tsx`를 기준으로 App Router 라우팅과 공통 레이아웃을 구성합니다.");
-  }
-
-  if (snapshot.hasFsdLayers) {
-    lines.push("- UI와 도메인 코드는 `src/pages`, `src/widgets`, `src/features`, `src/entities`, `src/shared` 계층으로 분리합니다.");
-  }
-
-  if (snapshot.actionFileCount > 0 && snapshot.serviceFileCount > 0) {
-    lines.push("- 서버 변경과 도메인 로직은 `src/**/api/*.action.ts`와 `src/**/api/*.service.ts` 패턴으로 분리합니다.");
-  }
-
-  if (snapshot.hasSupabaseLib) {
-    lines.push("- Supabase 인증 및 클라이언트 유틸리티는 `src/shared/lib/supabase/` 아래에서 공통 관리합니다.");
-  }
-
-  if (snapshot.hasProxyEntry) {
-    lines.push("- 요청 프록시 진입점은 `src/proxy.ts`에 두고 있습니다.");
-  }
-
-  if (snapshot.hasPagesRouterGuard) {
-    lines.push("- 루트 `pages/README.md`를 유지해 Next.js가 `src/pages`를 Pages Router로 오인하지 않도록 방지합니다.");
-  }
-
-  return lines.join("\n");
-}
-
 function escapeTableCell(value) {
   return value.replace(/\|/g, "\\|");
 }
@@ -214,21 +180,9 @@ function formatCommandsBlock(scripts) {
 export function collectRepoSnapshot(repoRoot) {
   const packageJsonPath = path.join(repoRoot, "package.json");
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-  const appFiles = listFilesRecursive(repoRoot, "app");
-  const srcFiles = listFilesRecursive(repoRoot, "src");
 
   return {
     scripts: packageJson.scripts ?? {},
-    appPageCount: appFiles.filter((filePath) => filePath.endsWith("/page.tsx") || filePath === "app/page.tsx").length,
-    hasAppLayout: appFiles.includes("app/layout.tsx"),
-    hasFsdLayers: ["src/pages", "src/widgets", "src/features", "src/entities", "src/shared"].every((entry) =>
-      pathExists(repoRoot, entry),
-    ),
-    actionFileCount: srcFiles.filter((filePath) => /\/api\/[^/]+\.action\.ts$/.test(filePath)).length,
-    serviceFileCount: srcFiles.filter((filePath) => /\/api\/[^/]+\.service\.ts$/.test(filePath)).length,
-    hasSupabaseLib: srcFiles.some((filePath) => filePath.startsWith("src/shared/lib/supabase/")),
-    hasProxyEntry: pathExists(repoRoot, "src/proxy.ts"),
-    hasPagesRouterGuard: pathExists(repoRoot, "pages/README.md"),
   };
 }
 
@@ -237,7 +191,6 @@ export function buildManagedSections(repoRoot) {
 
   return {
     structure: formatStructureBlock(repoRoot),
-    architecture: formatArchitectureBlock(snapshot),
     commands: formatCommandsBlock(snapshot.scripts),
   };
 }

@@ -119,25 +119,38 @@ erDiagram
 
 ### 3-3. 디렉토리 구조
 
-프로젝트의 주요 디렉토리 구조는 다음과 같습니다.
+프로젝트의 주요 디렉토리 구조는 다음과 같습니다. 아래 블록은 `npm run sync:readme`로 자동 동기화됩니다.
 
-```
+<!-- readme-sync:structure:start -->
+```text
 codelog/
-├── src/
-│   ├── app/          # App Router 페이지 및 레이아웃
-│   ├── components/   # 재사용 가능한 UI 컴포넌트
-│   ├── services/     # API 호출 및 비즈니스 로직
-│   ├── hooks/        # 커스텀 React Hooks
-│   ├── lib/          # 유틸리티 및 외부 라이브러리 설정
-│   ├── types/        # 전역 TypeScript 타입 정의
-│   ├── styles/       # 전역 스타일 설정
-│   ├── utils/        # 공통 헬퍼 함수
-│   ├── actions/      # 서버 액션 및 변이 로직
-│   ├── providers/    # 전역 Provider 컴포넌트
-│   └── proxy.ts      # 프록시 설정 및 API 라우팅
-├── public/           # 정적 에셋
-└── package.json
+├── app/               # App Router route entries, layout, and metadata
+├── pages/             # Guard directory so Next.js does not treat src/pages as Pages Router
+├── public/            # Static assets served as-is
+├── src/               # Application layers and shared code
+│   ├── pages/             # Page-level compositions in the FSD Pages layer
+│   ├── widgets/           # Composite UI sections
+│   ├── features/          # User-facing flows and interactions
+│   ├── entities/          # Domain models and API layers
+│   ├── shared/            # Shared UI, libraries, styles, and types
+│   └── proxy.ts           # Request proxy entrypoint
+├── test/              # Vitest setup and Node-oriented tests
+└── package.json       # NPM scripts and dependency manifest
 ```
+<!-- readme-sync:structure:end -->
+
+### 3-4. 코드베이스 체크포인트
+
+아래 체크포인트는 현재 코드베이스 구조에서 자동 생성됩니다.
+
+<!-- readme-sync:architecture:start -->
+- `app/` 아래 `page.tsx`와 `layout.tsx`를 기준으로 App Router 라우팅과 공통 레이아웃을 구성합니다.
+- UI와 도메인 코드는 `src/pages`, `src/widgets`, `src/features`, `src/entities`, `src/shared` 계층으로 분리합니다.
+- 서버 변경과 도메인 로직은 `src/**/api/*.action.ts`와 `src/**/api/*.service.ts` 패턴으로 분리합니다.
+- Supabase 인증 및 클라이언트 유틸리티는 `src/shared/lib/supabase/` 아래에서 공통 관리합니다.
+- 요청 프록시 진입점은 `src/proxy.ts`에 두고 있습니다.
+- 루트 `pages/README.md`를 유지해 Next.js가 `src/pages`를 Pages Router로 오인하지 않도록 방지합니다.
+<!-- readme-sync:architecture:end -->
 
 ## 4. 트러블 슈팅
 
@@ -168,8 +181,8 @@ codelog/
 
 ### 5-1. 준비사항
 
-- **Node.js**: v18.17.0 이상 (Next.js 16 요구사항)
-- **npm** (또는 yarn, pnpm과 같은 패키지 매니저)
+- **Node.js**: v20.9.0 이상 (Next.js 16 공식 요구사항)
+- **npm**
 - **Supabase Account**: 백엔드 및 DB 구성을 위해 필요
 
 ### 5-2. 설치 및 실행
@@ -177,8 +190,8 @@ codelog/
 1. **저장소 클론 (Clone Repository)**
 
 ```bash
-git clone https://github.com/<your-github-username>/<this-repo-name>.git
-cd <this-repo-name>
+git clone https://github.com/parkblo/codelog.git
+cd codelog
 ```
 
 2. **의존성 설치 (Install Dependencies)**
@@ -216,7 +229,7 @@ SENTRY_PROJECT=your_sentry_project_slug
 > (최초 실행 시 `npx vercel link`로 프로젝트 연결이 필요할 수 있습니다.)
 >
 > ```bash
-> npx vercel env pull .env.local
+> npm run env:pull
 > ```
 
 4. **로컬 서버 실행 (Run Local Server)**
@@ -224,6 +237,25 @@ SENTRY_PROJECT=your_sentry_project_slug
 ```bash
 npm run dev
 ```
+
+### 5-3. 주요 스크립트
+
+아래 표는 `package.json`의 `scripts`를 기준으로 자동 동기화됩니다.
+
+<!-- readme-sync:commands:start -->
+| 스크립트 | 실제 명령 |
+| --- | --- |
+| `npm run dev` | `next dev` |
+| `npm run build` | `next build` |
+| `npm run start` | `next start` |
+| `npm run lint` | `eslint` |
+| `npm run check:readme` | `node scripts/readme-sync.mjs check` |
+| `npm run sync:readme` | `node scripts/readme-sync.mjs sync` |
+| `npm run env:pull` | `npx vercel env pull .env.local` |
+| `npm run test` | `vitest run` |
+| `npm run test:watch` | `vitest` |
+| `npm run test:coverage` | `vitest run --coverage` |
+<!-- readme-sync:commands:end -->
 
 ## 6. 라이선스
 

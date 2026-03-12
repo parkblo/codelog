@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "test/**/*.test.ts"],
     setupFiles: ["./test/setup.ts", "./vitest.setup.ts"],
     globals: true,
     clearMocks: true,
@@ -21,8 +21,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}", "src/shared/types/**", "**/*.d.ts"],
+      include: ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
+      exclude: ["src/**/*.test.{ts,tsx}", "test/**/*.test.ts", "src/shared/types/**", "**/*.d.ts"],
     },
   },
 });

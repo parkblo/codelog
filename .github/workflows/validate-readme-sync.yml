@@ -1,0 +1,29 @@
+name: Validate README sync
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readme-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate README managed sections
+        run: npm run check:readme

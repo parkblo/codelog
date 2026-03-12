@@ -251,9 +251,9 @@ npm run dev
 | `npm run lint` | `eslint` |
 | `npm run check:readme` | `node scripts/readme-sync.mjs check` |
 | `npm run sync:readme` | `node scripts/readme-sync.mjs sync` |
-| `npm run env:pull` | `npx vercel env pull .env.local` |
 | `npm run test` | `vitest run` |
 | `npm run test:watch` | `vitest` |
+| `npm run env:pull` | `npx vercel env pull .env.local` |
 | `npm run test:coverage` | `vitest run --coverage` |
 <!-- readme-sync:commands:end -->
 

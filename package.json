@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check:readme": "node scripts/readme-sync.mjs check",
+    "sync:readme": "node scripts/readme-sync.mjs sync",
     "test": "vitest run",
     "test:watch": "vitest",
     "env:pull": "npx vercel env pull .env.local",

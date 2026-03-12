@@ -72,6 +72,7 @@ const eslintConfig = defineConfig([
             "posthog-js/**",
             "prismjs/**",
             "vitest/**",
+            "**/scripts/**",
             "**/styles/**",
             "**/pages/**",
             "eslint/**",

@@ -3,7 +3,6 @@ const POST_LIST_QUERY_ROOT_KEY = "post-list";
 export const POST_LIST_QUERY_KEY = [POST_LIST_QUERY_ROOT_KEY] as const;
 
 type PostListFilterOptions = {
-  isReviewEnabled?: boolean;
   authorId?: string;
   likedByUserId?: string;
   bookmarkedByUserId?: string;
@@ -20,7 +19,6 @@ function normalizePostListFilters(filterOptions: PostListFilterOptions = {}) {
   return {
     authorId: filterOptions.authorId ?? null,
     bookmarkedByUserId: filterOptions.bookmarkedByUserId ?? null,
-    isReviewEnabled: filterOptions.isReviewEnabled ?? null,
     keyword: filterOptions.keyword ?? null,
     likedByUserId: filterOptions.likedByUserId ?? null,
     tag: filterOptions.tag ?? null,
@@ -40,4 +38,3 @@ export function createPostListInfiniteQueryKey({
     },
   ] as const;
 }
-

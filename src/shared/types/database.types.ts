@@ -223,14 +223,15 @@ export type Database = {
       }
       posts: {
         Row: {
+          authoring_mode: "hand_written" | "ai_assisted"
           bookmark_count: number
           code: string | null
           comment_count: number
           content: string
           created_at: string
           deleted_at: string | null
+          description: string
           id: number
-          is_review_enabled: boolean
           language: string | null
           like_count: number
           updated_at: string | null
@@ -238,14 +239,15 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          authoring_mode?: "hand_written" | "ai_assisted"
           bookmark_count?: number
           code?: string | null
           comment_count?: number
           content: string
           created_at?: string
           deleted_at?: string | null
+          description: string
           id?: number
-          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null
@@ -253,14 +255,15 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          authoring_mode?: "hand_written" | "ai_assisted"
           bookmark_count?: number
           code?: string | null
           comment_count?: number
           content?: string
           created_at?: string
           deleted_at?: string | null
+          description?: string
           id?: number
-          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null
@@ -443,7 +446,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      authoring_mode: "hand_written" | "ai_assisted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -570,6 +573,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      authoring_mode: ["hand_written", "ai_assisted"],
+    },
   },
 } as const

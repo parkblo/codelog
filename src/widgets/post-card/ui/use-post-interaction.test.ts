@@ -88,16 +88,20 @@ describe("usePostInteraction", () => {
       await result.current.handleLikeClick();
     });
 
-    expect(result.current.isLiked).toBe(true);
-    expect(result.current.likeCount).toBe(4);
+    await waitFor(() => {
+      expect(result.current.isLiked).toBe(true);
+      expect(result.current.likeCount).toBe(4);
+    });
     expect(mockCreatePostLikeAction).toHaveBeenCalledWith(10);
 
     await act(async () => {
       await result.current.handleBookmarkClick();
     });
 
-    expect(result.current.isBookmarked).toBe(true);
-    expect(result.current.bookmarkCount).toBe(3);
+    await waitFor(() => {
+      expect(result.current.isBookmarked).toBe(true);
+      expect(result.current.bookmarkCount).toBe(3);
+    });
     expect(mockCreateBookmarkAction).toHaveBeenCalledWith(10);
   });
 
@@ -178,13 +182,21 @@ describe("usePostInteraction", () => {
 
     await act(async () => {
       await result.current.handleLikeClick();
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLiked).toBe(true);
+      expect(result.current.likeCount).toBe(2);
+    });
+
+    await act(async () => {
       await result.current.handleBookmarkClick();
     });
 
-    expect(result.current.isLiked).toBe(true);
-    expect(result.current.likeCount).toBe(2);
-    expect(result.current.isBookmarked).toBe(true);
-    expect(result.current.bookmarkCount).toBe(5);
+    await waitFor(() => {
+      expect(result.current.isBookmarked).toBe(true);
+      expect(result.current.bookmarkCount).toBe(5);
+    });
 
     rerender({
       postId: 31,

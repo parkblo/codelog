@@ -142,4 +142,31 @@ describe("Comment item interaction", () => {
       expect(screen.getByText("5")).toBeInTheDocument();
     });
   });
+
+  it("Logan 댓글에는 Bot 배지를 표시한다", () => {
+    const comment: CommentType = {
+      id: 3,
+      post_id: 12,
+      content: "오늘 학습 포인트가 명확해서 좋아요.",
+      created_at: "2026-03-04T00:00:00.000Z",
+      like_count: 0,
+      is_liked: false,
+      author: {
+        id: "00000000-0000-0000-0000-000000000001",
+        username: "logan-bot",
+        nickname: "Logan",
+        avatar: null,
+        bio: "배움을 응원하는 AI 동료입니다.",
+      },
+      start_line: null,
+      end_line: null,
+      updated_at: null,
+      deleted_at: null,
+    };
+
+    render(<Comment comment={comment} />);
+
+    expect(screen.getByText("Bot")).toBeInTheDocument();
+    expect(screen.getByText("@logan-bot")).toBeInTheDocument();
+  });
 });

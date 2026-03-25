@@ -8,19 +8,43 @@ import {
   deletePost,
   getPostById,
   getReviewCommentsCount,
+  hasUserPostedOnLocalDay,
   updatePost,
 } from "@/entities/post/api/post.service";
+import { type LocalDayContext } from "@/shared/lib/date";
 import { getCurrentUserAuth } from "@/shared/lib/supabase/current-user";
 
-async function createPostAction(data: CreatePostDTO) {
+type CreatePostActionInput = CreatePostDTO & {
+  localDayContext: LocalDayContext;
+};
+
+async function createPostAction(data: CreatePostActionInput) {
   const user = await getCurrentUserAuth();
 
   if (!user) {
     return { error: "로그인이 필요합니다." };
   }
 
+  const { localDayContext, ...postData } = data;
+  const { data: hasPostedToday, error: hasPostedError } =
+    await hasUserPostedOnLocalDay({
+      ...localDayContext,
+      userId: user.id,
+    });
+
+  if (hasPostedError) {
+    console.error(hasPostedError);
+    return {
+      error: hasPostedError.message || "오늘 작성 여부 확인에 실패했습니다.",
+    };
+  }
+
+  if (hasPostedToday) {
+    return { error: "오늘은 이미 글을 작성했습니다." };
+  }
+
   // 데이터의 author는 클라이언트에서 오므로, 서버의 신뢰할 수 있는 user 정보로 덮어씌웁니다.
-  const secureData = { ...data, author: user };
+  const secureData = { ...postData, author: user };
 
   const { data: newPost, error } = await createPost(secureData);
 
@@ -61,7 +85,7 @@ async function updatePostAction(id: number, data: Partial<CreatePostDTO>) {
 
     if (count && count > 0) {
       return {
-        error: "코드 리뷰가 존재하는 포스트는 코드를 수정할 수 없습니다.",
+        error: "인라인 코멘트가 존재하는 포스트는 코드를 수정할 수 없습니다.",
       };
     }
   }

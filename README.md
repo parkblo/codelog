@@ -20,15 +20,15 @@
 
 ### 1-1. 📝 코드 포스팅 & 아카이빙
 
-개발 일지, 기술 아티클, 코드 스니펫을 손쉽게 작성하고 체계적으로 관리할 수 있습니다. 게시글에는 태그와 코드 리뷰 허용 여부를 함께 설정할 수 있습니다.
+개발 일지, 기술 아티클, 코드 스니펫을 손쉽게 작성하고 체계적으로 관리할 수 있습니다. 게시글에는 짧은 설명과 태그를 함께 남기고, 코드가 있으면 인라인 코멘트로 대화를 이어갈 수 있습니다.
 
 ### 1-2. 🎨 강력한 코드 에디터
 
 `react-simple-code-editor`와 `prism-react-renderer`를 활용하여 실시간 구문 강조(Syntax Highlighting)가 적용된 쾌적한 에디팅 환경을 제공합니다.
 
-### 1-3. 💬 코드 리뷰와 댓글
+### 1-3. 💬 인라인 코멘트와 댓글
 
-코드 리뷰 허용 게시글에서는 라인 범위를 기준으로 리뷰 댓글을 남길 수 있고, 일반 댓글과 함께 토론을 이어갈 수 있습니다.
+코드 스니펫이 있는 게시글에서는 라인 범위를 기준으로 인라인 코멘트를 남길 수 있고, 일반 댓글과 함께 토론을 이어갈 수 있습니다.
 
 ### 1-4. 👤 프로필, 팔로우, 북마크
 
@@ -112,12 +112,13 @@ erDiagram
 
     posts {
         bigint id PK
+        text description
         text content
         text code
         string language
+        string authoring_mode
         bigint like_count
         bigint comment_count
-        boolean is_review_enabled
     }
 
     comments {
@@ -216,7 +217,38 @@ SENTRY_PROJECT=your_sentry_project_slug
 npm run dev
 ```
 
-### 4-3. 주요 스크립트
+### 4-3. Logan Bot 설정
+
+`supabase/functions/logan-comment` 는 새 포스트가 등록되면 DB trigger가 Edge Function을 호출하고, 함수가 Gemini로 일반 댓글 1개를 생성하는 흐름을 전제로 합니다.
+
+1. **Edge Function 환경 변수**
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL` (선택, 기본값: `gemini-2.5-flash-lite`)
+
+2. **Vault 시크릿 추가**
+
+DB trigger는 Supabase 공식 `pg_net` 예시처럼 Edge Function 호출에 `Authorization: Bearer <anon key>` 헤더를 사용하므로, Vault에는 레거시 anon JWT 키를 저장해야 합니다.
+
+```sql
+select vault.create_secret(
+  'https://your-project-ref.supabase.co',
+  'supabase_project_url',
+  'CodeLog Logan webhook target URL'
+);
+
+select vault.create_secret(
+  'your_legacy_anon_jwt',
+  'supabase_anon_key',
+  'CodeLog Logan webhook auth token'
+);
+```
+
+시크릿이 없으면 trigger는 로그만 남기고 Logan 호출을 건너뜁니다.
+
+### 4-4. 주요 스크립트
 
 아래 표는 `package.json`의 `scripts`를 기준으로 자동 동기화됩니다.
 

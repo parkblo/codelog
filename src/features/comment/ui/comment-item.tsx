@@ -9,12 +9,13 @@ import {
   createCommentLikeAction,
   deleteCommentLikeAction,
 } from "@/entities/like/api/like.action";
-import { cn } from "@/shared/lib";
+import { cn, isLoganBotUser } from "@/shared/lib";
 import { formatRelativeTime } from "@/shared/lib/date";
 import { handleAction } from "@/shared/lib/handle-action";
 import { renderContent } from "@/shared/lib/text";
 import { Comment as CommentType } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 
@@ -26,12 +27,13 @@ interface commentProps {
 
 export default function Comment({ comment }: commentProps) {
   const router = useRouter();
+  const isLoganBot = isLoganBotUser(comment.author.id);
   const initialState = useMemo(
     () => ({
       isLiked: Boolean(comment.is_liked),
       likeCount: comment.like_count,
     }),
-    [comment.id, comment.is_liked, comment.like_count],
+    [comment.is_liked, comment.like_count],
   );
   const [optimisticComment, setOptimisticComment] = useOptimistic(
     initialState,
@@ -66,7 +68,12 @@ export default function Comment({ comment }: commentProps) {
   };
 
   return (
-    <Card>
+    <Card
+      className={cn(
+        isLoganBot &&
+          "border-sky-200 bg-sky-50/80 dark:border-sky-900/60 dark:bg-sky-950/30",
+      )}
+    >
       <CardContent>
         <div className="flex justify-between">
           <div className="flex gap-2">
@@ -97,6 +104,14 @@ export default function Comment({ comment }: commentProps) {
                   <span className="font-medium text-sm text-foreground">
                     {comment.author.nickname}
                   </span>
+                  {isLoganBot && (
+                    <Badge
+                      variant="secondary"
+                      className="border-sky-200 bg-sky-100 text-sky-700 dark:border-sky-800 dark:bg-sky-900/70 dark:text-sky-100"
+                    >
+                      Bot
+                    </Badge>
+                  )}
                   <span className="text-muted-foreground text-sm">
                     @{comment.author.username}
                   </span>

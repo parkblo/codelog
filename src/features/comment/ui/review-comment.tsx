@@ -10,13 +10,14 @@ import {
   deleteCommentLikeAction,
 } from "@/entities/like/api/like.action";
 import { useAuth } from "@/entities/user";
-import { cn } from "@/shared/lib";
+import { cn, isLoganBotUser } from "@/shared/lib";
 import { formatRelativeTime } from "@/shared/lib/date";
 import { handleAction } from "@/shared/lib/handle-action";
 import { captureEvent } from "@/shared/lib/posthog";
 import { renderContent } from "@/shared/lib/text";
 import { Comment } from "@/shared/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
 
 import CommentForm from "./comment-form";
 import CommentMenu from "./comment-menu";
@@ -106,7 +107,12 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
       {lineComments.map((comment, idx) => (
         <div
           key={comment.id}
-          className="bg-muted/50 rounded-md p-4 animate-in fade-in zoom-in-95 duration-200"
+          className={cn(
+            "rounded-md p-4 animate-in fade-in zoom-in-95 duration-200",
+            isLoganBotUser(comment.author.id)
+              ? "border border-sky-200 bg-sky-50/80 dark:border-sky-900/60 dark:bg-sky-950/30"
+              : "bg-muted/50",
+          )}
         >
           <div className="flex gap-3 justify-between">
             <div className="flex gap-3 w-full">
@@ -130,6 +136,14 @@ export default function ReviewComment({ lineComments }: ReviewCommentProps) {
                   >
                     {comment.author.nickname}
                   </span>
+                  {isLoganBotUser(comment.author.id) && (
+                    <Badge
+                      variant="secondary"
+                      className="border-sky-200 bg-sky-100 text-sky-700 dark:border-sky-800 dark:bg-sky-900/70 dark:text-sky-100"
+                    >
+                      Bot
+                    </Badge>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     {formatRelativeTime(comment.created_at)}
                   </span>

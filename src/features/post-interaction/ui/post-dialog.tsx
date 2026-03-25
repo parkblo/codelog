@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import dynamic from "next/dynamic";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Code2, Info, Loader, Plus, Send } from "lucide-react";
+import { Code2, Loader, Plus, Send } from "lucide-react";
 
 import { createPostAction, updatePostAction } from "@/entities/post";
 import { useAuth, UserAvatar } from "@/entities/user";
+import { getCurrentLocalDayContext } from "@/shared/lib/date";
 import { handleAction } from "@/shared/lib/handle-action";
-import { captureEvent } from "@/shared/lib/posthog";
+import {
+  captureEvent,
+  getTodayExperimentProperties,
+} from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Post } from "@/shared/types/types";
 import { Button } from "@/shared/ui/button";
-import { Checkbox } from "@/shared/ui/checkbox";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Skeleton } from "@/shared/ui/skeleton";
 
@@ -30,25 +33,36 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { TagList } from "@/shared/ui/tag-list";
 import { Textarea } from "@/shared/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
-import { type PostFormData,postSchema } from "../model";
+import { type PostFormData, postSchema } from "../model";
 
 interface PostDialogProps {
   isOpen: boolean;
   handleClose: () => void;
   post?: Post;
+  openedAtMs?: number | null;
   source?: string;
+}
+
+function getElapsedTimeMs(startedAt: number | null) {
+  if (startedAt === null) {
+    return null;
+  }
+
+  return Math.round(performance.now() - startedAt);
 }
 
 export default function PostDialog({
   isOpen,
   handleClose,
+  openedAtMs = null,
   post,
   source = "create_post_widget",
 }: PostDialogProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const {
     register,
@@ -60,23 +74,21 @@ export default function PostDialog({
   } = useForm<PostFormData>({
     resolver: zodResolver(postSchema),
     defaultValues: {
+      description: post?.description || "",
       content: post?.content || "",
       code: post?.code || null,
       language: post?.language || "text",
-      isReviewEnabled: post?.is_review_enabled || false,
     },
   });
 
-  const [snippetMode, setSnippetMode] = useState(!!post?.code);
+  const [snippetMode, setSnippetMode] = useState(Boolean(post?.code));
   const [tags, setTags] = useState<string[]>(post?.tags || []);
   const [tagInput, setTagInput] = useState("");
 
+  const descriptionValue = useWatch({ control, name: "description" });
+  const contentValue = useWatch({ control, name: "content" });
   const codeValue = useWatch({ control, name: "code" });
   const languageValue = useWatch({ control, name: "language" });
-  const isReviewEnabledValue = useWatch({
-    control,
-    name: "isReviewEnabled",
-  });
 
   const toggleSnippetMode = () => {
     captureEvent("post_snippet_mode_toggled", {
@@ -121,17 +133,19 @@ export default function PostDialog({
 
   const savePostMutation = useMutation({
     mutationFn: async (commonData: {
+      description: string;
       content: string;
       code: string | null;
       language: string | null;
       tags: string[];
-      is_review_enabled: boolean;
+      authoring_mode: Post["authoring_mode"];
     }) => {
       const action = post
         ? updatePostAction(post.id, commonData)
         : createPostAction({
             author: user!,
             ...commonData,
+            localDayContext,
           });
 
       return handleAction(action, {
@@ -147,8 +161,14 @@ export default function PostDialog({
       }
 
       captureEvent(post ? "post_updated" : "post_created", {
+        authoring_mode: commonData.authoring_mode,
+        content_length: commonData.content.length,
+        description_length: commonData.description.length,
         has_code: Boolean(commonData.code),
         tag_count: commonData.tags.length,
+        time_to_submit_ms: getElapsedTimeMs(openedAtMs),
+        source,
+        ...getTodayExperimentProperties(),
       });
 
       handleClose();
@@ -162,33 +182,83 @@ export default function PostDialog({
   const onSubmit = async (data: PostFormData) => {
     if (!user) return;
 
+    setHasSubmitted(true);
+    const timeToSubmitMs = getElapsedTimeMs(openedAtMs);
+
     const commonData = {
+      description: data.description,
       content: data.content,
       code: snippetMode ? data.code : null,
       language: snippetMode ? data.language : null,
+      authoring_mode: post?.authoring_mode ?? "hand_written",
       tags,
-      is_review_enabled: data.isReviewEnabled,
     };
 
     captureEvent(post ? "post_update_submitted" : "post_create_submitted", {
+      authoring_mode: commonData.authoring_mode,
+      content_length: commonData.content.length,
+      description_length: commonData.description.length,
       has_code: Boolean(commonData.code),
       tag_count: tags.length,
-      review_enabled: commonData.is_review_enabled,
+      time_to_submit_ms: timeToSubmitMs,
       source,
+      ...getTodayExperimentProperties(),
     });
 
     await savePostMutation.mutateAsync(commonData);
   };
 
+  const handleDialogChange = (nextOpen: boolean) => {
+    if (!nextOpen && !hasSubmitted) {
+      captureEvent("post_dialog_closed", {
+        had_input: Boolean(
+          descriptionValue?.trim() ||
+            contentValue?.trim() ||
+            codeValue?.trim() ||
+            tagInput.trim() ||
+            tags.length > 0,
+        ),
+        source,
+        ...getTodayExperimentProperties(),
+      });
+    }
+
+    if (!nextOpen) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent>
         <DialogTitle>{post ? "게시글 수정" : "새 게시글 작성"}</DialogTitle>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-2">
             {user && <UserAvatar user={user} />}
             <div className="flex flex-col gap-2 w-full">
-              <Textarea className="resize-none" {...register("content")} />
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="description">짧은 설명</Label>
+                <Textarea
+                  id="description"
+                  className="resize-none min-h-20"
+                  placeholder="피드에서 먼저 보일 한 줄 요약을 적어주세요."
+                  {...register("description")}
+                />
+                {errors.description && (
+                  <p className="text-sm text-destructive">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="content">본문</Label>
+                <Textarea
+                  id="content"
+                  className="resize-none"
+                  placeholder="오늘 배운 내용이나 맥락을 자세히 남겨보세요."
+                  {...register("content")}
+                />
+              </div>
               {errors.content && (
                 <p className="text-sm text-destructive">
                   {errors.content.message}
@@ -210,25 +280,8 @@ export default function PostDialog({
                     setCode={(code) => setValue("code", code)}
                     setLanguage={(lang) => setValue("language", lang)}
                   />
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="is_review_enabled"
-                      checked={isReviewEnabledValue ?? false}
-                      onCheckedChange={(checked) =>
-                        setValue("isReviewEnabled", checked === true)
-                      }
-                    />
-                    <Label htmlFor="is_review_enabled">코드 리뷰 허용</Label>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-4 h-4" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          허용 시 코드 라인 별로 리뷰 코멘트를 받을 수 있습니다.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
+                  <div className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+                    코드 스니펫이 있으면 누구나 라인별 인라인 코멘트를 남길 수 있습니다.
                   </div>
                 </>
               )}

@@ -195,8 +195,10 @@ function createFakeAdapter() {
         id: 10,
         user_id: "user-1",
         content: "post",
+        description: "post summary",
         code: null,
         language: null,
+        authoring_mode: "hand_written",
         created_at: "2026-03-12T00:00:00.000Z",
         updated_at: null,
         deleted_at: null,
@@ -204,7 +206,6 @@ function createFakeAdapter() {
         like_count: 0,
         bookmark_count: 0,
         view_count: 0,
-        is_review_enabled: true,
       },
     ],
   );

@@ -1,4 +1,4 @@
-import { Tables } from "./database.types";
+import { Enums, Tables } from "./database.types";
 
 /**
  * 현재 로그인한 유저를 식별하는 정보를 담는 타입
@@ -29,6 +29,8 @@ export interface Comment extends Omit<Tables<"comments">, "user_id"> {
   author: Author;
   is_liked?: boolean;
 }
+
+export type AuthoringMode = Enums<"authoring_mode">;
 
 /**
  * 사용자 기여도를 담는 타입

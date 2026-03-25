@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { useQuery } from "@tanstack/react-query";
@@ -12,12 +12,18 @@ import {
   hasUserPostedTodayAction,
 } from "@/features/post-list";
 import { getCurrentLocalDayContext } from "@/shared/lib/date";
+import {
+  captureEvent,
+  getTodayExperimentProperties,
+  getTodayGateState,
+} from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { PageHeader } from "@/shared/ui/page-header";
 
 export function TodayPage() {
   const router = useRouter();
   const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
+  const hasCapturedViewRef = useRef(false);
   const todayGateQuery = useQuery({
     queryKey: [...POST_LIST_QUERY_KEY, "today", "page-gate", localDayContext],
     queryFn: async () => {
@@ -36,6 +42,24 @@ export function TodayPage() {
       router.replace("/home?today=locked");
     }
   }, [router, todayGateQuery.data]);
+
+  useEffect(() => {
+    if (
+      todayGateQuery.isLoading ||
+      todayGateQuery.isError ||
+      todayGateQuery.data !== true ||
+      hasCapturedViewRef.current
+    ) {
+      return;
+    }
+
+    captureEvent("today_module_viewed", {
+      gate_state: getTodayGateState(true),
+      path: "/today",
+      ...getTodayExperimentProperties(),
+    });
+    hasCapturedViewRef.current = true;
+  }, [todayGateQuery.data, todayGateQuery.isError, todayGateQuery.isLoading]);
 
   if (todayGateQuery.data === false) {
     return (

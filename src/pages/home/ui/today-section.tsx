@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,11 @@ import {
   hasUserPostedTodayAction,
 } from "@/features/post-list";
 import { getCurrentLocalDayContext } from "@/shared/lib/date";
+import {
+  captureEvent,
+  getTodayExperimentProperties,
+  getTodayGateState,
+} from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -32,7 +37,10 @@ function TodaySkeleton() {
 
 export function TodaySection() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpenedAtMs, setDialogOpenedAtMs] = useState<number | null>(null);
   const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const hasCapturedViewRef = useRef(false);
 
   const todayGateQuery = useQuery({
     queryKey: [...POST_LIST_QUERY_KEY, "today", "gate", localDayContext],
@@ -67,6 +75,41 @@ export function TodaySection() {
   const isLoading = todayGateQuery.isLoading || todayPostsQuery.isLoading;
   const hasPostedToday = todayGateQuery.data ?? false;
   const posts = todayPostsQuery.data ?? [];
+  const gateState = getTodayGateState(hasPostedToday);
+
+  useEffect(() => {
+    if (
+      isLoading ||
+      todayGateQuery.isError ||
+      hasCapturedViewRef.current ||
+      !sectionRef.current
+    ) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting || hasCapturedViewRef.current) {
+          return;
+        }
+
+        captureEvent("today_module_viewed", {
+          gate_state: gateState,
+          path: "/home",
+          ...getTodayExperimentProperties(),
+        });
+        hasCapturedViewRef.current = true;
+        observer.disconnect();
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(sectionRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [gateState, isLoading, todayGateQuery.isError]);
 
   return (
     <>
@@ -74,11 +117,12 @@ export function TodaySection() {
         <PostDialog
           isOpen={isDialogOpen}
           handleClose={() => setIsDialogOpen(false)}
+          openedAtMs={dialogOpenedAtMs}
           source="today_locked_overlay"
         />
       )}
 
-      <section className="space-y-4">
+      <section ref={sectionRef} className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
             <div className="rounded-full bg-emerald-500/12 p-2 text-emerald-400">
@@ -95,7 +139,16 @@ export function TodaySection() {
           </div>
 
           <Button asChild variant="ghost" className="rounded-full px-3">
-            <Link href="/today">
+            <Link
+              href="/today"
+              onClick={() => {
+                captureEvent("today_cta_clicked", {
+                  gate_state: gateState,
+                  source: "today_section_more",
+                  ...getTodayExperimentProperties(),
+                });
+              }}
+            >
               더보기
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -145,7 +198,19 @@ export function TodaySection() {
                       </div>
                       <Button
                         className="rounded-full px-5"
-                        onClick={() => setIsDialogOpen(true)}
+                        onClick={() => {
+                          captureEvent("today_cta_clicked", {
+                            gate_state: gateState,
+                            source: "today_locked_overlay",
+                            ...getTodayExperimentProperties(),
+                          });
+                          setDialogOpenedAtMs(performance.now());
+                          captureEvent("post_dialog_opened", {
+                            source: "today_locked_overlay",
+                            ...getTodayExperimentProperties(),
+                          });
+                          setIsDialogOpen(true);
+                        }}
                       >
                         기록하러 가기
                       </Button>

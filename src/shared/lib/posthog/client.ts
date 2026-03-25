@@ -3,6 +3,8 @@ import posthog from "posthog-js";
 type EventProperties = Record<string, string | number | boolean | null | undefined>;
 type SanitizedEventProperties = Record<string, string | number | boolean | null>;
 
+export type TodayGateState = "locked" | "posted_today";
+
 function isPostHogEnabled() {
   return Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY);
 }
@@ -59,4 +61,16 @@ export function resetPostHogUser() {
   }
 
   posthog.reset();
+}
+
+export function getTodayExperimentProperties() {
+  return {
+    experiment_key:
+      process.env.NEXT_PUBLIC_POSTHOG_TODAY_EXPERIMENT_KEY ?? null,
+    variant: process.env.NEXT_PUBLIC_POSTHOG_TODAY_VARIANT ?? null,
+  };
+}
+
+export function getTodayGateState(hasPostedToday: boolean): TodayGateState {
+  return hasPostedToday ? "posted_today" : "locked";
 }

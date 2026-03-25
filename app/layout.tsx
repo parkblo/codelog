@@ -5,6 +5,10 @@ import { AppShell } from "@/widgets/app-shell";
 import { Header, MobileNav } from "@/widgets/header";
 import { Sidebar } from "@/widgets/sidebar";
 import { getCurrentUser } from "@/entities/user/server";
+import {
+  CODELOG_BASE_URL,
+  CODELOG_DEFAULT_DESCRIPTION,
+} from "@/shared/lib/seo";
 import { BackgroundCanvas } from "@/shared/ui/background-canvas";
 
 import { AppProvider } from "./providers";
@@ -23,19 +27,20 @@ export const metadata: Metadata = {
     default: "CodeLog",
     template: "%s | CodeLog",
   },
-  description: "하루 한 줄, 성장이 쌓이는 곳.",
-  metadataBase: new URL("https://codelog.vercel.app"),
+  description: CODELOG_DEFAULT_DESCRIPTION,
+  metadataBase: new URL(CODELOG_BASE_URL),
   openGraph: {
     title: "CodeLog",
-    description: "하루 한 줄, 성장이 쌓이는 곳.",
+    description: CODELOG_DEFAULT_DESCRIPTION,
     type: "website",
     locale: "ko_KR",
     siteName: "CodeLog",
+    url: CODELOG_BASE_URL,
   },
   twitter: {
     card: "summary_large_image",
     title: "CodeLog",
-    description: "하루 한 줄, 성장이 쌓이는 곳.",
+    description: CODELOG_DEFAULT_DESCRIPTION,
   },
   robots: {
     index: true,

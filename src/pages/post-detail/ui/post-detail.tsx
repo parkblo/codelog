@@ -7,6 +7,7 @@ import {
   getCommentsByPostIdAction,
   getCommentsByPostIdPageAction,
 } from "@/entities/comment";
+import { getPostStructuredData } from "@/shared/lib/seo";
 import { BackButton } from "@/shared/ui/back-button";
 
 import { PostDetailCommentsInfiniteList } from "./post-detail-comments-infinite-list";
@@ -56,18 +57,26 @@ export async function PostDetailPage({ postId }: PostDetailPageProps) {
     throw new Error(generalCommentsError);
   }
 
+  const structuredData = getPostStructuredData(post);
+
   return (
-    <div className="p-4 space-y-4">
-      <div className="sticky flex gap-2 items-center w-full">
-        <BackButton />
-      </div>
-      <PostCard post={post} fullPage comments={reviewComments || undefined} />
-      <CommentForm postId={Number(postId)} />
-      <PostDetailCommentsInfiniteList
-        postId={Number(postId)}
-        initialComments={generalComments || []}
-        initialHasMore={hasMoreGeneralComments}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-    </div>
+      <div className="p-4 space-y-4">
+        <div className="sticky flex gap-2 items-center w-full">
+          <BackButton />
+        </div>
+        <PostCard post={post} fullPage comments={reviewComments || undefined} />
+        <CommentForm postId={Number(postId)} />
+        <PostDetailCommentsInfiniteList
+          postId={Number(postId)}
+          initialComments={generalComments || []}
+          initialHasMore={hasMoreGeneralComments}
+        />
+      </div>
+    </>
   );
 }

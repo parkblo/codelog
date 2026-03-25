@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 
 import { PostDetailPage } from "@/pages/post-detail";
 import { getPostByIdCached } from "@/entities/post/server";
+import {
+  getPostPath,
+  getPostSeoDescription,
+  getPostSeoTitle,
+} from "@/shared/lib/seo";
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;
@@ -15,23 +20,35 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: "CodeLog 게시글",
+      title: "CodeLog 오늘 기록",
     };
   }
 
-  // content에서 앞 150자를 description으로 사용
-  const description =
-    post.content.slice(0, 150).replace(/\n/g, " ") +
-    (post.content.length > 150 ? "..." : "");
+  const authorName = post.author.nickname || post.author.username;
+  const title = getPostSeoTitle(post);
+  const description = getPostSeoDescription(post);
+  const postPath = getPostPath(post.id);
 
   return {
-    title: `${post.author.username}의 게시글`,
+    title,
     description,
+    alternates: {
+      canonical: postPath,
+    },
     openGraph: {
-      title: `${post.author.username}의 게시글 | CodeLog`,
+      title: `${title} | CodeLog`,
       description,
+      url: postPath,
       type: "article",
-      authors: [post.author.username],
+      authors: [authorName],
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at || post.created_at,
+      tags: post.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | CodeLog`,
+      description,
     },
   };
 }

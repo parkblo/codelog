@@ -1,6 +1,6 @@
 export const HOME_PATH = "/home";
 
-const PROTECTED_ROUTE_PREFIXES = [
+export const PROTECTED_ROUTE_PREFIXES = [
   "/home",
   "/today",
   "/explore",
@@ -8,7 +8,7 @@ const PROTECTED_ROUTE_PREFIXES = [
   "/bookmarks",
   "/search",
   "/settings",
-];
+] as const;
 
 function normalizeNextPath(nextPath: string): string {
   if (!nextPath.startsWith("/") || nextPath.startsWith("//")) {

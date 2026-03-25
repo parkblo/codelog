@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { generateContributionData } from "./date";
-import { formatRelativeTime } from "./date";
+import {
+  formatRelativeTime,
+  generateContributionData,
+  getCurrentLocalDayContext,
+  getLocalDateKey,
+  isValidLocalDayContext,
+} from "./date";
 
 function formatDate(date: Date) {
   return [
@@ -53,5 +58,52 @@ describe("generateContributionData", () => {
     expect(result[result.length - 1]?.contribution_date).toBe(todayKey);
     expect(result.find((item) => item.contribution_date === todayKey)?.post_count).toBe(7);
     expect(result.find((item) => item.contribution_date === "2026-01-01")?.post_count).toBe(3);
+  });
+});
+
+describe("local day helpers", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-04T15:30:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("getLocalDateKey는 timezone offset 기준 날짜 키를 계산한다", () => {
+    expect(getLocalDateKey("2026-03-04T15:30:00.000Z", -540)).toBe("2026-03-05");
+    expect(getLocalDateKey("2026-03-04T15:30:00.000Z", 480)).toBe("2026-03-04");
+  });
+
+  it("getCurrentLocalDayContext는 현재 로컬 날짜 범위를 반환한다", () => {
+    const context = getCurrentLocalDayContext(new Date("2026-03-04T15:30:00.000Z"));
+
+    expect(context).toEqual({
+      dateKey: "2026-03-05",
+      dayStartAt: "2026-03-04T15:00:00.000Z",
+      dayEndAt: "2026-03-05T14:59:59.999Z",
+      timezoneOffsetMinutes: -540,
+    });
+  });
+
+  it("isValidLocalDayContext는 정상 범위를 검증한다", () => {
+    expect(
+      isValidLocalDayContext({
+        dateKey: "2026-03-05",
+        dayStartAt: "2026-03-04T15:00:00.000Z",
+        dayEndAt: "2026-03-05T14:59:59.999Z",
+        timezoneOffsetMinutes: -540,
+      }),
+    ).toBe(true);
+
+    expect(
+      isValidLocalDayContext({
+        dateKey: "2026-03-04",
+        dayStartAt: "invalid-date",
+        dayEndAt: "2026-03-04T23:59:59.999Z",
+        timezoneOffsetMinutes: 0,
+      }),
+    ).toBe(false);
   });
 });

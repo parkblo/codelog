@@ -32,18 +32,20 @@ import { TagList } from "@/shared/ui/tag-list";
 import { Textarea } from "@/shared/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
-import { type PostFormData, postSchema } from "../model/post.schema";
+import { type PostFormData,postSchema } from "../model";
 
 interface PostDialogProps {
   isOpen: boolean;
   handleClose: () => void;
   post?: Post;
+  source?: string;
 }
 
 export default function PostDialog({
   isOpen,
   handleClose,
   post,
+  source = "create_post_widget",
 }: PostDialogProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -172,6 +174,7 @@ export default function PostDialog({
       has_code: Boolean(commonData.code),
       tag_count: tags.length,
       review_enabled: commonData.is_review_enabled,
+      source,
     });
 
     await savePostMutation.mutateAsync(commonData);

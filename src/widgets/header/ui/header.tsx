@@ -1,15 +1,8 @@
 "use client";
 
-import { usePathname,useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import {
-  Bookmark,
-  Hash,
-  Home,
-  MessageSquare,
-  Settings,
-  User,
-} from "lucide-react";
+import { Bookmark, Hash, Home, Settings, User } from "lucide-react";
 
 import { useAuth } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
@@ -33,14 +26,8 @@ export default function Navigation({ hideLogo = false }: NavigationProps) {
 
   /* notification은 추후 추가 예정 */
   const navItems = [
-    { icon: Home, label: "홈", page: "home", isAuthRequired: false },
-    { icon: Hash, label: "탐색", page: "explore", isAuthRequired: false },
-    {
-      icon: MessageSquare,
-      label: "코드 리뷰",
-      page: "code-review",
-      isAuthRequired: false,
-    },
+    { icon: Home, label: "홈", page: "home", isAuthRequired: true },
+    { icon: Hash, label: "탐색", page: "explore", isAuthRequired: true },
     {
       icon: Bookmark,
       label: "저장됨",
@@ -61,7 +48,7 @@ export default function Navigation({ hideLogo = false }: NavigationProps) {
       {!hideLogo && (
         <h1
           className="text-xl px-2 cursor-pointer"
-          onClick={() => router.push("/home")}
+          onClick={() => router.push(user ? "/home" : "/")}
         >
           CodeLog
         </h1>

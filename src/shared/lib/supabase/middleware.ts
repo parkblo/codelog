@@ -1,8 +1,14 @@
 // utils/supabase/middleware.ts
-import { type NextRequest,NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { createServerClient } from "@supabase/ssr";
 
+import {
+  getAuthRedirectUrl,
+  getPathWithSearch,
+  HOME_PATH,
+  isProtectedRoute,
+} from "@/shared/lib/auth";
 import { Database } from "@/shared/types/database.types";
 
 /**
@@ -60,20 +66,56 @@ export async function updateSession(
     return true;
   };
 
+  const copyCookies = (response: NextResponse) => {
+    supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+      response.cookies.set(name, value, options);
+    });
+
+    return response;
+  };
+
+  const redirectWithCookies = (pathname: string, search = "") => {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = pathname;
+    redirectUrl.search = search;
+
+    return copyCookies(NextResponse.redirect(redirectUrl));
+  };
+
+  let isAuthenticated = false;
+
   // Refreshing the auth token can fail for stale/invalid refresh cookies.
   // In that case, force sign-out once so middleware clears auth cookies.
   try {
-    const {
-      error,
-    } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getUser();
 
-    await signOutIfRefreshTokenNotFound(error);
+    isAuthenticated = Boolean(data.user);
+
+    if (await signOutIfRefreshTokenNotFound(error)) {
+      isAuthenticated = false;
+    }
   } catch (error) {
     const handled = await signOutIfRefreshTokenNotFound(error);
 
     if (!handled) {
       throw error;
     }
+  }
+
+  const pathname = request.nextUrl.pathname;
+  const nextPath = getPathWithSearch(pathname, request.nextUrl.search);
+
+  if (pathname === "/" && isAuthenticated) {
+    return redirectWithCookies(HOME_PATH);
+  }
+
+  if (isProtectedRoute(pathname) && !isAuthenticated) {
+    const authRedirectUrl = new URL(getAuthRedirectUrl(nextPath), request.url);
+
+    return redirectWithCookies(
+      authRedirectUrl.pathname,
+      authRedirectUrl.search,
+    );
   }
 
   return supabaseResponse;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { AppShell } from "@/widgets/app-shell";
 import { Header, MobileNav } from "@/widgets/header";
 import { Sidebar } from "@/widgets/sidebar";
 import { getCurrentUser } from "@/entities/user/server";
@@ -22,11 +23,11 @@ export const metadata: Metadata = {
     default: "CodeLog",
     template: "%s | CodeLog",
   },
-  description: "우리 코드로 이야기 나눠요.",
+  description: "하루 한 줄, 성장이 쌓이는 곳.",
   metadataBase: new URL("https://codelog.vercel.app"),
   openGraph: {
     title: "CodeLog",
-    description: "우리 코드로 이야기 나눠요.",
+    description: "하루 한 줄, 성장이 쌓이는 곳.",
     type: "website",
     locale: "ko_KR",
     siteName: "CodeLog",
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CodeLog",
-    description: "우리 코드로 이야기 나눠요.",
+    description: "하루 한 줄, 성장이 쌓이는 곳.",
   },
   robots: {
     index: true,
@@ -60,17 +61,13 @@ export default async function RootLayout({
       <body className={`${pretendard.variable} antialiased`}>
         <AppProvider initialUser={user}>
           <BackgroundCanvas />
-          <MobileNav />
-
-          <div className="grid min-h-screen grid-cols-1 md:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr_320px] max-w-7xl mx-auto">
-            <aside className="hidden md:block">
-              <Header />
-            </aside>
-            <main className="relative">{children}</main>
-            <aside className="hidden xl:block">
-              <Sidebar />
-            </aside>
-          </div>
+          <AppShell
+            mobileNav={<MobileNav />}
+            header={<Header />}
+            sidebar={<Sidebar />}
+          >
+            {children}
+          </AppShell>
         </AppProvider>
       </body>
     </html>

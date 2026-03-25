@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Hash, Loader2, Search as SearchIcon } from "lucide-react";
 
 import { PostInfiniteList } from "@/widgets/post-card";
+import { requireAuth } from "@/features/auth/server";
 import { getPostListPageAction } from "@/features/post-list";
 import { sanitizeSearchQuery } from "@/shared/lib/search";
 import { PageHeader } from "@/shared/ui/page-header";
@@ -53,6 +54,18 @@ async function SearchResults({ query, tag }: { query?: string; tag?: string }) {
 export async function SearchPage({ q, tag: rawTag }: SearchPageProps) {
   const query = sanitizeSearchQuery(q);
   const tag = sanitizeSearchQuery(rawTag);
+  const searchParams = new URLSearchParams();
+
+  if (query) {
+    searchParams.set("q", query);
+  }
+
+  if (tag) {
+    searchParams.set("tag", tag);
+  }
+
+  const nextPath = searchParams.size > 0 ? `/search?${searchParams}` : "/search";
+  await requireAuth(nextPath);
 
   return (
     <div className="p-4 space-y-4">

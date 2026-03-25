@@ -1,5 +1,5 @@
 import { CreatePostForm } from "@/widgets/create-post";
-import { WelcomeCard } from "@/widgets/sidebar";
+import { requireAuth } from "@/features/auth/server";
 import { getPostListPageAction } from "@/features/post-list";
 
 import { HomeFeedInfiniteList } from "./home-feed-infinite-list";
@@ -7,6 +7,8 @@ import { HomeFeedInfiniteList } from "./home-feed-infinite-list";
 const HOME_INITIAL_POST_LIMIT = 6;
 
 export async function HomePage() {
+  await requireAuth("/home");
+
   const { data, error, hasMore } = await getPostListPageAction({
     offset: 0,
     limit: HOME_INITIAL_POST_LIMIT,
@@ -15,7 +17,6 @@ export async function HomePage() {
   if (!data || error) {
     return (
       <div className="p-4 space-y-4">
-        <WelcomeCard />
         <CreatePostForm />
         <span>{error}</span>
       </div>
@@ -24,7 +25,6 @@ export async function HomePage() {
 
   return (
     <div className="p-4 space-y-4">
-      <WelcomeCard />
       <CreatePostForm />
       <HomeFeedInfiniteList initialPosts={data} initialHasMore={hasMore} />
     </div>

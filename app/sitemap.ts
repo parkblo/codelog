@@ -10,16 +10,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 1,
     },
-    {
-      url: `${baseUrl}/explore`,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/code-review`,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
   ];
 
   // TODO: 동적 페이지 (게시글, 프로필) 추가

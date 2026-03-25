@@ -1,5 +1,5 @@
 create extension if not exists pg_net;
-create extension if not exists vault;
+create extension if not exists supabase_vault with schema vault;
 
 alter table public.posts
   add column if not exists description text;

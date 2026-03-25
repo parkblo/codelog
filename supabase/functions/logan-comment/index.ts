@@ -38,6 +38,10 @@ function getRequiredEnv(name: string) {
   return value;
 }
 
+function getOptionalEnv(name: string) {
+  return Deno.env.get(name) ?? null;
+}
+
 function createAdminClient() {
   return createClient(
     getRequiredEnv("SUPABASE_URL"),
@@ -107,7 +111,12 @@ async function insertLoganComment(postId: number, content: string) {
 }
 
 async function generateLoganComment(post: PostWebhookRecord) {
-  const apiKey = getRequiredEnv("GEMINI_API_KEY");
+  const apiKey = getOptionalEnv("GEMINI_API_KEY");
+
+  if (!apiKey) {
+    return null;
+  }
+
   const model = Deno.env.get("GEMINI_MODEL") || DEFAULT_GEMINI_MODEL;
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
@@ -190,7 +199,18 @@ Deno.serve(async (request) => {
       );
     }
 
-    const generatedComment = await generateLoganComment(payload.record);
+  const generatedComment = await generateLoganComment(payload.record);
+
+    if (!generatedComment) {
+      return Response.json(
+        {
+          inserted: false,
+          message: "GEMINI_API_KEY가 설정되지 않아 Logan 댓글 생성을 건너뜁니다.",
+        },
+        { status: 200 },
+      );
+    }
+
     const result = await insertLoganComment(payload.record.id, generatedComment);
 
     return Response.json(

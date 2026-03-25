@@ -8,11 +8,13 @@ import { Menu, X } from "lucide-react";
 
 import { Header } from "@/widgets/header";
 import { SearchInput } from "@/features/search";
+import { useAuth } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const [lastPathname, setLastPathname] = useState(pathname);
 
@@ -23,7 +25,7 @@ export default function MobileNav() {
 
   return (
     <div className="md:hidden sticky top-0 z-50 bg-transparent px-4 py-2 flex items-center justify-between">
-      <Link href="/home">
+      <Link href={user ? "/home" : "/"}>
         <h1 className="text-xl font-bold px-2">CodeLog</h1>
       </Link>
       <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>

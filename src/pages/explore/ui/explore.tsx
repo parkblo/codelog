@@ -3,11 +3,13 @@ import { Suspense } from "react";
 import { Hash, Loader2 } from "lucide-react";
 
 import { FeaturedTags } from "@/widgets/sidebar";
+import { requireAuth } from "@/features/auth/server";
 import { SearchInput } from "@/features/search";
 import { getTrendingTagsAction } from "@/entities/tag";
 import { PageHeader } from "@/shared/ui/page-header";
 
-export function ExplorePage() {
+export async function ExplorePage() {
+  await requireAuth("/explore");
   const tagsPromise = getTrendingTagsAction(100);
 
   return (

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CreatePostForm } from "@/widgets/create-post";
 import { PostInfiniteList } from "@/widgets/post-card";
 import { UserProfileCard } from "@/widgets/user-profile";
+import { requireAuth } from "@/features/auth/server";
 import { getPostListPageAction } from "@/features/post-list";
 import { ContributionGraph, ProfileTabs } from "@/features/profile";
 import {
@@ -24,6 +25,8 @@ export async function ProfilePage({
   username,
   tab = "posts",
 }: ProfilePageProps) {
+  await requireAuth(`/profile/${username}`);
+
   const currentUser = await getCurrentUser();
   const { data: user, error } = await getUserByUsername(username, currentUser?.id);
 

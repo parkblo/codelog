@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 
 import {
   createBookmarkAction,
@@ -19,6 +19,24 @@ interface UsePostInteractionProps {
   initialBookmarkCount?: number;
 }
 
+type InteractionState = {
+  isBookmarked: boolean;
+  isLiked: boolean;
+  bookmarkCount: number;
+  likeCount: number;
+};
+
+type InteractionAction =
+  | { type: "replace"; nextState: InteractionState }
+  | { type: "sync"; nextState: InteractionState };
+
+function interactionReducer(
+  _state: InteractionState,
+  action: InteractionAction,
+) {
+  return action.nextState;
+}
+
 export function usePostInteraction({
   postId,
   initialIsLiked = false,
@@ -27,24 +45,37 @@ export function usePostInteraction({
   initialBookmarkCount = 0,
 }: UsePostInteractionProps) {
   const { user, openAuthModal } = useAuth();
-  const [likedState, setLikedState] = useState(initialIsLiked);
-  const [bookmarkedState, setBookmarkedState] = useState(initialIsBookmarked);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const [bookmarkCount, setBookmarkCount] = useState(initialBookmarkCount);
+  const [interactionState, dispatch] = useReducer(interactionReducer, {
+    isBookmarked: initialIsBookmarked,
+    isLiked: initialIsLiked,
+    bookmarkCount: initialBookmarkCount,
+    likeCount: initialLikeCount,
+  });
+  const {
+    isLiked: likedState,
+    isBookmarked: bookmarkedState,
+    likeCount,
+    bookmarkCount,
+  } = interactionState;
   const isLiked = user ? likedState : false;
   const isBookmarked = user ? bookmarkedState : false;
 
   useEffect(() => {
-    setLikedState(initialIsLiked);
-    setBookmarkedState(initialIsBookmarked);
-    setLikeCount(initialLikeCount);
-    setBookmarkCount(initialBookmarkCount);
+    dispatch({
+      type: "sync",
+      nextState: {
+        isBookmarked: initialIsBookmarked,
+        isLiked: initialIsLiked,
+        bookmarkCount: initialBookmarkCount,
+        likeCount: initialLikeCount,
+      },
+    });
   }, [
     postId,
-    initialIsLiked,
     initialIsBookmarked,
-    initialLikeCount,
+    initialIsLiked,
     initialBookmarkCount,
+    initialLikeCount,
   ]);
 
   const handleLikeClick = async () => {
@@ -55,20 +86,23 @@ export function usePostInteraction({
     }
 
     const willLike = !likedState;
-    const previousState = likedState;
-    const previousCount = likeCount;
-    setLikedState(willLike);
-    setLikeCount((prev) => (willLike ? prev + 1 : Math.max(0, prev - 1)));
+    const previousState = interactionState;
+    const nextState = {
+      isLiked: willLike,
+      isBookmarked: bookmarkedState,
+      likeCount: willLike ? likeCount + 1 : Math.max(0, likeCount - 1),
+      bookmarkCount,
+    };
 
     const action = willLike
       ? createPostLikeAction(postId)
       : deletePostLikeAction(postId);
 
+    dispatch({ type: "replace", nextState });
     await handleAction(action, {
       actionName: willLike ? "create_post_like" : "delete_post_like",
       onError: () => {
-        setLikedState(previousState);
-        setLikeCount(previousCount);
+        dispatch({ type: "replace", nextState: previousState });
       },
     });
   };
@@ -81,22 +115,25 @@ export function usePostInteraction({
     }
 
     const willBookmark = !bookmarkedState;
-    const previousState = bookmarkedState;
-    const previousCount = bookmarkCount;
-    setBookmarkedState(willBookmark);
-    setBookmarkCount((prev) =>
-      willBookmark ? prev + 1 : Math.max(0, prev - 1),
-    );
+    const previousState = interactionState;
+    const nextState = {
+      isBookmarked: willBookmark,
+      isLiked: likedState,
+      bookmarkCount: willBookmark
+        ? bookmarkCount + 1
+        : Math.max(0, bookmarkCount - 1),
+      likeCount,
+    };
 
     const action = willBookmark
       ? createBookmarkAction(postId)
       : deleteBookmarkAction(postId);
 
+    dispatch({ type: "replace", nextState });
     await handleAction(action, {
       actionName: willBookmark ? "create_bookmark" : "delete_bookmark",
       onError: () => {
-        setBookmarkedState(previousState);
-        setBookmarkCount(previousCount);
+        dispatch({ type: "replace", nextState: previousState });
       },
     });
   };

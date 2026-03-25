@@ -4,7 +4,7 @@ import {
   isValidLocalDayContext,
   type LocalDayContext,
 } from "@/shared/lib/date";
-import { Database, Tables } from "@/shared/types/database.types";
+import { Tables } from "@/shared/types/database.types";
 import { Post } from "@/shared/types/types";
 
 import { CreatePostDTO } from "./post.interface";
@@ -22,6 +22,15 @@ type LocalDayListQueryOptions = LocalDayContext & {
   followingIds?: string[];
   offset?: number;
   limit?: number;
+};
+
+type PostMutationPayload = {
+  content: string;
+  description: string;
+  code: string | null;
+  language: string | null;
+  user_id?: string;
+  authoring_mode: Post["authoring_mode"];
 };
 
 function sanitizeKeywordForOrFilter(rawKeyword: string): string {
@@ -87,14 +96,14 @@ export async function createPost(
   data: CreatePostDTO,
 ): Promise<{ data: Post | null; error: Error | null }> {
   const db = getDatabaseAdapter();
-  const postData: Database["public"]["Functions"]["create_post_with_tags"]["Args"]["post_data"] =
-    {
-      content: data.content,
-      code: data.code,
-      language: data.language,
-      user_id: data.author.id,
-      is_review_enabled: data.is_review_enabled,
-    };
+  const postData: PostMutationPayload = {
+    content: data.content,
+    description: data.description,
+    code: data.code,
+    language: data.language,
+    user_id: data.author.id,
+    authoring_mode: data.authoring_mode,
+  };
 
   const { data: insertedPost, error } = await db.rpc<Tables<"posts">>(
     "create_post_with_tags",
@@ -118,7 +127,6 @@ export async function createPost(
 }
 
 export async function getPosts({
-  isReviewEnabled = false,
   authorId,
   likedByUserId,
   bookmarkedByUserId,
@@ -127,7 +135,6 @@ export async function getPosts({
   offset,
   limit,
 }: {
-  isReviewEnabled?: boolean;
   authorId?: string;
   likedByUserId?: string;
   bookmarkedByUserId?: string;
@@ -167,10 +174,6 @@ export async function getPosts({
     filters.push({ column: "filter_tags.tags.name", value: tag });
   }
 
-  if (isReviewEnabled) {
-    filters.push({ column: "is_review_enabled", value: true });
-  }
-
   if (authorId) {
     filters.push({ column: "user_id", value: authorId });
   }
@@ -187,7 +190,7 @@ export async function getPosts({
     select: selectString,
     filters,
     or: escapedKeyword
-      ? `content.ilike.%${escapedKeyword}%,code.ilike.%${escapedKeyword}%`
+      ? `description.ilike.%${escapedKeyword}%,content.ilike.%${escapedKeyword}%,code.ilike.%${escapedKeyword}%`
       : undefined,
     orderBy: { column: "created_at", ascending: false },
     range:
@@ -435,13 +438,13 @@ export async function updatePost(
 ): Promise<{ data: Post | null; error: Error | null }> {
   const db = getDatabaseAdapter();
   const { tags, ...postFields } = data;
-  const postData: Database["public"]["Functions"]["update_post_with_tags"]["Args"]["post_data"] =
-    {
-      content: postFields.content,
-      code: postFields.code,
-      language: postFields.language,
-      is_review_enabled: postFields.is_review_enabled,
-    };
+  const postData: Partial<PostMutationPayload> = {
+    content: postFields.content,
+    description: postFields.description,
+    code: postFields.code,
+    language: postFields.language,
+    authoring_mode: postFields.authoring_mode,
+  };
 
   const { error } = await db.rpc<unknown>("update_post_with_tags", {
     p_post_id: id,

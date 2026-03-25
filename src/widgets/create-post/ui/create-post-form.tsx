@@ -8,7 +8,10 @@ import { PostDialog } from "@/features/post-interaction";
 import { getTodayPostByUserIdAction } from "@/features/post-list";
 import { useAuth, UserAvatar } from "@/entities/user";
 import { getCurrentLocalDayContext } from "@/shared/lib/date";
-import { captureEvent } from "@/shared/lib/posthog";
+import {
+  captureEvent,
+  getTodayExperimentProperties,
+} from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
@@ -20,6 +23,7 @@ import { Textarea } from "@/shared/ui/textarea";
 export default function PostCard() {
   const { user, loading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpenedAtMs, setDialogOpenedAtMs] = useState<number | null>(null);
   const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
   const todayPostQuery = useQuery({
     queryKey: [...POST_LIST_QUERY_KEY, "today", "mine", user?.id, localDayContext],
@@ -40,7 +44,11 @@ export default function PostCard() {
       | React.FocusEvent<HTMLTextAreaElement>
       | React.MouseEvent<HTMLButtonElement>,
   ) => {
-    captureEvent("post_dialog_opened", { source: "create_post_widget" });
+    setDialogOpenedAtMs(performance.now());
+    captureEvent("post_dialog_opened", {
+      source: "create_post_widget",
+      ...getTodayExperimentProperties(),
+    });
     setIsDialogOpen(true);
     if (e.target instanceof HTMLTextAreaElement) {
       e.target.blur();
@@ -48,7 +56,11 @@ export default function PostCard() {
   };
 
   const openEditDialog = () => {
-    captureEvent("post_dialog_opened", { source: "today_post_edit" });
+    setDialogOpenedAtMs(performance.now());
+    captureEvent("post_dialog_opened", {
+      source: "today_post_edit",
+      ...getTodayExperimentProperties(),
+    });
     setIsDialogOpen(true);
   };
 
@@ -69,6 +81,7 @@ export default function PostCard() {
         <PostDialog
           isOpen={isDialogOpen}
           handleClose={handleCloseDialog}
+          openedAtMs={dialogOpenedAtMs}
           post={todayPost ?? undefined}
           source={todayPost ? "today_post_edit" : "create_post_widget"}
         />

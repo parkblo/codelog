@@ -179,6 +179,36 @@ begin
 end;
 $$;
 
+insert into auth.users (
+  id,
+  aud,
+  role,
+  email,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at
+)
+values (
+  '00000000-0000-0000-0000-000000000001',
+  'authenticated',
+  'authenticated',
+  'logan-bot@codelog.local',
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"user_name":"logan-bot","full_name":"Logan","avatar_url":"/assets/logan-avatar.png"}'::jsonb,
+  now(),
+  now()
+)
+on conflict (id) do update
+set email = excluded.email,
+    raw_app_meta_data = excluded.raw_app_meta_data,
+    raw_user_meta_data = excluded.raw_user_meta_data,
+    email_confirmed_at = coalesce(auth.users.email_confirmed_at, excluded.email_confirmed_at),
+    updated_at = now(),
+    deleted_at = null;
+
 insert into public.users (id, username, nickname, avatar, bio)
 values (
   '00000000-0000-0000-0000-000000000001',
@@ -259,6 +289,25 @@ create trigger on_post_insert_enqueue_logan_comment
   after insert on public.posts
   for each row
   execute function public.enqueue_logan_comment();
+
+drop policy if exists "Enforce review enabled for review comments" on public.comments;
+
+create policy "Require code posts for inline comments"
+on public.comments
+as restrictive
+for insert
+to authenticated
+with check (
+  start_line is null
+  or exists (
+    select 1
+      from public.posts
+     where posts.id = comments.post_id
+       and posts.deleted_at is null
+       and posts.code is not null
+       and btrim(posts.code) <> ''
+  )
+);
 
 alter table public.posts
   drop column if exists is_review_enabled;

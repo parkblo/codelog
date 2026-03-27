@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Loader2, LockKeyhole, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarDays, Loader2, LockKeyhole } from "lucide-react";
 
 import { PostCard } from "@/widgets/post-card";
 import { PostDialog } from "@/features/post-interaction";
@@ -17,6 +17,7 @@ import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
 
 function TodaySkeleton() {
   return (
@@ -62,14 +63,17 @@ export function TodaySection() {
 
       return result.data;
     },
+    enabled: todayGateQuery.data === true,
   });
 
-  const isLoading = todayGateQuery.isLoading || todayPostsQuery.isLoading;
-  const hasPostedToday = todayGateQuery.data ?? false;
+  const hasPostedToday = todayGateQuery.data === true;
+  const isLocked = todayGateQuery.data === false;
+  const isLoading =
+    todayGateQuery.isLoading || (hasPostedToday && todayPostsQuery.isLoading);
   const posts = todayPostsQuery.data ?? [];
 
   return (
-    <>
+    <section className="space-y-4">
       {isDialogOpen && (
         <PostDialog
           isOpen={isDialogOpen}
@@ -78,85 +82,86 @@ export function TodaySection() {
         />
       )}
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-emerald-500/12 p-2 text-emerald-400">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-emerald-400">
-                TODAY
-              </p>
-              <p className="text-sm text-muted-foreground">
-                오늘의 기록은 오늘 참여한 사람에게 먼저 열립니다.
-              </p>
-            </div>
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <div className="rounded-full bg-emerald-500/12 p-2 text-emerald-300">
+            <CalendarDays className="h-4 w-4" />
           </div>
-
-          <Button asChild variant="ghost" className="rounded-full px-3">
-            <Link href="/today">
-              더보기
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-400">
+            TODAY
+          </p>
         </div>
 
-        <Card className="overflow-hidden rounded-[2rem] border-white/10 bg-linear-to-br from-emerald-500/8 via-transparent to-cyan-500/8">
+        <Button asChild variant="ghost" className="rounded-full px-3">
+          <Link href="/today">
+            더보기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+
+      <Card className="overflow-hidden rounded-[2rem] border-white/10 bg-linear-to-br from-emerald-500/8 via-transparent to-cyan-500/8">
+        {isLoading ? (
           <CardContent className="p-5">
-            {isLoading ? (
-              <TodaySkeleton />
-            ) : todayPostsQuery.isError ? (
-              <div className="flex items-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <Loader2 className="h-4 w-4" />
-                오늘 게시글을 불러오지 못했습니다.
+            <TodaySkeleton />
+          </CardContent>
+        ) : todayGateQuery.isError || todayPostsQuery.isError ? (
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              <Loader2 className="h-4 w-4" />
+              오늘 게시글을 불러오지 못했습니다.
+            </div>
+          </CardContent>
+        ) : isLocked ? (
+          <div className="relative min-h-[13.5rem] overflow-hidden sm:min-h-[14.5rem]">
+            <div className="pointer-events-none absolute inset-x-0 -inset-y-14 opacity-76 blur-[18px]">
+              <VerticalMarquee
+                className="h-full rounded-none border-none bg-transparent px-4 py-4"
+                cardClassName="border-white/8 bg-white/10 shadow-[0_24px_100px_rgba(0,0,0,0.35)]"
+                topFadeClassName="h-24 bg-linear-to-b from-slate-950/30 via-slate-950/5 to-transparent"
+                bottomFadeClassName="h-24 bg-linear-to-t from-slate-950/30 via-slate-950/5 to-transparent"
+                trackClassName="-translate-y-[10%]"
+              />
+            </div>
+
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(2,6,23,0.06)_0%,_rgba(2,6,23,0.36)_58%,_rgba(2,6,23,0.62)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,_rgba(16,185,129,0.12)_0%,_rgba(2,6,23,0.04)_48%,_rgba(34,211,238,0.14)_100%)]" />
+
+            <div className="relative z-10 flex min-h-[13.5rem] items-center justify-center px-6 py-8 text-center sm:min-h-[14.5rem]">
+              <button
+                type="button"
+                className="group max-w-xl cursor-pointer space-y-4 transition-transform duration-200 ease-out hover:scale-[1.035]"
+                onClick={() => setIsDialogOpen(true)}
+              >
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/8 text-white/90 backdrop-blur-sm transition-transform duration-200 ease-out group-hover:scale-105">
+                  <LockKeyhole className="h-4 w-4" />
+                </div>
+                <p className="text-[clamp(0.84rem,1.45vw,1.12rem)] font-semibold leading-[1.24] tracking-[-0.03em] text-white transition-transform duration-200 ease-out group-hover:scale-105">
+                  글을 작성하고
+                  <br />
+                  오늘 올라온 기록을 확인해보세요
+                </p>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <CardContent className="p-5">
+            {posts.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {posts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
               </div>
             ) : (
-              <div className="relative">
-                <div
-                  className={hasPostedToday ? "space-y-4" : "pointer-events-none select-none space-y-4 blur-[6px]"}
-                >
-                  {posts.length > 0 ? (
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      {posts.map((post) => (
-                        <PostCard key={post.id} post={post} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-[1.5rem] border border-dashed border-white/10 px-6 py-10 text-center text-sm text-muted-foreground">
-                      아직 오늘 올라온 게시글이 없습니다.
-                    </div>
-                  )}
-                </div>
-
-                {!hasPostedToday && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-[1.75rem] border border-white/10 bg-background/92 px-6 py-6 text-center shadow-2xl backdrop-blur">
-                      <div className="rounded-full bg-emerald-500/12 p-3 text-emerald-400">
-                        <LockKeyhole className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-lg font-semibold">
-                          오늘의 배움을 기록하고, 다른 개발자의 기록을 확인해보세요
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          TODAY는 오늘 글을 남긴 뒤에 열립니다.
-                        </p>
-                      </div>
-                      <Button
-                        className="rounded-full px-5"
-                        onClick={() => setIsDialogOpen(true)}
-                      >
-                        기록하러 가기
-                      </Button>
-                    </div>
-                  </div>
-                )}
+              <div className="rounded-[1.5rem] border border-dashed border-white/10 px-6 py-10 text-center text-sm text-muted-foreground">
+                아직 오늘 올라온 게시글이 없습니다.
               </div>
             )}
           </CardContent>
-        </Card>
-      </section>
-    </>
+        )}
+      </Card>
+    </section>
   );
 }

@@ -4,8 +4,7 @@ import { ArrowUpRight, Github, Mail, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
-
-import { VerticalMarquee } from "./vertical-marquee";
+import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
 
 export function Landing() {
   const { openAuthModal } = useAuth();

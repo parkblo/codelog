@@ -1,5 +1,6 @@
 import { CreatePostForm } from "@/widgets/create-post";
 import { requireAuth } from "@/features/auth/server";
+import { Separator } from "@/shared/ui/separator";
 
 import { HomeFeedInfiniteList } from "./home-feed-infinite-list";
 import { HomeStatusFeedback } from "./home-status-feedback";
@@ -13,6 +14,9 @@ export async function HomePage() {
       <HomeStatusFeedback />
       <CreatePostForm />
       <TodaySection />
+      <div className="px-1">
+        <Separator className="bg-white/8" />
+      </div>
       <HomeFeedInfiniteList />
     </div>
   );

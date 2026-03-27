@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-import { Bookmark, Hash, Home, Settings, User } from "lucide-react";
+import { Bookmark, CalendarDays, Hash, Home, Settings, User } from "lucide-react";
 
 import { useAuth } from "@/entities/user";
 import { Button } from "@/shared/ui/button";
@@ -27,6 +27,7 @@ export default function Navigation({ hideLogo = false }: NavigationProps) {
   /* notification은 추후 추가 예정 */
   const navItems = [
     { icon: Home, label: "홈", page: "home", isAuthRequired: true },
+    { icon: CalendarDays, label: "Today", page: "today", isAuthRequired: true },
     { icon: Hash, label: "탐색", page: "explore", isAuthRequired: true },
     {
       icon: Bookmark,

@@ -16,6 +16,22 @@ function formatDate(date: Date) {
   ].join("-");
 }
 
+function withTimezone<T>(timezone: string, run: () => T): T {
+  const previousTimezone = process.env.TZ;
+
+  process.env.TZ = timezone;
+
+  try {
+    return run();
+  } finally {
+    if (previousTimezone === undefined) {
+      delete process.env.TZ;
+    } else {
+      process.env.TZ = previousTimezone;
+    }
+  }
+}
+
 describe("formatRelativeTime", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -87,6 +103,50 @@ describe("local day helpers", () => {
     });
   });
 
+  it("getCurrentLocalDayContext는 타임존마다 같은 UTC 시각을 다른 로컬 날짜 범위로 계산한다", () => {
+    const seoulContext = withTimezone("Asia/Seoul", () =>
+      getCurrentLocalDayContext(new Date("2026-03-04T15:30:00.000Z")),
+    );
+    const losAngelesContext = withTimezone("America/Los_Angeles", () =>
+      getCurrentLocalDayContext(new Date("2026-03-04T15:30:00.000Z")),
+    );
+
+    expect(seoulContext).toEqual({
+      dateKey: "2026-03-05",
+      dayStartAt: "2026-03-04T15:00:00.000Z",
+      dayEndAt: "2026-03-05T14:59:59.999Z",
+      timezoneOffsetMinutes: -540,
+    });
+    expect(losAngelesContext).toEqual({
+      dateKey: "2026-03-04",
+      dayStartAt: "2026-03-04T08:00:00.000Z",
+      dayEndAt: "2026-03-05T07:59:59.999Z",
+      timezoneOffsetMinutes: 480,
+    });
+  });
+
+  it("getCurrentLocalDayContext는 자정 경계에서 다음 로컬 날짜 범위로 전환한다", () => {
+    const beforeMidnightContext = withTimezone("Asia/Seoul", () =>
+      getCurrentLocalDayContext(new Date("2026-03-05T14:59:59.999Z")),
+    );
+    const afterMidnightContext = withTimezone("Asia/Seoul", () =>
+      getCurrentLocalDayContext(new Date("2026-03-05T15:00:00.000Z")),
+    );
+
+    expect(beforeMidnightContext).toEqual({
+      dateKey: "2026-03-05",
+      dayStartAt: "2026-03-04T15:00:00.000Z",
+      dayEndAt: "2026-03-05T14:59:59.999Z",
+      timezoneOffsetMinutes: -540,
+    });
+    expect(afterMidnightContext).toEqual({
+      dateKey: "2026-03-06",
+      dayStartAt: "2026-03-05T15:00:00.000Z",
+      dayEndAt: "2026-03-06T14:59:59.999Z",
+      timezoneOffsetMinutes: -540,
+    });
+  });
+
   it("isValidLocalDayContext는 정상 범위를 검증한다", () => {
     expect(
       isValidLocalDayContext({
@@ -105,5 +165,27 @@ describe("local day helpers", () => {
         timezoneOffsetMinutes: 0,
       }),
     ).toBe(false);
+  });
+
+  it("isValidLocalDayContext는 DST로 23시간 또는 25시간이 된 로컬 날짜 범위를 허용한다", () => {
+    const dstStartContext = withTimezone("America/Los_Angeles", () =>
+      getCurrentLocalDayContext(new Date("2026-03-08T20:00:00.000Z")),
+    );
+    const dstEndContext = withTimezone("America/Los_Angeles", () =>
+      getCurrentLocalDayContext(new Date("2026-11-01T20:00:00.000Z")),
+    );
+
+    expect(
+      new Date(dstStartContext.dayEndAt).getTime() -
+        new Date(dstStartContext.dayStartAt).getTime() +
+        1,
+    ).toBe(23 * 60 * 60 * 1000);
+    expect(
+      new Date(dstEndContext.dayEndAt).getTime() -
+        new Date(dstEndContext.dayStartAt).getTime() +
+        1,
+    ).toBe(25 * 60 * 60 * 1000);
+    expect(isValidLocalDayContext(dstStartContext)).toBe(true);
+    expect(isValidLocalDayContext(dstEndContext)).toBe(true);
   });
 });

@@ -7,6 +7,8 @@ export interface LocalDayContext {
   timezoneOffsetMinutes: number;
 }
 
+// 실제 로컬 타임존에서는 DST 전환일에 하루가 23시간 또는 25시간이 될 수 있으므로,
+// 정상적인 로컬 날짜 범위를 넉넉히 허용하되 비정상적으로 긴 입력은 차단한다.
 const MAX_LOCAL_DAY_RANGE_MS = 36 * 60 * 60 * 1000;
 
 function padDatePart(value: number) {
@@ -72,9 +74,10 @@ export function isValidLocalDayContext(context: LocalDayContext) {
     return false;
   }
 
-  const dateKey = getLocalDateKey(dayStart, timezoneOffsetMinutes);
+  const startDateKey = getLocalDateKey(dayStart, timezoneOffsetMinutes);
+  const endDateKey = getLocalDateKey(dayEnd, timezoneOffsetMinutes);
 
-  return dateKey !== null && dateKey === context.dateKey;
+  return [startDateKey, endDateKey].some((dateKey) => dateKey === context.dateKey);
 }
 
 export function formatRelativeTime(date: string) {

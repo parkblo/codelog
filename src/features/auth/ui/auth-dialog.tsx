@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Github, Mail } from "lucide-react";
 
+import { useGitHubOAuthLogin } from "@/features/auth/lib/use-github-oauth-login";
 import { useAuth } from "@/entities/user";
 import {
-  signInWithOAuthAction,
   signInWithPasswordAction,
   signUpAction,
 } from "@/entities/user";
@@ -333,8 +332,7 @@ function SignUpForm({
 
 export default function AuthDialog() {
   const { isAuthModalOpen, authModalView, closeAuthModal } = useAuth();
-  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
-  const searchParams = useSearchParams();
+  const { isGitHubLoading, startGitHubOAuthLogin } = useGitHubOAuthLogin();
 
   const isSignUp = authModalView === "signup";
 
@@ -342,38 +340,6 @@ export default function AuthDialog() {
     if (!open) {
       closeAuthModal();
     }
-  };
-
-  const handleGitHubLogin = async () => {
-    captureEvent("auth_oauth_requested", { provider: "github" });
-
-    const next = searchParams?.get("next");
-    const redirectTo = next
-      ? `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`
-      : `${location.origin}/auth/callback`;
-
-    setIsGitHubLoading(true);
-
-    await handleAction(
-      signInWithOAuthAction("github", {
-        redirectTo,
-      }),
-      {
-        actionName: "sign_in_with_oauth",
-        onSuccess: (data) => {
-          if (data?.url) {
-            captureEvent("auth_oauth_redirected", { provider: "github" });
-            window.location.href = data.url;
-          } else {
-            setIsGitHubLoading(false);
-          }
-        },
-        onError: () => {
-          captureEvent("auth_oauth_failed", { provider: "github" });
-          setIsGitHubLoading(false);
-        },
-      },
-    );
   };
 
   return (
@@ -393,12 +359,12 @@ export default function AuthDialog() {
         </DialogHeader>
         {isSignUp ? (
           <SignUpForm
-            onGitHubLogin={handleGitHubLogin}
+            onGitHubLogin={startGitHubOAuthLogin}
             isGitHubLoading={isGitHubLoading}
           />
         ) : (
           <LoginForm
-            onGitHubLogin={handleGitHubLogin}
+            onGitHubLogin={startGitHubOAuthLogin}
             isGitHubLoading={isGitHubLoading}
           />
         )}

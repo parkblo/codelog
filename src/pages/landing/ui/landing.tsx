@@ -15,8 +15,7 @@ import { useGitHubOAuthLogin } from "@/features/auth/lib/use-github-oauth-login"
 import { useAuth } from "@/entities/user";
 import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
-
-import { VerticalMarquee } from "./vertical-marquee";
+import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
 
 export function Landing() {
   const { openAuthModal } = useAuth();

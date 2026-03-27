@@ -1,21 +1,25 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { PostInfiniteList } from "@/widgets/post-card";
-import { Post } from "@/shared/types";
+import { getNonTodayPostListPageAction } from "@/features/post-list";
+import { getCurrentLocalDayContext } from "@/shared/lib/date";
+import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 
-interface HomeFeedInfiniteListProps {
-  initialPosts: Post[];
-  initialHasMore: boolean;
-}
+export function HomeFeedInfiniteList() {
+  const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
 
-export function HomeFeedInfiniteList({
-  initialPosts,
-  initialHasMore,
-}: HomeFeedInfiniteListProps) {
   return (
     <PostInfiniteList
-      initialPosts={initialPosts}
-      initialHasMore={initialHasMore}
+      queryKey={[...POST_LIST_QUERY_KEY, "home", localDayContext]}
+      loadPageAction={({ offset, limit }) =>
+        getNonTodayPostListPageAction({
+          ...localDayContext,
+          offset,
+          limit,
+        })
+      }
     />
   );
 }

@@ -1,5 +1,85 @@
 import { UserContribution } from "@/shared/types/types";
 
+export interface LocalDayContext {
+  dateKey: string;
+  dayStartAt: string;
+  dayEndAt: string;
+  timezoneOffsetMinutes: number;
+}
+
+// 실제 로컬 타임존에서는 DST 전환일에 하루가 23시간 또는 25시간이 될 수 있으므로,
+// 정상적인 로컬 날짜 범위를 넉넉히 허용하되 비정상적으로 긴 입력은 차단한다.
+const MAX_LOCAL_DAY_RANGE_MS = 36 * 60 * 60 * 1000;
+
+function padDatePart(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+export function getLocalDateKey(
+  date: Date | string,
+  timezoneOffsetMinutes = new Date(date).getTimezoneOffset(),
+) {
+  const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  const shiftedDate = new Date(
+    parsedDate.getTime() - timezoneOffsetMinutes * 60 * 1000,
+  );
+
+  return [
+    shiftedDate.getUTCFullYear(),
+    padDatePart(shiftedDate.getUTCMonth() + 1),
+    padDatePart(shiftedDate.getUTCDate()),
+  ].join("-");
+}
+
+export function getCurrentLocalDayContext(now = new Date()): LocalDayContext {
+  const dayStart = new Date(now);
+  const dayEnd = new Date(now);
+
+  dayStart.setHours(0, 0, 0, 0);
+  dayEnd.setHours(23, 59, 59, 999);
+
+  return {
+    dateKey: getLocalDateKey(now, now.getTimezoneOffset()) ?? "",
+    dayStartAt: dayStart.toISOString(),
+    dayEndAt: dayEnd.toISOString(),
+    timezoneOffsetMinutes: now.getTimezoneOffset(),
+  };
+}
+
+export function isValidLocalDayContext(context: LocalDayContext) {
+  const dayStart = new Date(context.dayStartAt);
+  const dayEnd = new Date(context.dayEndAt);
+  const timezoneOffsetMinutes = context.timezoneOffsetMinutes;
+
+  if (
+    Number.isNaN(dayStart.getTime()) ||
+    Number.isNaN(dayEnd.getTime()) ||
+    !Number.isInteger(timezoneOffsetMinutes)
+  ) {
+    return false;
+  }
+
+  if (timezoneOffsetMinutes < -840 || timezoneOffsetMinutes > 840) {
+    return false;
+  }
+
+  const rangeMs = dayEnd.getTime() - dayStart.getTime();
+
+  if (rangeMs < 0 || rangeMs > MAX_LOCAL_DAY_RANGE_MS) {
+    return false;
+  }
+
+  const startDateKey = getLocalDateKey(dayStart, timezoneOffsetMinutes);
+  const endDateKey = getLocalDateKey(dayEnd, timezoneOffsetMinutes);
+
+  return [startDateKey, endDateKey].some((dateKey) => dateKey === context.dateKey);
+}
+
 export function formatRelativeTime(date: string) {
   const now = new Date();
   const then = new Date(date);

@@ -6,19 +6,19 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CalendarDays, Loader2, LockKeyhole } from "lucide-react";
 
+import { PostCard } from "@/widgets/post-card";
 import { PostDialog } from "@/features/post-interaction";
 import {
   getTodayPostListAction,
   hasUserPostedTodayAction,
 } from "@/features/post-list";
-import { captureEvent, getTodayExperimentProperties, getTodayGateState } from "@/shared/lib/posthog";
 import { getCurrentLocalDayContext } from "@/shared/lib/date";
+import { captureEvent, getTodayExperimentProperties, getTodayGateState } from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
-import { PostCard } from "@/widgets/post-card";
 
 function TodaySkeleton() {
   return <Skeleton className="h-52 rounded-3xl" />;

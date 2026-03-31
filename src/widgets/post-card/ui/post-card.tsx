@@ -8,11 +8,10 @@ import { Comment as CommentType, Post as PostType } from "@/shared/types";
 import { Card, CardContent } from "@/shared/ui/card";
 import { TagList } from "@/shared/ui/tag-list";
 
-import { usePostInteraction } from "../lib/use-post-interaction";
-
 import { PostActions } from "./post-actions";
 import { PostCodeSection } from "./post-code-section";
 import { PostHeader } from "./post-header";
+import { usePostInteraction } from "./use-post-interaction";
 
 interface PostCardProps {
   post: PostType;
@@ -25,6 +24,9 @@ export default function PostCard({
   fullPage = false,
   comments,
 }: PostCardProps) {
+  const summary = post.description.trim() || post.content.trim();
+  const shouldShowFullContent =
+    fullPage && post.content.trim() && post.content.trim() !== summary;
   const router = useRouter();
   const {
     isLiked,
@@ -63,13 +65,26 @@ export default function PostCard({
               !fullPage && "hover:cursor-pointer",
             )}
           >
-            {post.content && (
-              <p
-                className="text-foreground whitespace-pre-wrap wrap-break-word leading-relaxed"
+            {summary && (
+              <div
+                className={cn(
+                  "relative rounded-3xl border border-border/70 bg-muted/40 px-4 py-3 text-foreground",
+                  "before:absolute before:-bottom-2 before:left-6 before:h-4 before:w-4 before:rotate-45 before:rounded-sm before:border-b before:border-r before:border-border/70 before:bg-muted/40 before:content-['']",
+                )}
                 onClick={handlePostClick}
               >
-                {renderContent(post.content, fullPage)}
-              </p>
+                <p className="whitespace-pre-wrap break-words leading-relaxed">
+                  {renderContent(summary, fullPage)}
+                </p>
+              </div>
+            )}
+
+            {shouldShowFullContent && (
+              <div onClick={handlePostClick}>
+                <p className="text-foreground whitespace-pre-wrap break-words leading-relaxed">
+                  {renderContent(post.content, true)}
+                </p>
+              </div>
             )}
 
             <PostCodeSection

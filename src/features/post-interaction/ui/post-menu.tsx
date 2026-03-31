@@ -28,6 +28,7 @@ export default function PostMenu({ post }: PostMenuProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpenedAtMs, setDialogOpenedAtMs] = useState<number | null>(null);
   const deletePostMutation = useMutation({
     mutationFn: () =>
       handleAction(deletePostAction(post.id), {
@@ -65,7 +66,11 @@ export default function PostMenu({ post }: PostMenuProps) {
           disabled={!isOwner}
           onSelect={(e) => {
             e.preventDefault();
+            setDialogOpenedAtMs(performance.now());
             captureEvent("post_edit_clicked", { post_id: post.id });
+            captureEvent("post_dialog_opened", {
+              source: "post_edit_menu",
+            });
             setIsDialogOpen(true);
           }}
         >
@@ -85,7 +90,9 @@ export default function PostMenu({ post }: PostMenuProps) {
         <PostDialog
           isOpen={isDialogOpen}
           handleClose={() => setIsDialogOpen(false)}
+          openedAtMs={dialogOpenedAtMs}
           post={post}
+          source="post_edit_menu"
         />
       )}
     </DropdownMenu>

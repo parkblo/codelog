@@ -17,7 +17,6 @@ const DEFAULT_POST_LIST_PAGE_SIZE = 10;
 const MAX_POST_LIST_PAGE_SIZE = 50;
 
 type PostListFilterOptions = {
-  isReviewEnabled?: boolean;
   authorId?: string;
   likedByUserId?: string;
   bookmarkedByUserId?: string;

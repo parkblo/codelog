@@ -1,13 +1,13 @@
 import Link from "next/link";
 
-import { CodeXml } from "lucide-react";
+import { Bot, PencilLine } from "lucide-react";
 
 import { PostMenu } from "@/features/post-interaction";
 import { UserAvatar } from "@/entities/user";
+import { AUTHORING_MODE_LABELS } from "@/shared/lib";
 import { formatRelativeTime } from "@/shared/lib";
 import { Post } from "@/shared/types";
 import { Badge } from "@/shared/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
 interface PostHeaderProps {
   post: Post;
@@ -40,19 +40,14 @@ export function PostHeader({ post }: PostHeaderProps) {
       </div>
 
       <div className="flex gap-2 items-center">
-        {post.is_review_enabled && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Badge variant="default">
-                <CodeXml className="w-4 h-4" />
-                Code Review
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>코드 리뷰를 남길 수 있는 게시글입니다.</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
+        <Badge variant="secondary">
+          {post.authoring_mode === "ai_assisted" ? (
+            <Bot className="w-4 h-4" />
+          ) : (
+            <PencilLine className="w-4 h-4" />
+          )}
+          {AUTHORING_MODE_LABELS[post.authoring_mode]}
+        </Badge>
         <PostMenu post={post} />
       </div>
     </div>

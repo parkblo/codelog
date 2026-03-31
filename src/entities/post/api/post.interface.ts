@@ -5,5 +5,11 @@ import { Post } from "@/shared/types/types";
  */
 export type CreatePostDTO = Pick<
   Post,
-  "author" | "content" | "code" | "language" | "tags" | "is_review_enabled"
+  | "author"
+  | "content"
+  | "description"
+  | "code"
+  | "language"
+  | "authoring_mode"
+  | "tags"
 >;

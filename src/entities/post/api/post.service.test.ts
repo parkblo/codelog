@@ -40,7 +40,6 @@ describe("post.service", () => {
     });
 
     await getPosts({
-      isReviewEnabled: true,
       authorId: "author-1",
       likedByUserId: "liked-user",
       bookmarkedByUserId: "bookmark-user",
@@ -59,11 +58,10 @@ describe("post.service", () => {
           { column: "post_likes.user_id", value: "liked-user" },
           { column: "bookmarks.user_id", value: "bookmark-user" },
           { column: "filter_tags.tags.name", value: "typescript" },
-          { column: "is_review_enabled", value: true },
           { column: "user_id", value: "author-1" },
         ]),
         range: { from: 0, to: 2 },
-        or: "content.ilike.%a b\\_\\% test%,code.ilike.%a b\\_\\% test%",
+        or: "description.ilike.%a b\\_\\% test%,content.ilike.%a b\\_\\% test%,code.ilike.%a b\\_\\% test%",
       }),
     );
   });
@@ -100,9 +98,10 @@ describe("post.service", () => {
 
     const result = await updatePost(99, {
       content: "updated",
+      description: "summary",
       code: "const x = 1;",
       language: "typescript",
-      is_review_enabled: true,
+      authoring_mode: "ai_assisted",
       tags: ["ts", "vitest"],
     });
 
@@ -110,9 +109,10 @@ describe("post.service", () => {
       p_post_id: 99,
       post_data: {
         content: "updated",
+        description: "summary",
         code: "const x = 1;",
         language: "typescript",
-        is_review_enabled: true,
+        authoring_mode: "ai_assisted",
       },
       tags: ["ts", "vitest"],
     });

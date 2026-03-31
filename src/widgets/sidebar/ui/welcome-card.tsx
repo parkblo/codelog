@@ -23,7 +23,7 @@ export default function WelcomeCard() {
               <p className="text-foreground">CodeLog에 오신 것을 환영합니다!</p>
             </div>
             <p className="text-foreground">
-              지식을 공유하고, 리뷰를 받고, 함께 성장하세요.
+              오늘 배운 내용을 짧게 남기고, 함께 성장하세요.
             </p>
             <p className="text-muted-foreground text-sm">
               로그인하고 커뮤니티에 참여해보세요!

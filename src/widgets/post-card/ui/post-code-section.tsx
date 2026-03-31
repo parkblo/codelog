@@ -67,7 +67,7 @@ export function PostCodeSection({
       <CodeViewer
         code={post.code}
         language={post.language || "text"}
-        readOnly={!fullPage || !post.is_review_enabled}
+        readOnly={!fullPage}
         renderSelectionComponent={(startLine, endLine) => (
           <CommentForm
             postId={post.id}

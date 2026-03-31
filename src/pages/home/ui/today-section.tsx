@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import {
   hasUserPostedTodayAction,
 } from "@/features/post-list";
 import { getCurrentLocalDayContext } from "@/shared/lib/date";
+import { captureEvent, getTodayExperimentProperties, getTodayGateState } from "@/shared/lib/posthog";
 import { POST_LIST_QUERY_KEY } from "@/shared/lib/query/post-list-query";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -20,14 +21,15 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
 
 function TodaySkeleton() {
-  return (
-    <Skeleton className="h-52 rounded-3xl" />
-  );
+  return <Skeleton className="h-52 rounded-3xl" />;
 }
 
 export function TodaySection() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpenedAtMs, setDialogOpenedAtMs] = useState<number | null>(null);
   const localDayContext = useMemo(() => getCurrentLocalDayContext(), []);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const hasCapturedViewRef = useRef(false);
 
   const todayGateQuery = useQuery({
     queryKey: [...POST_LIST_QUERY_KEY, "today", "gate", localDayContext],
@@ -65,13 +67,49 @@ export function TodaySection() {
   const isLoading =
     todayGateQuery.isLoading || (hasPostedToday && todayPostsQuery.isLoading);
   const posts = todayPostsQuery.data ?? [];
+  const gateState = getTodayGateState(hasPostedToday);
+
+  useEffect(() => {
+    if (
+      isLoading ||
+      todayGateQuery.isError ||
+      hasCapturedViewRef.current ||
+      !sectionRef.current
+    ) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting || hasCapturedViewRef.current) {
+          return;
+        }
+
+        captureEvent("today_module_viewed", {
+          gate_state: gateState,
+          path: "/home",
+          ...getTodayExperimentProperties(),
+        });
+        hasCapturedViewRef.current = true;
+        observer.disconnect();
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(sectionRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [gateState, isLoading, todayGateQuery.isError]);
 
   return (
-    <section className="space-y-4">
+    <section ref={sectionRef} className="space-y-4">
       {isDialogOpen && (
         <PostDialog
           isOpen={isDialogOpen}
           handleClose={() => setIsDialogOpen(false)}
+          openedAtMs={dialogOpenedAtMs}
           source="today_locked_overlay"
         />
       )}
@@ -87,7 +125,16 @@ export function TodaySection() {
         </div>
 
         <Button asChild variant="ghost" className="rounded-full px-3">
-          <Link href="/today">
+          <Link
+            href="/today"
+            onClick={() => {
+              captureEvent("today_cta_clicked", {
+                gate_state: gateState,
+                source: "today_section_more",
+                ...getTodayExperimentProperties(),
+              });
+            }}
+          >
             더보기
             <ArrowRight className="h-4 w-4" />
           </Link>
@@ -125,7 +172,19 @@ export function TodaySection() {
               <button
                 type="button"
                 className="group max-w-xl cursor-pointer space-y-4 transition-transform duration-200 ease-out hover:scale-[1.035]"
-                onClick={() => setIsDialogOpen(true)}
+                onClick={() => {
+                  captureEvent("today_cta_clicked", {
+                    gate_state: gateState,
+                    source: "today_locked_overlay",
+                    ...getTodayExperimentProperties(),
+                  });
+                  setDialogOpenedAtMs(performance.now());
+                  captureEvent("post_dialog_opened", {
+                    source: "today_locked_overlay",
+                    ...getTodayExperimentProperties(),
+                  });
+                  setIsDialogOpen(true);
+                }}
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/8 text-white/90 backdrop-blur-sm transition-transform duration-200 ease-out group-hover:scale-105">
                   <LockKeyhole className="h-4 w-4" />

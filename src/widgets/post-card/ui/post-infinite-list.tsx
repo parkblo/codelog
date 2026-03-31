@@ -18,29 +18,55 @@ type PostListPageOptions = NonNullable<
   Parameters<typeof getPostListPageAction>[0]
 >;
 type PostListFilterOptions = Omit<PostListPageOptions, "offset" | "limit">;
+type PostPageLoader = (options: {
+  offset: number;
+  limit: number;
+}) => Promise<{
+  data: Post[] | null;
+  error: string | null;
+  hasMore: boolean;
+}>;
 
 const DEFAULT_POST_PAGE_SIZE = 10;
 
 interface PostInfiniteListProps {
-  initialPosts: Post[];
-  initialHasMore: boolean;
+  initialPosts?: Post[];
+  initialHasMore?: boolean;
   filterOptions?: PostListFilterOptions;
   pageSize?: number;
   emptyState?: ReactNode;
+  loadPageAction?: PostPageLoader;
+  queryKey?: readonly unknown[];
 }
 
 export function PostInfiniteList({
-  initialPosts,
-  initialHasMore,
+  initialPosts = [],
+  initialHasMore = false,
   filterOptions = {},
   pageSize = DEFAULT_POST_PAGE_SIZE,
   emptyState,
+  loadPageAction,
+  queryKey: customQueryKey,
 }: PostInfiniteListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const queryKey = useMemo(
-    () => createPostListInfiniteQueryKey({ filterOptions, pageSize }),
-    [filterOptions, pageSize],
+    () =>
+      customQueryKey ??
+      createPostListInfiniteQueryKey({ filterOptions, pageSize }),
+    [customQueryKey, filterOptions, pageSize],
   );
+  const initialData =
+    initialPosts.length > 0 || initialHasMore
+      ? {
+          pages: [
+            {
+              data: initialPosts,
+              hasMore: initialHasMore,
+            },
+          ],
+          pageParams: [0],
+        }
+      : undefined;
 
   const {
     data,
@@ -52,12 +78,19 @@ export function PostInfiniteList({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const offset = pageParam as number;
+      const fetchPage =
+        loadPageAction ??
+        ((options: { offset: number; limit: number }) =>
+          getPostListPageAction({
+            ...filterOptions,
+            offset: options.offset,
+            limit: options.limit,
+          }));
       const {
         data: pageData,
         error: getPostsError,
         hasMore,
-      } = await getPostListPageAction({
-        ...filterOptions,
+      } = await fetchPage({
         offset,
         limit: pageSize,
       });
@@ -92,15 +125,7 @@ export function PostInfiniteList({
         0,
       );
     },
-    initialData: {
-      pages: [
-        {
-          data: initialPosts,
-          hasMore: initialHasMore,
-        },
-      ],
-      pageParams: [0],
-    },
+    initialData,
   });
 
   const posts = useMemo(() => {
@@ -146,6 +171,15 @@ export function PostInfiniteList({
       observer.disconnect();
     };
   }, [errorMessage, hasNextPage, isFetchingNextPage, loadMorePosts]);
+
+  if (posts.length === 0 && !errorMessage && data === undefined) {
+    return (
+      <div className="flex items-center justify-center py-4 gap-2 text-muted-foreground">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span>게시글을 불러오는 중...</span>
+      </div>
+    );
+  }
 
   if (posts.length === 0) {
     return (

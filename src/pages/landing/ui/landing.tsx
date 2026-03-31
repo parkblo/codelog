@@ -15,8 +15,7 @@ import { useGitHubOAuthLogin } from "@/features/auth/lib/use-github-oauth-login"
 import { useAuth } from "@/entities/user";
 import { captureEvent } from "@/shared/lib/posthog";
 import { Button } from "@/shared/ui/button";
-
-import { VerticalMarquee } from "./vertical-marquee";
+import { VerticalMarquee } from "@/shared/ui/vertical-marquee";
 
 export function Landing() {
   const { openAuthModal } = useAuth();
@@ -43,7 +42,6 @@ export function Landing() {
                 CodeLog
               </span>
             </div>
-
             <h1 className="text-5xl font-semibold leading-tight tracking-[-0.04em] text-white md:text-6xl">
               오늘 배운 것을
               <br />

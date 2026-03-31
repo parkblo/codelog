@@ -11,6 +11,7 @@ type FollowedUserRow = {
 
 type FollowerJoinRow = { follower: FollowedUserRow | null };
 type FollowingJoinRow = { following: FollowedUserRow | null };
+type FollowingIdRow = { following_id: string };
 type IsFollowingRow = {
   following: {
     id: string;
@@ -149,6 +150,30 @@ export async function getFollowing(
 
   return {
     data: following,
+    error: null,
+  };
+}
+
+export async function getFollowingIds(
+  userId: string,
+): Promise<{ data: string[] | null; error: Error | null }> {
+  const db = getDatabaseAdapter();
+
+  const { data, error } = await db.query<FollowingIdRow[]>({
+    table: "follows",
+    select: "following_id, following:users!follows_following_id_fkey!inner(id)",
+    filters: [
+      { column: "follower_id", value: userId },
+      { column: "following.deleted_at", operator: "is", value: null },
+    ],
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return {
+    data: (data ?? []).map((follow) => follow.following_id),
     error: null,
   };
 }

@@ -2,8 +2,15 @@
 
 import { getBookmarks } from "@/entities/bookmark/api/bookmark.service";
 import { getPostLikes } from "@/entities/like/api/like.service";
-import { getPosts } from "@/entities/post/api/post.service";
+import {
+  getNonTodayPostsPageByLocalDay,
+  getPosts,
+  getTodayPostsByLocalDay,
+  getUserPostOnLocalDay,
+  hasUserPostedOnLocalDay,
+} from "@/entities/post/api/post.service";
 import { getCurrentUser } from "@/entities/user/server";
+import { type LocalDayContext } from "@/shared/lib/date";
 import { Post } from "@/shared/types";
 
 const DEFAULT_POST_LIST_PAGE_SIZE = 10;
@@ -22,6 +29,22 @@ type PaginatedPostListOptions = PostListFilterOptions & {
   offset?: number;
   limit?: number;
 };
+
+type LocalDayListOptions = LocalDayContext & {
+  offset?: number;
+  limit?: number;
+};
+
+async function resolveFollowingIds(userId?: string) {
+  if (!userId) {
+    return [];
+  }
+
+  const { getFollowingIds } = await import("@/entities/follow/api/follow.service");
+  const { data } = await getFollowingIds(userId);
+
+  return data ?? [];
+}
 
 function getSafePageSize(limit?: number) {
   if (!limit || limit <= 0) {
@@ -148,4 +171,143 @@ export async function getPostListPageAction(
     error: null,
     hasMore,
   };
+}
+
+export async function getTodayPostListAction(
+  options: LocalDayListOptions,
+) {
+  const safeLimit = getSafePageSize(options.limit);
+  const safeOffset = getSafeOffset(options.offset);
+  const user = await getCurrentUser();
+  const followingIds = await resolveFollowingIds(user?.id);
+  const { data: posts, error: getPostsError } = await getTodayPostsByLocalDay({
+    ...options,
+    followingIds,
+    offset: safeOffset,
+    limit: safeLimit + 1,
+  });
+
+  if (getPostsError) {
+    console.error(getPostsError);
+    return {
+      data: null,
+      error: getPostsError.message || "오늘 게시글 불러오기에 실패했습니다.",
+      hasMore: false,
+    };
+  }
+
+  const { data: postsWithInteraction, error: interactionError } =
+    await resolvePostInteraction(posts);
+
+  if (interactionError) {
+    return {
+      data: null,
+      error: interactionError,
+      hasMore: false,
+    };
+  }
+
+  const safePosts = postsWithInteraction ?? [];
+  const hasMore = safePosts.length > safeLimit;
+
+  return {
+    data: hasMore ? safePosts.slice(0, safeLimit) : safePosts,
+    error: null,
+    hasMore,
+  };
+}
+
+export async function getNonTodayPostListPageAction(
+  options: LocalDayListOptions,
+) {
+  const safeLimit = getSafePageSize(options.limit);
+  const safeOffset = getSafeOffset(options.offset);
+  const user = await getCurrentUser();
+  const followingIds = await resolveFollowingIds(user?.id);
+  const { data: posts, error: getPostsError } =
+    await getNonTodayPostsPageByLocalDay({
+      ...options,
+      followingIds,
+      offset: safeOffset,
+      limit: safeLimit + 1,
+    });
+
+  if (getPostsError) {
+    console.error(getPostsError);
+    return {
+      data: null,
+      error: getPostsError.message || "게시글 불러오기에 실패했습니다.",
+      hasMore: false,
+    };
+  }
+
+  const { data: postsWithInteraction, error: interactionError } =
+    await resolvePostInteraction(posts);
+
+  if (interactionError) {
+    return {
+      data: null,
+      error: interactionError,
+      hasMore: false,
+    };
+  }
+
+  const safePosts = postsWithInteraction ?? [];
+  const hasMore = safePosts.length > safeLimit;
+
+  return {
+    data: hasMore ? safePosts.slice(0, safeLimit) : safePosts,
+    error: null,
+    hasMore,
+  };
+}
+
+export async function hasUserPostedTodayAction(
+  options: LocalDayContext,
+) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { data: null, error: "로그인이 필요합니다." };
+  }
+
+  const { data, error } = await hasUserPostedOnLocalDay({
+    ...options,
+    userId: user.id,
+  });
+
+  if (error) {
+    console.error(error);
+    return {
+      data: null,
+      error: error.message || "오늘 작성 여부 확인에 실패했습니다.",
+    };
+  }
+
+  return { data, error: null };
+}
+
+export async function getTodayPostByUserIdAction(
+  options: LocalDayContext,
+) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { data: null, error: "로그인이 필요합니다." };
+  }
+
+  const { data, error } = await getUserPostOnLocalDay({
+    ...options,
+    userId: user.id,
+  });
+
+  if (error) {
+    console.error(error);
+    return {
+      data: null,
+      error: error.message || "오늘 게시글 조회에 실패했습니다.",
+    };
+  }
+
+  return { data, error: null };
 }

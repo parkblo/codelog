@@ -1,4 +1,9 @@
 import { getDatabaseAdapter } from "@/shared/lib/database";
+import {
+  getLocalDateKey,
+  isValidLocalDayContext,
+  type LocalDayContext,
+} from "@/shared/lib/date";
 import { Database, Tables } from "@/shared/types/database.types";
 import { Post } from "@/shared/types/types";
 
@@ -9,8 +14,73 @@ type PostQueryResult = Tables<"posts"> & {
   tags: { tags: { name: string } | null }[] | null;
 };
 
+type LocalDayQueryOptions = LocalDayContext & {
+  userId: string;
+};
+
+type LocalDayListQueryOptions = LocalDayContext & {
+  followingIds?: string[];
+  offset?: number;
+  limit?: number;
+};
+
 function sanitizeKeywordForOrFilter(rawKeyword: string): string {
   return rawKeyword.replace(/[(),]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function mapPostRows(data: PostQueryResult[] | null | undefined): Post[] {
+  return (data ?? []).map((post) => ({
+    ...post,
+    tags:
+      post.tags
+        ?.map((postTag) => postTag.tags?.name)
+        .filter((name): name is string => !!name) ?? [],
+  }));
+}
+
+function compareLocalDateDescending(
+  firstCreatedAt: string,
+  secondCreatedAt: string,
+  timezoneOffsetMinutes: number,
+) {
+  const firstDateKey = getLocalDateKey(firstCreatedAt, timezoneOffsetMinutes);
+  const secondDateKey = getLocalDateKey(secondCreatedAt, timezoneOffsetMinutes);
+
+  if (!firstDateKey || !secondDateKey || firstDateKey === secondDateKey) {
+    return 0;
+  }
+
+  return firstDateKey < secondDateKey ? 1 : -1;
+}
+
+function sortPostsForLocalDay(
+  posts: Post[],
+  followingIds: Set<string>,
+  timezoneOffsetMinutes: number,
+) {
+  return [...posts].sort((firstPost, secondPost) => {
+    const localDateCompare = compareLocalDateDescending(
+      firstPost.created_at,
+      secondPost.created_at,
+      timezoneOffsetMinutes,
+    );
+
+    if (localDateCompare !== 0) {
+      return localDateCompare;
+    }
+
+    const firstIsFollowing = followingIds.has(firstPost.author.id);
+    const secondIsFollowing = followingIds.has(secondPost.author.id);
+
+    if (firstIsFollowing !== secondIsFollowing) {
+      return firstIsFollowing ? -1 : 1;
+    }
+
+    return (
+      new Date(secondPost.created_at).getTime() -
+      new Date(firstPost.created_at).getTime()
+    );
+  });
 }
 
 export async function createPost(
@@ -130,15 +200,165 @@ export async function getPosts({
     return { data: null, error };
   }
 
-  const posts = (data ?? []).map((post) => ({
-    ...post,
-    tags:
-      post.tags
-        ?.map((postTag) => postTag.tags?.name)
-        .filter((name): name is string => !!name) ?? [],
-  }));
+  const posts = mapPostRows(data);
 
   return { data: posts, error: null };
+}
+
+export async function hasUserPostedOnLocalDay({
+  userId,
+  ...localDayContext
+}: LocalDayQueryOptions): Promise<{ data: boolean | null; error: Error | null }> {
+  if (!isValidLocalDayContext(localDayContext)) {
+    return {
+      data: null,
+      error: new Error("잘못된 로컬 날짜 범위입니다."),
+    };
+  }
+
+  const db = getDatabaseAdapter();
+  const { count, error } = await db.query<{ id: number }[]>({
+    table: "posts",
+    select: "id",
+    filters: [
+      { column: "user_id", value: userId },
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "created_at", operator: "gte", value: localDayContext.dayStartAt },
+      { column: "created_at", operator: "lte", value: localDayContext.dayEndAt },
+    ],
+    count: "exact",
+    head: true,
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data: (count ?? 0) > 0, error: null };
+}
+
+export async function getUserPostOnLocalDay({
+  userId,
+  ...localDayContext
+}: LocalDayQueryOptions): Promise<{ data: Post | null; error: Error | null }> {
+  if (!isValidLocalDayContext(localDayContext)) {
+    return {
+      data: null,
+      error: new Error("잘못된 로컬 날짜 범위입니다."),
+    };
+  }
+
+  const db = getDatabaseAdapter();
+  const { data, error } = await db.query<PostQueryResult[]>({
+    table: "posts",
+    select: `*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`,
+    filters: [
+      { column: "user_id", value: userId },
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+      { column: "created_at", operator: "gte", value: localDayContext.dayStartAt },
+      { column: "created_at", operator: "lte", value: localDayContext.dayEndAt },
+    ],
+    orderBy: { column: "created_at", ascending: false },
+    range: { from: 0, to: 0 },
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data: mapPostRows(data)[0] ?? null, error: null };
+}
+
+export async function getTodayPostsByLocalDay({
+  followingIds,
+  offset,
+  limit,
+  ...localDayContext
+}: LocalDayListQueryOptions): Promise<{ data: Post[] | null; error: Error | null }> {
+  if (!isValidLocalDayContext(localDayContext)) {
+    return {
+      data: null,
+      error: new Error("잘못된 로컬 날짜 범위입니다."),
+    };
+  }
+
+  const db = getDatabaseAdapter();
+  const safeLimit = limit && limit > 0 ? limit : undefined;
+  const safeOffset = Math.max(0, offset ?? 0);
+  const { data, error } = await db.query<PostQueryResult[]>({
+    table: "posts",
+    select: `*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`,
+    filters: [
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+      { column: "created_at", operator: "gte", value: localDayContext.dayStartAt },
+      { column: "created_at", operator: "lte", value: localDayContext.dayEndAt },
+    ],
+    orderBy: { column: "created_at", ascending: false },
+    range:
+      typeof safeLimit === "number"
+        ? { from: safeOffset, to: safeOffset + safeLimit - 1 }
+        : undefined,
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return {
+    data: sortPostsForLocalDay(
+      mapPostRows(data),
+      new Set(followingIds ?? []),
+      localDayContext.timezoneOffsetMinutes,
+    ),
+    error: null,
+  };
+}
+
+export async function getNonTodayPostsPageByLocalDay({
+  followingIds,
+  offset,
+  limit,
+  ...localDayContext
+}: LocalDayListQueryOptions): Promise<{ data: Post[] | null; error: Error | null }> {
+  if (!isValidLocalDayContext(localDayContext)) {
+    return {
+      data: null,
+      error: new Error("잘못된 로컬 날짜 범위입니다."),
+    };
+  }
+
+  const db = getDatabaseAdapter();
+  const safeLimit = limit && limit > 0 ? limit : undefined;
+  const safeOffset = Math.max(0, offset ?? 0);
+  const { data, error } = await db.query<PostQueryResult[]>({
+    table: "posts",
+    select: `*, author:users!posts_user_id_fkey!inner(*), tags:posttags(tags(*))`,
+    filters: [
+      { column: "deleted_at", operator: "is", value: null },
+      { column: "author.deleted_at", operator: "is", value: null },
+      { column: "created_at", operator: "lt", value: localDayContext.dayStartAt },
+    ],
+    orderBy: { column: "created_at", ascending: false },
+    range:
+      typeof safeLimit === "number"
+        ? { from: safeOffset, to: safeOffset + safeLimit - 1 }
+        : undefined,
+  });
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return {
+    data: sortPostsForLocalDay(
+      mapPostRows(data),
+      new Set(followingIds ?? []),
+      localDayContext.timezoneOffsetMinutes,
+    ),
+    error: null,
+  };
 }
 
 export async function getPostById(

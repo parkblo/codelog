@@ -5,6 +5,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { usePostInteraction } from "./use-post-interaction";
 
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+
+  return { promise, resolve };
+}
+
 const {
   mockUseAuth,
   mockHandleAction,
@@ -122,6 +131,87 @@ describe("usePostInteraction", () => {
 
     expect(result.current.isLiked).toBe(false);
     expect(result.current.likeCount).toBe(7);
+  });
+
+  it("ignores stale like rollback after a newer toggle succeeds", async () => {
+    const firstLike = createDeferred<{ error: string | null }>();
+    const secondLike = createDeferred<{ error: string | null }>();
+    mockCreatePostLikeAction.mockReturnValueOnce(firstLike.promise);
+    mockDeletePostLikeAction.mockReturnValueOnce(secondLike.promise);
+
+    const { result } = renderHook(() =>
+      usePostInteraction({
+        postId: 15,
+        initialIsLiked: false,
+        initialLikeCount: 3,
+      }),
+    );
+
+    act(() => {
+      void result.current.handleLikeClick();
+    });
+
+    expect(result.current.isLiked).toBe(true);
+    expect(result.current.likeCount).toBe(4);
+
+    act(() => {
+      void result.current.handleLikeClick();
+    });
+
+    expect(result.current.isLiked).toBe(false);
+    expect(result.current.likeCount).toBe(3);
+
+    await act(async () => {
+      secondLike.resolve({ error: null });
+      await secondLike.promise;
+    });
+
+    await act(async () => {
+      firstLike.resolve({ error: "fail" });
+      await firstLike.promise;
+    });
+
+    expect(result.current.isLiked).toBe(false);
+    expect(result.current.likeCount).toBe(3);
+  });
+
+  it("rolls back only the like slice when bookmark state changes later", async () => {
+    const failedLike = createDeferred<{ error: string | null }>();
+    mockCreatePostLikeAction.mockReturnValueOnce(failedLike.promise);
+
+    const { result } = renderHook(() =>
+      usePostInteraction({
+        postId: 18,
+        initialIsLiked: false,
+        initialLikeCount: 1,
+        initialIsBookmarked: false,
+        initialBookmarkCount: 4,
+      }),
+    );
+
+    act(() => {
+      void result.current.handleLikeClick();
+    });
+
+    expect(result.current.isLiked).toBe(true);
+    expect(result.current.likeCount).toBe(2);
+
+    await act(async () => {
+      await result.current.handleBookmarkClick();
+    });
+
+    expect(result.current.isBookmarked).toBe(true);
+    expect(result.current.bookmarkCount).toBe(5);
+
+    await act(async () => {
+      failedLike.resolve({ error: "fail" });
+      await failedLike.promise;
+    });
+
+    expect(result.current.isLiked).toBe(false);
+    expect(result.current.likeCount).toBe(1);
+    expect(result.current.isBookmarked).toBe(true);
+    expect(result.current.bookmarkCount).toBe(5);
   });
 
   it("syncs local state when server props change", async () => {

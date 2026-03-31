@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 
 import {
   createBookmarkAction,
@@ -27,14 +27,77 @@ type InteractionState = {
 };
 
 type InteractionAction =
-  | { type: "replace"; nextState: InteractionState }
-  | { type: "sync"; nextState: InteractionState };
+  | { type: "sync"; nextState: InteractionState }
+  | { type: "toggle_like" }
+  | { type: "toggle_bookmark" }
+  | {
+      type: "rollback_like";
+      previousState: Pick<InteractionState, "isLiked" | "likeCount">;
+    }
+  | {
+      type: "rollback_bookmark";
+      previousState: Pick<InteractionState, "isBookmarked" | "bookmarkCount">;
+    };
+
+function createInteractionState({
+  initialIsLiked,
+  initialIsBookmarked,
+  initialLikeCount,
+  initialBookmarkCount,
+}: {
+  initialIsLiked: boolean;
+  initialIsBookmarked: boolean;
+  initialLikeCount: number;
+  initialBookmarkCount: number;
+}): InteractionState {
+  return {
+    isBookmarked: initialIsBookmarked,
+    isLiked: initialIsLiked,
+    bookmarkCount: initialBookmarkCount,
+    likeCount: initialLikeCount,
+  };
+}
 
 function interactionReducer(
-  _state: InteractionState,
+  state: InteractionState,
   action: InteractionAction,
-) {
-  return action.nextState;
+): InteractionState {
+  switch (action.type) {
+    case "sync":
+      return action.nextState;
+    case "toggle_like": {
+      const willLike = !state.isLiked;
+
+      return {
+        ...state,
+        isLiked: willLike,
+        likeCount: willLike ? state.likeCount + 1 : Math.max(0, state.likeCount - 1),
+      };
+    }
+    case "toggle_bookmark": {
+      const willBookmark = !state.isBookmarked;
+
+      return {
+        ...state,
+        isBookmarked: willBookmark,
+        bookmarkCount: willBookmark
+          ? state.bookmarkCount + 1
+          : Math.max(0, state.bookmarkCount - 1),
+      };
+    }
+    case "rollback_like":
+      return {
+        ...state,
+        isLiked: action.previousState.isLiked,
+        likeCount: action.previousState.likeCount,
+      };
+    case "rollback_bookmark":
+      return {
+        ...state,
+        isBookmarked: action.previousState.isBookmarked,
+        bookmarkCount: action.previousState.bookmarkCount,
+      };
+  }
 }
 
 export function usePostInteraction({
@@ -45,12 +108,17 @@ export function usePostInteraction({
   initialBookmarkCount = 0,
 }: UsePostInteractionProps) {
   const { user, openAuthModal } = useAuth();
-  const [interactionState, dispatch] = useReducer(interactionReducer, {
-    isBookmarked: initialIsBookmarked,
-    isLiked: initialIsLiked,
-    bookmarkCount: initialBookmarkCount,
-    likeCount: initialLikeCount,
-  });
+  const [interactionState, dispatch] = useReducer(
+    interactionReducer,
+    createInteractionState({
+      initialIsBookmarked,
+      initialIsLiked,
+      initialBookmarkCount,
+      initialLikeCount,
+    }),
+  );
+  const likeRequestIdRef = useRef(0);
+  const bookmarkRequestIdRef = useRef(0);
   const {
     isLiked: likedState,
     isBookmarked: bookmarkedState,
@@ -61,14 +129,16 @@ export function usePostInteraction({
   const isBookmarked = user ? bookmarkedState : false;
 
   useEffect(() => {
+    likeRequestIdRef.current += 1;
+    bookmarkRequestIdRef.current += 1;
     dispatch({
       type: "sync",
-      nextState: {
-        isBookmarked: initialIsBookmarked,
-        isLiked: initialIsLiked,
-        bookmarkCount: initialBookmarkCount,
-        likeCount: initialLikeCount,
-      },
+      nextState: createInteractionState({
+        initialIsBookmarked,
+        initialIsLiked,
+        initialBookmarkCount,
+        initialLikeCount,
+      }),
     });
   }, [
     postId,
@@ -85,24 +155,30 @@ export function usePostInteraction({
       return;
     }
 
-    const willLike = !likedState;
     const previousState = interactionState;
-    const nextState = {
-      isLiked: willLike,
-      isBookmarked: bookmarkedState,
-      likeCount: willLike ? likeCount + 1 : Math.max(0, likeCount - 1),
-      bookmarkCount,
-    };
+    const willLike = !previousState.isLiked;
+    const requestId = likeRequestIdRef.current + 1;
+    likeRequestIdRef.current = requestId;
 
     const action = willLike
       ? createPostLikeAction(postId)
       : deletePostLikeAction(postId);
 
-    dispatch({ type: "replace", nextState });
+    dispatch({ type: "toggle_like" });
     await handleAction(action, {
       actionName: willLike ? "create_post_like" : "delete_post_like",
       onError: () => {
-        dispatch({ type: "replace", nextState: previousState });
+        if (likeRequestIdRef.current !== requestId) {
+          return;
+        }
+
+        dispatch({
+          type: "rollback_like",
+          previousState: {
+            isLiked: previousState.isLiked,
+            likeCount: previousState.likeCount,
+          },
+        });
       },
     });
   };
@@ -114,26 +190,30 @@ export function usePostInteraction({
       return;
     }
 
-    const willBookmark = !bookmarkedState;
     const previousState = interactionState;
-    const nextState = {
-      isBookmarked: willBookmark,
-      isLiked: likedState,
-      bookmarkCount: willBookmark
-        ? bookmarkCount + 1
-        : Math.max(0, bookmarkCount - 1),
-      likeCount,
-    };
+    const willBookmark = !previousState.isBookmarked;
+    const requestId = bookmarkRequestIdRef.current + 1;
+    bookmarkRequestIdRef.current = requestId;
 
     const action = willBookmark
       ? createBookmarkAction(postId)
       : deleteBookmarkAction(postId);
 
-    dispatch({ type: "replace", nextState });
+    dispatch({ type: "toggle_bookmark" });
     await handleAction(action, {
       actionName: willBookmark ? "create_bookmark" : "delete_bookmark",
       onError: () => {
-        dispatch({ type: "replace", nextState: previousState });
+        if (bookmarkRequestIdRef.current !== requestId) {
+          return;
+        }
+
+        dispatch({
+          type: "rollback_bookmark",
+          previousState: {
+            isBookmarked: previousState.isBookmarked,
+            bookmarkCount: previousState.bookmarkCount,
+          },
+        });
       },
     });
   };

@@ -223,14 +223,15 @@ export type Database = {
       }
       posts: {
         Row: {
+          authoring_mode: string
           bookmark_count: number
           code: string | null
           comment_count: number
           content: string
           created_at: string
           deleted_at: string | null
+          description: string
           id: number
-          is_review_enabled: boolean
           language: string | null
           like_count: number
           updated_at: string | null
@@ -238,14 +239,15 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          authoring_mode?: string
           bookmark_count?: number
           code?: string | null
           comment_count?: number
           content: string
           created_at?: string
           deleted_at?: string | null
+          description: string
           id?: number
-          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null
@@ -253,14 +255,15 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          authoring_mode?: string
           bookmark_count?: number
           code?: string | null
           comment_count?: number
           content?: string
           created_at?: string
           deleted_at?: string | null
+          description?: string
           id?: number
-          is_review_enabled?: boolean
           language?: string | null
           like_count?: number
           updated_at?: string | null
@@ -440,6 +443,10 @@ export type Database = {
       update_post_with_tags: {
         Args: { p_post_id: number; post_data: Json; tags: string[] }
         Returns: Json
+      }
+      upsert_post_tags: {
+        Args: { p_post_id: number; p_tags: string[] }
+        Returns: undefined
       }
     }
     Enums: {
